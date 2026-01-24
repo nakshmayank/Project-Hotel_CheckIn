@@ -394,7 +394,7 @@ const ManageStay = () => {
                                     setSortBy(opt.value);
                                     setShowSortList(false);
                                   }}
-                                  className={`px-3 py-1 text-sm cursor-pointer hover:bg-orange-200/60 ${sortBy === opt.value ? "text-orange-700" : ""}`}
+                                  className={`px-3 py-1 text-sm cursor-pointer hover:bg-orange-400/20 ${sortBy === opt.value ? "text-orange-700" : ""}`}
                                 >
                                   {opt.label}
                                 </div>

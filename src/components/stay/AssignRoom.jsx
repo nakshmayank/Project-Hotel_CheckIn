@@ -1,25 +1,30 @@
 import { useState } from "react";
+import RoomAllocation from "../RoomAllocation";
 
 const AssignRoom = ({ stay, onClose, onSuccess }) => {
-  const [roomType, setRoomType] = useState(null);
-  const [availableRooms, setAvailableRooms] = useState([]);
-  const [selectedRooms, setSelectedRooms] = useState([]);
+  const [roomAllocations, setRoomAllocations] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [closing, setClosing] = useState(false);
 
   const handleAssign = () => {
-    try {
-        console.log("Room Assigned");
-    } catch (error) {
-        console.log(error);
+    const invalid =
+      roomAllocations.length === 0 ||
+      roomAllocations.some((g) => !g.rooms || g.rooms.length === 0);
+
+    if (invalid) {
+      alert("Please select at least one room for each room type");
+      return;
     }
-  }
+
+    console.log("FINAL ROOM ALLOCATIONS:", roomAllocations);
+    onSuccess?.(roomAllocations);
+  };
 
   const handleClose = () => {
-  setClosing(true);
-  setTimeout(onClose, 150);
-};
-
+    setClosing(true);
+    setTimeout(onClose, 150);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -30,7 +35,9 @@ const AssignRoom = ({ stay, onClose, onSuccess }) => {
       />
 
       {/* drawer */}
-      <div className={`relative ml-auto w-96 h-full bg-gray-200/60 shadow-2xl p-5 flex transition-all ease-in-out flex-col ${closing ? "slide-out-right" : "slide-in-right"}`}>
+      <div
+        className={`relative ml-auto w-96 h-full bg-gray-200/60 shadow-2xl p-5 flex transition-all ease-in-out flex-col ${closing ? "slide-out-right" : "slide-in-right"}`}
+      >
         {/* Header */}
         <div className="mb-4">
           <h2 className="text-xl font-bold">Assign Rooms</h2>
@@ -39,50 +46,22 @@ const AssignRoom = ({ stay, onClose, onSuccess }) => {
           </p>
         </div>
 
-        {/* Room Type */}
-        <div className="mb-4">
-          <p className="font-medium mb-2">Room Type</p>
-          <div className="flex gap-2">
-            {["Single", "Double", "Deluxe", "Suite"].map((t) => (
-              <button
-                key={t}
-                onClick={() => setRoomType(t)}
-                className={`px-3 py-1.5 rounded-lg text-sm hover:border-orange-500 border-2 ${
-                  roomType === t
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-100"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Rooms */}
-        <div className="flex-1 overflow-y-auto">
-          <p className="font-medium mb-2">Available Rooms</p>
-
-          {availableRooms.map((room) => (
-            <div
-              key={room.roomId}
-              onClick={() => toggleRoom(room)}
-              className={`p-3 mb-2 rounded-lg border cursor-pointer ${
-                selectedRooms.includes(room)
-                  ? "border-indigo-600 bg-indigo-50"
-                  : "border-gray-300"
-              }`}
-            >
-              Room {room.roomNo} · ₹{room.price}/night
-            </div>
-          ))}
-        </div>
+        <RoomAllocation value={roomAllocations} onChange={setRoomAllocations} />
 
         {/* Footer */}
         <div className="pt-5 border-t">
           <button
             onClick={handleAssign}
-            className="w-full py-3 bg-orange-500 text-white rounded-xl shadow-md hover:bg-orange-600"
+            disabled={
+              roomAllocations.length === 0 ||
+              roomAllocations.some((g) => g.rooms.length === 0)
+            }
+            className={`w-full py-3 rounded-xl shadow-md ${
+              roomAllocations.length === 0 ||
+              roomAllocations.some((g) => g.rooms.length === 0)
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-orange-500 text-white hover:bg-orange-600"
+            }`}
           >
             Assign Rooms
           </button>

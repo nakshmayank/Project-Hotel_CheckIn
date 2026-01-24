@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
+import RoomAllocation from "../components/RoomAllocation";
 
 const CheckIn = () => {
   const { axios, user, navigate } = useAppContext();
@@ -8,12 +9,13 @@ const CheckIn = () => {
   const [checkinId, setCheckinId] = useState(null);
   const [isCheckinCreated, setIsCheckinCreated] = useState(false);
   const [members, setMembers] = useState([]);
-  const [showRoomTypeList, setShowRoomTypeList] = useState(false);
+  // const [showRoomTypeList, setShowRoomTypeList] = useState(false);
   const [showIdTypeList, setShowIdTypeList] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [roomAllocations, setRoomAllocations] = useState([]);
 
-  const ROOM_TYPES = ["Single", "Double", "Deluxe", "Suite"];
+  // const ROOM_TYPES = ["Single", "Double", "Deluxe", "Suite"];
 
   const fileRef = useRef(null);
 
@@ -81,17 +83,27 @@ const CheckIn = () => {
   const createCheckin = async () => {
     try {
       setLoading(true);
+
+      if (
+        roomAllocations.length === 0 ||
+        roomAllocations.some((g) => !g.rooms || g.rooms.length === 0)
+      ) {
+        toast.error("Please allocate at least one room");
+        return;
+      }
+
       const { data } = await axios.post("/api/v1/Hotel/HotelCheckIn", {
         AccessToken: user?.AccessToken,
         Name: checkinForm.fullName,
         Noofstay: Number(checkinForm.stayDuration),
         Mobile: checkinForm.mobile,
         Email: checkinForm.email,
+        RoomAllocations: roomAllocations,
         // RoomNo: checkinForm.roomNo,
         // RoomType: checkinForm.roomType,
         // Amount: Number(checkinForm.amount),
         address: checkinForm.address,
-        noOfMember: Number(checkinForm.noOfMember)
+        noOfMember: Number(checkinForm.noOfMember),
         // taxamount: Number(checkinForm.tax),
         // GTotal: Number(checkinForm.grandTotal),
       });
@@ -227,14 +239,17 @@ const CheckIn = () => {
         fullName: "",
         email: "",
         mobile: "",
-        roomNo: "",
-        roomType: "",
-        lengthOfStay: "",
+        // roomNo: "",
+        // roomType: "",
+        noOfMember: "",
+        stayDuration: "",
         address: "",
-        amount: "",
-        tax: "",
-        grandTotal: "",
+        // amount: "",
+        // tax: "",
+        // grandTotal: "",
       });
+      setRoomAllocations([]);
+      setMembers([]);
     } catch (error) {
       console.log(error);
     }
@@ -257,7 +272,7 @@ const CheckIn = () => {
 
   useEffect(() => {
     const closeAll = () => {
-      setShowRoomTypeList(false);
+      // setShowRoomTypeList(false);
       setShowIdTypeList(false);
     };
 
@@ -266,10 +281,10 @@ const CheckIn = () => {
   }, []);
 
   return (
-    <div className="p-12">
+    <div className="py-12 px-2.5 md:px-5">
       <div className="flex justify-center">
         {/* <div className="flex flex-col-reverse xl:flex-row items-center justify-center gap-12 xl:gap-32"> */}
-        <div className="w-full max-w-xl">
+        <div className="w-full max-w-2xl">
           {/* Check-In Details */}
           <div className="">
             {isCheckinCreated && (
@@ -322,201 +337,8 @@ const CheckIn = () => {
                     createCheckin();
                   }}
                 >
-                  {/* <div className="mb-4 gap-3 grid bg-gray-200/40 p-4 rounded-xl max-w-lg">
-                      <div>
-                        <label className="text-sm font-medium text-gray-800">
-                          Full Name
-                        </label>
-                        <input
-                          name="fullName"
-                          autoComplete="fullName"
-                          className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                          placeholder="Enter full name"
-                          value={checkinForm.fullName}
-                          onChange={(e) =>
-                            handleCheckin("fullName", e.target.value)
-                          }
-                          required
-                        />
-                      </div>
 
-                      <div>
-                        <label className="text-sm font-medium text-gray-800">
-                          Email Address
-                        </label>
-                        <input
-                          name="email"
-                          autoComplete="email"
-                          className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                          placeholder="Enter email address"
-                          value={checkinForm.email}
-                          onChange={(e) =>
-                            handleCheckin("email", e.target.value)
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium text-gray-800">
-                          Mobile Number
-                        </label>
-                        <input
-                          name="mobile"
-                          className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                          placeholder="Enter mobile number"
-                          value={checkinForm.mobile}
-                          maxLength={10}
-                          onChange={(e) =>
-                            handleCheckin("mobile", e.target.value)
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium text-gray-800">
-                          Address
-                        </label>
-                        <input
-                          name="address"
-                          autoComplete="address"
-                          className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                          placeholder="Enter address"
-                          value={checkinForm.address}
-                          onChange={(e) =>
-                            handleCheckin("address", e.target.value)
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div className="flex flex-col">
-                        <div>
-                          <label className="text-sm font-medium text-gray-800">
-                            Room Details
-                          </label>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div
-                            className="relative"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Input-like box
-                            <div
-                              onClick={() =>
-                                setShowRoomTypeList((prev) => !prev)
-                              }
-                              className={`p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 cursor-pointer flex items-center justify-between outline-none hover:shadow-lg ${showRoomTypeList ? "border-orange-500" : ""}`}
-                            >
-                              <span
-                                className={`${
-                                  checkinForm.roomType
-                                    ? "text-gray-900"
-                                    : "text-orange-600"
-                                }`}
-                              >
-                                {checkinForm.roomType || "Room Type"}
-                              </span>
-                              <span><img className="w-3 h-3" src="/down.png" alt="down_arrow" /></span>
-                            </div>
-
-                            Dropdown list
-                            {showRoomTypeList && (
-                              <div className="absolute z-40 mt-1 w-full bg-gray-100 border-2 border-orange-500 rounded-lg shadow-lg overflow-hidden">
-                                {ROOM_TYPES.map((type) => (
-                                  <div
-                                    key={type}
-                                    onClick={() => {
-                                      handleCheckin("roomType", type);
-                                      setShowRoomTypeList(false);
-                                    }}
-                                    className="px-3 py-2 cursor-pointer text-gray-900 hover:bg-orange-200/60"
-                                  >
-                                    {type}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-
-                          <input
-                            name="roomNo"
-                            autoComplete="roomNo"
-                            className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                            placeholder="Room Number"
-                            value={checkinForm.roomNo}
-                            onChange={(e) =>
-                              handleCheckin("roomNo", e.target.value)
-                            }
-                            required
-                          />
-                          <input
-                            name="lengthOfStay"
-                            autoComplete="lengthOfStay"
-                            type="number"
-                            min={1}
-                            placeholder="Stay Duration"
-                            className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                            // placeholder="Number of Days"
-                            value={checkinForm.lengthOfStay}
-                            onChange={(e) =>
-                              handleCheckin("lengthOfStay", e.target.value)
-                            }
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col">
-                        <div>
-                          <label className="text-sm font-medium text-gray-800">
-                            Amount
-                          </label>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <input
-                            name="amount"
-                            autoComplete="amount"
-                            className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                            placeholder="Enter Amount"
-                            value={checkinForm.amount}
-                            onChange={(e) =>
-                              handleCheckin("amount", e.target.value)
-                            }
-                            required
-                          />
-                          <input
-                            name="tax"
-                            autoComplete="tax"
-                            className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                            placeholder="Tax"
-                            value={checkinForm.tax}
-                            onChange={(e) =>
-                              handleCheckin("tax", e.target.value)
-                            }
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-800">
-                          Grand Total
-                        </label>
-                        <input
-                          name="grandTotal"
-                          autoComplete="grandTotal"
-                          className="p-2 rounded-lg w-full border-2 shadow-md bg-gray-100/70 placeholder:text-orange-600 focus:shadow-lg focus:placeholder:text-gray-500/90 focus:border-orange-500/90 outline-none"
-                          placeholder="Enter total amount"
-                          value={checkinForm.grandTotal}
-                          onChange={(e) =>
-                            handleCheckin("grandTotal", e.target.value)
-                          }
-                          required
-                        />
-                      </div>
-                    </div> */}
-
-                  <div className="bg-gray-200/40 shadow-lg p-5 mb-5 rounded-2xl space-y-3">
+                  <div className="bg-gray-200/40 w-full shadow-lg p-2.5 md:p-5 mb-5 rounded-2xl space-y-3">
                     {/* ================= Guest Information ================= */}
                     <div>
                       <h3 className="font-medium text-gray-900 mb-2">
@@ -619,6 +441,7 @@ const CheckIn = () => {
                       </h3>
 
                       <div className="grid pl-1 grid-cols-[1fr_1fr] gap-2">
+                        {/* Number of members */}
                         <div className="">
                           <p className="text-sm m-0.5 font-medium text-gray-700">
                             Number of Members
@@ -642,69 +465,8 @@ const CheckIn = () => {
                           />
                         </div>
 
-                        {/* Room Type (your custom dropdown stays) */}
-                        <div
-                          className="relative hidden"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div
-                            onClick={() =>
-                              setShowRoomTypeList(!showRoomTypeList)
-                            }
-                            className={`input flex items-center justify-between cursor-pointer ${showRoomTypeList && "border-orange-500"} `}
-                          >
-                            <span
-                              className={`${checkinForm.roomType ? "text-gray-900" : "text-orange-500"}
-                                  ${showRoomTypeList && "text-gray-500/90"}
-                                `}
-                            >
-                              {checkinForm.roomType || "Room Type"}
-                            </span>
-                            <img
-                              className={`w-3 h-3 transition-transform ${
-                                showRoomTypeList ? "rotate-180" : ""
-                              }`}
-                              src="/down.png"
-                            />
-                          </div>
-
-                          {showRoomTypeList && (
-                            <div className="absolute z-40 mt-0.5 w-full py-2 bg-gray-100 hover:border-orange-500 border-2 rounded-lg shadow-lg">
-                              {ROOM_TYPES.map((t) => (
-                                <div
-                                  key={t}
-                                  className="px-2.5 py-1 hover:bg-orange-200/60 cursor-pointer"
-                                  onClick={() => {
-                                    handleCheckin("roomType", t);
-                                    setShowRoomTypeList(false);
-                                  }}
-                                >
-                                  {t}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="hidden">
-                          <input
-                            className="input"
-                            placeholder="Room Number"
-                            value={checkinForm.roomNo}
-                            onFocus={(e) =>
-                              (e.target.placeholder = "Enter room number")
-                            }
-                            onBlur={(e) =>
-                              (e.target.placeholder = "Room Number")
-                            }
-                            onChange={(e) =>
-                              handleCheckin("roomNo", e.target.value)
-                            }
-                            required
-                          />
-                        </div>
-
-                        <div>
+                        {/* Stay Duration */}
+                        <div className="mb-2">
                           <p className="text-sm m-0.5 font-medium text-gray-700">
                             Stay Duration (Nights)
                           </p>
@@ -728,6 +490,97 @@ const CheckIn = () => {
                         </div>
                       </div>
                     </div>
+
+                    {/* ================= Room Details ================= */}
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-2">
+                        Room Allocation
+                      </h3>
+                      <div className="bg-gray-200/40 shadow-lg p-1.5 md:p-4 rounded-2xl space-y-2">
+                        <RoomAllocation
+                          value={roomAllocations}
+                          onChange={setRoomAllocations}
+                        />
+                      </div>
+                    </div>
+
+                    {/* <div className="">
+                      <h3 className="font-medium text-gray-900 mb-2">
+                        Room Details
+                      </h3>
+
+                      <div className="grid pl-1 grid-cols-[1fr_1fr] gap-2"> */}
+
+                    {/* Room Type */}
+                    {/* <div
+                          className="relative"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <p className="text-sm m-0.5 font-medium text-gray-700">
+                            Room Type
+                          </p>
+                          <div
+                            onClick={() =>
+                              setShowRoomTypeList(!showRoomTypeList)
+                            }
+                            className={`input flex items-center justify-between cursor-pointer ${showRoomTypeList && "border-orange-500"} `}
+                          >
+                            <span
+                              className={`${checkinForm.roomType ? "text-gray-900" : "text-orange-500"}
+                                  ${showRoomTypeList && "text-gray-500/90"}
+                                `}
+                            >
+                              {checkinForm.roomType || "Select room type"}
+                            </span>
+                            <img
+                              className={`w-3 h-3 transition-transform ${
+                                showRoomTypeList ? "rotate-180" : ""
+                              }`}
+                              src="/down.png"
+                            />
+                          </div>
+
+                          {showRoomTypeList && (
+                            <div className="absolute z-40 mt-0.5 w-full py-2 bg-gray-100 hover:border-orange-500 border-2 rounded-lg shadow-lg">
+                              {ROOM_TYPES.map((t) => (
+                                <div
+                                  key={t}
+                                  className="px-2.5 py-1 hover:bg-orange-400/20 cursor-pointer"
+                                  onClick={() => {
+                                    handleCheckin("roomType", t);
+                                    setShowRoomTypeList(false);
+                                  }}
+                                >
+                                  {t}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div> */}
+
+                    {/* Room Number */}
+                    {/* <div className="">
+                          <p className="text-sm m-0.5 font-medium text-gray-700">
+                            Room Number
+                          </p>
+                          <input
+                            className="input"
+                            placeholder="Select Room Number"
+                            value={checkinForm.roomNo}
+                            // onFocus={(e) =>
+                            //   (e.target.placeholder = "Enter room number")
+                            // }
+                            // onBlur={(e) =>
+                            //   (e.target.placeholder = "Room Number")
+                            // }
+                            onChange={(e) =>
+                              handleCheckin("roomNo", e.target.value)
+                            }
+                            required
+                          />
+                        </div> */}
+                    {/* </div> */}
+                    {/* </div> */}
 
                     {/* ================= Charges ================= */}
                     <div className="hidden">

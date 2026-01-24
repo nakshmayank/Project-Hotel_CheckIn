@@ -263,9 +263,9 @@ const Profile = () => {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2.5 flex gap-1 items-center rounded-lg bg-orange-500 text-white shadow-md transition-colors hover:shadow-lg hover:bg-orange-600"
+                    className="px-4 py-2.5 flex gap-1 items-center rounded-xl bg-orange-500 text-white shadow-md transition-all hover:scale-105 ease-in-out duration-300 hover:shadow-lg hover:bg-orange-600"
                   >
-                    <img className="w-4 h-4" src="/edit.svg" alt="" />
+                    <img className="w-4 h-4" src="/edit_icon.svg" alt="" />
                     <span>Edit Profile</span>
                   </button>
                 )}
@@ -362,7 +362,7 @@ const Profile = () => {
                   {/* Right – Profile Photo */}
                   <div className="justify-center flex">
                     <div className="flex flex-col items-center justify-center w-40">
-                      <label className="relative group w-40 h-40 rounded-full hover:ring-4 hover:ring-orange-600/80 ring-transparent shadow-[0_0_25px_rgba(249,115,22,0.15)] hover:shadow-[0_0_35px_rgba(249,115,22,0.45)] overflow-hidden hover:scale-105 duration-500 transition-all ease-in-out cursor-pointer bg-gray-300/80">
+                      <label className="relative group w-40 h-40 rounded-full hover:ring-4 hover:ring-orange-500/80 ring-transparent shadow-[0_0_25px_rgba(249,115,22,0.10)] hover:shadow-[0_0_35px_rgba(249,115,22,0.70)] overflow-hidden hover:scale-105 duration-500 transition-all ease-in-out cursor-pointer bg-gray-300/80">
                         {form.photoPreview ? (
                           <img
                             src={form.photoPreview}
@@ -376,10 +376,10 @@ const Profile = () => {
                           </div>
                         )}
 
-                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                           <img
-                            className="w-7 h-7 opacity-80"
-                            src="/edit.png"
+                            className="w-10 h-10 opacity-80"
+                            src="/edit_logo.svg"
                             alt=""
                           />
                         </div>

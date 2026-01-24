@@ -137,7 +137,7 @@ const Navbar = () => {
                     </div>
                   </button> */}
                   {showProfileMenu && (
-                    <div className="absolute w-64 top-10 -right-0 shadow border p-5 rounded-xl z-40 text-sm bg-white/70 transition-all backdrop-blur-xl border-b border-gray-100/10 opacity-0 fade-in-fast">
+                    <div className="absolute w-64 top-10 -right-0 shadow-md border p-5 rounded-xl z-40 text-sm bg-gray-100/80 transition-all backdrop-blur-xl border-b border-gray-100/10 opacity-0 fade-in-fast">
                       <ul className="flex flex-col w-50">
                         <li className="p-1.5 pl-3">
                           <p className="text-lg font-semibold text-orange-500">{userData?.Name}</p>
@@ -149,7 +149,7 @@ const Navbar = () => {
                             navigate("/dashboard");
                             setShowProfileMenu(!showProfileMenu);
                           }}
-                          className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-500/10 cursor-pointer font-medium"
+                          className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-400/20 cursor-pointer font-medium"
                         >
                           <img
                             className="w-4 h-4 opacity-80"
@@ -163,7 +163,7 @@ const Navbar = () => {
                             navigate("/dashboard/profile");
                             setShowProfileMenu(false);
                           }}
-                          className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-500/10 cursor-pointer font-medium"
+                          className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-400/20 cursor-pointer font-medium"
                         >
                           <img className="w-4 h-4" src="/profile_icon.svg" alt="" />
                           Profile
@@ -174,7 +174,7 @@ const Navbar = () => {
                             setShowChangePassword(true);
                             setShowProfileMenu(false);
                           }}
-                          className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-500/10 cursor-pointer font-medium"
+                          className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-400/20 cursor-pointer font-medium"
                         >
                           <img
                             className="w-4 h-4"
@@ -189,7 +189,7 @@ const Navbar = () => {
                             logout();
                             setShowProfileMenu(!showProfileMenu);
                           }}
-                          className="flex items-center p-1.5 pl-3 gap-2 hover:bg-orange-500/10 cursor-pointer font-medium"
+                          className="flex items-center p-1.5 pl-3 gap-2 hover:bg-orange-400/20 cursor-pointer font-medium"
                         >
                           <img
                             className="w-4 h-4"

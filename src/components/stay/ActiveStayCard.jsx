@@ -12,7 +12,7 @@ const ActiveStayCard = ({
   checkingOutId,
 }) => {
   return (
-    <div className="bg-gray-200/40 p-5 lg:p-7 rounded-3xl mb-6 relative shadow-lg hover:shadow-xl hover:scale-105 duration-300 ease-in-out transition-all cursor-pointer opacity-0 animate-[fadeIn_0.4s_ease-out_forwards]">
+    <div className="bg-gray-200/40 p-5 lg:p-7 rounded-3xl mb-6 relative shadow-lg hover:shadow-xl hover:scale-105 duration-300 ease-in-out transition-all opacity-0 animate-[fadeIn_0.4s_ease-out_forwards]">
       {/* Stay details */}
       <div className="mb-2">
         <p>
