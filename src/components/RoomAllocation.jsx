@@ -84,36 +84,34 @@ const RoomAllocation = ({ value, onChange }) => {
   const dismiss = useDismiss(context);
   const { getFloatingProps } = useInteractions([dismiss]);
 
-  /* ===============================
-     OPEN PANEL (INIT DRAFT)
-     =============================== */
+  
   const openPanel = (type, allocation = null) => {
+    // If allocation of this roomType already exists, open Edit
+    const existing = roomAllocations.find((a) => a.roomType === type);
+
+    const target = allocation ?? existing;
+
     if (activeAllocation?.roomType === type) return;
 
-    setDraftRooms(allocation ? [...allocation.rooms] : []);
-    const key = allocation?.id ?? `new-${type}`;
+    setDraftRooms(target ? [...target.rooms] : []);
+
+    const key = target?.id ?? `new-${type}`;
 
     setSearch((p) => ({ ...p, [key]: "" }));
     setFloorFilter((p) => ({ ...p, [key]: "ALL" }));
 
     setActiveAllocation(
-      allocation
-        ? { id: allocation.id, roomType: type }
-        : { id: null, roomType: type },
+      target ? { id: target.id, roomType: type } : { id: null, roomType: type },
     );
   };
 
-  /* ===============================
-     CLOSE PANEL (DISCARD DRAFT)
-     =============================== */
+
   const closePanel = () => {
     setActiveAllocation(null);
     setDraftRooms([]);
   };
 
-  /* ===============================
-     TOGGLE DRAFT ROOM
-     =============================== */
+
   const toggleDraftRoom = (roomNo) => {
     setDraftRooms((prev) =>
       prev.some((r) => r.roomNo === roomNo)
@@ -122,9 +120,6 @@ const RoomAllocation = ({ value, onChange }) => {
     );
   };
 
-  /* ===============================
-     COMMIT DRAFT
-     =============================== */
   const commitDraft = () => {
     if (draftRooms.length === 0) return;
 
@@ -141,10 +136,6 @@ const RoomAllocation = ({ value, onChange }) => {
     onChange(updated);
     closePanel();
   };
-
-  /* ===============================
-     SUMMARY ACTIONS
-     =============================== */
 
   const removeRoomType = (id) => {
     onChange(roomAllocations.filter((r) => r.id !== id));
@@ -165,9 +156,6 @@ const RoomAllocation = ({ value, onChange }) => {
     );
   };
 
-  /* ===============================
-     AUTO FLIP
-     =============================== */
   //   useEffect(() => {
   //     if (!panelRef.current) return;
   //     const rect = panelRef.current.getBoundingClientRect();
@@ -218,6 +206,7 @@ const RoomAllocation = ({ value, onChange }) => {
             >
               + {type}
             </button>
+
             {/* SELECTION PANEL */}
             {activeAllocation?.roomType === type && (
               <div
@@ -349,7 +338,7 @@ const RoomAllocation = ({ value, onChange }) => {
             .map((group) => (
               <div
                 key={group.id}
-                className="bg-gray-50/90 border-2 p-3 rounded-2xl"
+                className="bg-gray-100 shadow-md border-2 p-3 rounded-2xl"
               >
                 <div className="flex justify-between items-center mb-3">
                   <span className="font-semibold">{group.roomType}</span>
@@ -379,7 +368,7 @@ const RoomAllocation = ({ value, onChange }) => {
                     return (
                       <div
                         key={r.roomNo}
-                        className="relative bg-gray-50 mb-1 border-2 border-orange-500 p-2.5 w-fit rounded-xl text-sm"
+                        className="relative shadow-md bg-gray-50 mb-1 border-2 border-orange-500 p-2.5 w-fit rounded-xl text-sm"
                       >
                         <span className="font-medium text-gray-800">
                           Room {r.roomNo} • Floor {room?.floor}

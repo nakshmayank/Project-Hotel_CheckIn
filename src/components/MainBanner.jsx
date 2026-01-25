@@ -1,14 +1,14 @@
 import { useAppContext } from "../context/AppContext";
 
 const MainBanner = () => {
-  const { setState, setShowLogin } = useAppContext();
+  const { setState, setShowLogin, showLogin } = useAppContext();
 
   return (
-    <section className="relative bg-[url('/service-bg.png')] shadow-xl rounded-t-2xl bg-cover bg-top bg-no-repeat overflow-hidden">
+    <section className="relative bg-[url('/service-bg.png')]  shadow-xl rounded-t-2xl bg-cover bg-top bg-no-repeat overflow-hidden">
       {/* Gradient Background */}
       {/* <img src="/service-bg.png" alt="" className="" /> */}
 
-      <div className="flex lg:justify-center backdrop-blur-sm">
+      <div className={`flex justify-center py-20 ${showLogin ? "" : "backdrop-blur-sm"}`}>
         {/* <div className="absolute inset-0  -z-10"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl -z-10"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -z-10"></div> */}
@@ -16,10 +16,10 @@ const MainBanner = () => {
           <h1 className="text-6xl text-center text-[#44B1CF] font-bold pt-10">A Complete Digital Hotel Management Solution</h1>
         </div> */}
 
-        <div className="max-w-2xl p-5 my-20 lg:ml-16">
+        <div className="max-w-2xl p-5">
           {/* Right: Text Content - Positioned on Right */}
-          <div className="w-full rounded-3xl">
-            <div className="flex flex-col items-center space-y-16">
+          <div className="w-full">
+            <div className="flex flex-col justify-center items-center space-y-16">
               <div className="space-y-6 flex flex-col items-center">
                 {/* Top Heading */}
                 <div className="inline-block">

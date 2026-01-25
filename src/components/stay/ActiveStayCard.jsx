@@ -70,9 +70,9 @@ const ActiveStayCard = ({
       <div className="border-t border-gray-500/30 pt-5 flex justify-end gap-3 mt-3">
         <button
           onClick={() => onAssignRoom(stay)}
-          className="px-4 py-2 rounded-lg border-2 border-orange-500 text-orange-500 shadow-lg hover:bg-orange-200/30 transition"
+          className="px-4 py-2 rounded-lg border-2 border-orange-500 text-orange-500 shadow-lg hover:bg-orange-100/50 transition"
         >
-          Assign / Modify Rooms
+          Modify Stay
         </button>
 
         <button

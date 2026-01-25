@@ -33,23 +33,34 @@ const AssignRoom = ({ stay, onClose, onSuccess }) => {
         className="absolute inset-0 bg-black/40 backdrop-blur-sm fade-in"
         onClick={handleClose}
       />
+      
 
       {/* drawer */}
       <div
         className={`relative ml-auto w-96 h-full bg-gray-200/60 shadow-2xl p-5 flex transition-all ease-in-out flex-col ${closing ? "slide-out-right" : "slide-in-right"}`}
       >
+        <button onClick={handleClose} className="absolute right-3 font-medium text-gray-900 top-2">×</button>
         {/* Header */}
         <div className="mb-4">
-          <h2 className="text-xl font-bold">Assign Rooms</h2>
+          <h2 className="text-xl font-bold">Modify Stay</h2>
           <p className="text-sm text-gray-600">
             Stay #{stay.chkid} · {stay.email}
           </p>
         </div>
 
+        {/* Modify Stay */}
+        <div className="mb-2 text-sm">
+          <p className="font-medium mb-1">Edit Stay</p>
+          <div>
+            <p>Number of Members: <span>{stay.noOfMembers}</span></p>
+            <p>Stay Duration: <span>{stay.stayDuration}</span></p>
+          </div>
+        </div>
+
         <RoomAllocation value={roomAllocations} onChange={setRoomAllocations} />
 
         {/* Footer */}
-        <div className="pt-5 border-t">
+        <div className="pt-5">
           <button
             onClick={handleAssign}
             disabled={

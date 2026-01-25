@@ -63,7 +63,8 @@ const CheckIn = () => {
     gender: "",
     mobile: "",
     idType: "", // 1 for aadhaar
-    fileName: null,
+    idFiles: [], // instead of fileName
+    // fileName: null,
   });
 
   const handleCheckin = (key, value) => {
@@ -92,13 +93,15 @@ const CheckIn = () => {
         return;
       }
 
+      console.log(roomAllocations)
+
       const { data } = await axios.post("/api/v1/Hotel/HotelCheckIn", {
         AccessToken: user?.AccessToken,
         Name: checkinForm.fullName,
         Noofstay: Number(checkinForm.stayDuration),
         Mobile: checkinForm.mobile,
         Email: checkinForm.email,
-        RoomAllocations: roomAllocations,
+        Room: roomAllocations,
         // RoomNo: checkinForm.roomNo,
         // RoomType: checkinForm.roomType,
         // Amount: Number(checkinForm.amount),
@@ -126,25 +129,40 @@ const CheckIn = () => {
   };
 
   const uploadMemberID = async () => {
-    const formData = new FormData();
+    const MAX_SIZE_MB = 5;
 
-    formData.append("accesstoken", user?.AccessToken);
-    formData.append("Chkid", checkinId);
-    formData.append("file", addMemberForm.fileName); // File object
+    for (const file of addMemberForm.idFiles) {
+      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+        toast.error("Each file must be under 5MB");
+        return;
+      }
+    }
 
-    const response = await axios.post(
-      "/api/v1/Hotel/UploadMemberID",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+    try {
+      const formData = new FormData();
+
+      formData.append("accesstoken", user?.AccessToken);
+      formData.append("Chkid", checkinId);
+      addMemberForm.idFiles.forEach((file) => {
+        formData.append("files", file);
+      }); // File object
+
+      const response = await axios.post(
+        "/api/v1/Hotel/UploadMemberID",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
+      );
 
-    console.log(response?.data.output);
+      console.log(response?.data.output);
 
-    return response;
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const addMember = async () => {
@@ -172,8 +190,8 @@ const CheckIn = () => {
         return;
       }
 
-      if (!addMemberForm.fileName) {
-        toast.error("Please upload an ID Proof");
+      if (!addMemberForm.idFiles || addMemberForm.idFiles.length === 0) {
+        toast.error("Please upload front and back of ID");
         return;
       }
 
@@ -185,12 +203,12 @@ const CheckIn = () => {
         gender: addMemberForm.gender,
         mobile: addMemberForm.mobile,
         IdType: Number(addMemberForm.idType),
-        idname: addMemberForm.fileName?.name,
+        idname: addMemberForm.idFiles.map((f) => f.name).join(", "),
       });
 
       console.log(data);
 
-      console.log(addMemberForm.fileName);
+      // console.log(addMemberForm.fileName);
 
       if (String(data[0]?.result) !== "0") {
         const res = await uploadMemberID();
@@ -210,7 +228,8 @@ const CheckIn = () => {
             gender: "",
             mobile: "",
             idType: "",
-            fileName: null,
+            idFiles: [], // instead of fileName
+            // fileName: null,
           });
 
           if (fileRef.current) {
@@ -337,7 +356,6 @@ const CheckIn = () => {
                     createCheckin();
                   }}
                 >
-
                   <div className="bg-gray-200/40 w-full shadow-lg p-2.5 md:p-5 mb-5 rounded-2xl space-y-3">
                     {/* ================= Guest Information ================= */}
                     <div>
@@ -496,7 +514,7 @@ const CheckIn = () => {
                       <h3 className="font-medium text-gray-900 mb-2">
                         Room Allocation
                       </h3>
-                      <div className="bg-gray-200/40 shadow-lg p-1.5 md:p-4 rounded-2xl space-y-2">
+                      <div className="bg-gray-100/70 shadow-lg p-1.5 md:p-4 rounded-2xl space-y-2">
                         <RoomAllocation
                           value={roomAllocations}
                           onChange={setRoomAllocations}
@@ -599,7 +617,7 @@ const CheckIn = () => {
                         onChange={(e) =>
                           handleCheckin("amount", e.target.value)
                         }
-                        required
+                        // required
                       />
                     </div>
 
@@ -714,12 +732,7 @@ const CheckIn = () => {
                               key={g.value}
                               type="button"
                               onClick={() => handleAddMember("gender", g.value)}
-                              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
-              ${
-                addMemberForm.gender === g.value
-                  ? "bg-orange-500 text-white border-orange-500 shadow-lg"
-                  : "bg-gray-100 text-gray-700 hover:text-orange-600"
-              }`}
+                              className={`px-4 py-2 shadow-md rounded-lg text-sm font-medium transition-all ${addMemberForm.gender === g.value ? "bg-orange-500 text-white border-orange-500 shadow-lg" : "bg-gray-100 text-gray-700 hover:text-orange-600"}`}
                             >
                               {g.label}
                             </button>
@@ -791,35 +804,80 @@ const CheckIn = () => {
 
                             {/* File Input */}
                             <div
-                              className="flex items-center cursor-pointer relative rounded-lg overflow-hidden"
-                              onClick={() => fileRef.current?.click()}
+                              className={`flex items-center cursor-pointer relative rounded-lg overflow-hidden ${
+                                !addMemberForm.idType ? "opacity-70" : ""
+                              }`}
+                              onClick={() => {
+                                if (!addMemberForm.idType) {
+                                  toast.error("Please select ID Type first");
+                                  return;
+                                }
+                                fileRef.current?.click();
+                              }}
                             >
                               <div className="flex-1 px-3 py-2 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 transition">
                                 <span className=" text-sm text-gray-600 truncate">
-                                  {addMemberForm.fileName
-                                    ? addMemberForm.fileName.name
+                                  {addMemberForm.idFiles.length > 0
+                                    ? `${addMemberForm.idFiles.length} file(s) selected`
                                     : "Upload ID document (PDF / Image)"}
                                 </span>
                               </div>
                               <div className="absolute right-0 px-4 py-2 border-orange-500 border-2 hover:bg-orange-600 bg-orange-500 rounded-lg rounded-l-none">
                                 <span className="text-white text-md font-medium">
-                                  Browse
+                                  {addMemberForm.idFiles.length > 0
+                                    ? "Update ID"
+                                    : "Browse"}
                                 </span>
                               </div>
                             </div>
                           </div>
                         </div>
 
+                        <p className="text-xs text-end text-gray-500 mt-1">
+                          *Upload front and back of ID as images or a single PDF
+                        </p>
+
                         <input
                           ref={fileRef}
                           type="file"
                           accept=".pdf,image/*"
+                          multiple
+                          capture="environment"
                           className="hidden"
-                          onChange={(e) =>
-                            handleAddMember("fileName", e.target.files[0])
-                          }
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files);
+                            if (files.length > 2) {
+                              toast.error(
+                                "Please upload only front and back of ID",
+                              );
+                              return;
+                            }
+                            handleAddMember("idFiles", files);
+                          }}
                         />
                       </div>
+
+                      {/* ID Preview */}
+                      {addMemberForm.idFiles.length > 0 && (
+                        <div className="mt-2 flex gap-2 flex-wrap">
+                          {addMemberForm.idFiles.map((file, i) => (
+                            <div
+                              key={i}
+                              className="px-2 py-1 text-xs bg-gray-200 rounded-lg"
+                            >
+                              {file.name}
+                            </div>
+                          ))}
+
+                          <button
+                            type="button"
+                            onClick={() => handleAddMember("idFiles", [])}
+                            className="text-xs text-red-600 underline"
+                          >
+                            Remove ID
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -827,8 +885,13 @@ const CheckIn = () => {
                   <div className="flex justify-end gap-4">
                     <button
                       type="button"
+                      disabled={loading}
                       onClick={addMember}
-                      className="px-5 py-3 bg-purple-900/80 shadow-md text-white rounded-lg hover:bg-purple-900/90 hover:shadow-lg"
+                      className={`px-5 py-3 rounded-lg ${
+                        loading
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-purple-900/80 hover:bg-purple-900/90"
+                      } text-white shadow-md`}
                     >
                       {loading ? (
                         <div className="flex gap-2 items-center justify-center">
