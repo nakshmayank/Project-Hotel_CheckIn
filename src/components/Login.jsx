@@ -188,7 +188,7 @@ const Login = () => {
   }, [passwordStrength]);
 
   return (
-    <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
       <div>
         <div
           className={`bg-gray-50/30 p-4 sm:p-5 md:p-6 rounded-2xl shadow-lg w-[85vw] max-w-sm relative`}

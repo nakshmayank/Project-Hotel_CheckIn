@@ -50,8 +50,8 @@ const Navbar = () => {
   if (authLoading) return <Loader />;
 
   return (
-    <div className="fixed shadow-3xl top-0 transition-all backdrop-blur-sm w-full z-30 px-2.5 md:px-10 py-5">
-      <nav className="flex items-center justify-between">
+    <div className="fixed top-0 w-full z-30">
+      <nav className="flex items-center justify-between shadow-3xl transition-all backdrop-blur-sm px-2.5 md:px-10 py-5">
         {/* Left - Logo */}
         <div className="w-fit">
           <Link to="/" className="items-center">
