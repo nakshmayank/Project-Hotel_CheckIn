@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from "../context/AppContext";
+import { useAppContext } from "../../context/AppContext";
 
 const CheckOut = () => {
   const { axios } = useAppContext();

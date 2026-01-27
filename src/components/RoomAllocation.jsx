@@ -8,53 +8,69 @@ import {
   useDismiss,
   useInteractions,
 } from "@floating-ui/react";
-
-/* ===============================
-   CONFIG
-   =============================== */
-
-const ROOM_TYPES = ["Single", "Double", "Deluxe", "Suite"];
-
-const ROOMS_BY_TYPE = {
-  Single: [
-    { roomNo: 101, floor: 1 },
-    { roomNo: 102, floor: 1 },
-    { roomNo: 201, floor: 2 },
-  ],
-  Double: [
-    { roomNo: 201, floor: 2 },
-    { roomNo: 202, floor: 2 },
-    { roomNo: 203, floor: 2 },
-    { roomNo: 301, floor: 3 },
-  ],
-  Deluxe: [
-    { roomNo: 301, floor: 3 },
-    { roomNo: 302, floor: 3 },
-    { roomNo: 401, floor: 4 },
-  ],
-  Suite: [
-    { roomNo: 501, floor: 5 },
-    { roomNo: 502, floor: 5 },
-  ],
-};
-
-/* ===============================
-   COMPONENT
-   =============================== */
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const RoomAllocation = ({ value, onChange }) => {
   const roomAllocations = value;
+
+  const { axios, user } = useAppContext();
 
   const [activeAllocation, setActiveAllocation] = useState(null);
   const [draftRooms, setDraftRooms] = useState([]);
   const [search, setSearch] = useState({});
   const [floorFilter, setFloorFilter] = useState({});
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [roomsByType, setRoomsByType] = useState({});
 
   const buttonRefs = useRef({});
 
   const panelKey = activeAllocation
     ? (activeAllocation.id ?? `new-${activeAllocation.roomType}`)
     : null;
+
+  const getRoomTypes = async () => {
+    try {
+      const { data } = await axios.post("/api/v1/Hotel/HotelGetRoomType", {
+        accesstoken: user?.AccessToken,
+      });
+      // console.log(data[1].TypeId)
+      if (data?.length) {
+        setRoomTypes(data);
+      } else {
+        toast.error("No room type found");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch room types");
+    }
+  };
+
+  const getRooms = async (typeId) => {
+    try {
+      const { data } = await axios.post("/api/v1/Hotel/HotelGetRooms", {
+        accesstoken: user?.AccessToken,
+        TypeId: typeId,
+      });
+      // console.log(typeId,data[1].RId)
+      if (data?.length) {
+        setRoomsByType((prev) => ({
+          ...prev,
+          [typeId]: data.map((r) => ({
+            roomNo: Number(r.RoomNo),
+            floor: r.floorType?.toLowerCase().includes("second") ? 2 : 1, // adapt if API changes
+          })),
+        }));
+      } else {
+        toast.error("No room found");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch rooms");
+    }
+  };
+
+  // console.log(roomType)
 
   const assignedRoomsSet = useMemo(() => {
     const set = new Set();
@@ -84,33 +100,39 @@ const RoomAllocation = ({ value, onChange }) => {
   const dismiss = useDismiss(context);
   const { getFloatingProps } = useInteractions([dismiss]);
 
-  
-  const openPanel = (type, allocation = null) => {
-    // If allocation of this roomType already exists, open Edit
-    const existing = roomAllocations.find((a) => a.roomType === type);
+  // Open Selection Panel Control
+  const openPanel = (typeObj, allocation = null) => {
+    const { TypeId, RoomType } = typeObj;
 
+    // If allocation of this roomType already exists, open Edit
+    const existing = roomAllocations.find((a) => a.roomType === RoomType);
     const target = allocation ?? existing;
 
-    if (activeAllocation?.roomType === type) return;
+    if (activeAllocation?.roomType === RoomType) return;
 
     setDraftRooms(target ? [...target.rooms] : []);
 
-    const key = target?.id ?? `new-${type}`;
+    const key = target?.id ?? `new-${RoomType}`;
 
     setSearch((p) => ({ ...p, [key]: "" }));
     setFloorFilter((p) => ({ ...p, [key]: "ALL" }));
 
-    setActiveAllocation(
-      target ? { id: target.id, roomType: type } : { id: null, roomType: type },
-    );
-  };
+    setActiveAllocation({
+      id: target?.id ?? null,
+      roomType: RoomType,
+      typeId: TypeId,
+    });
 
+    // Fetch Rooms
+    if (!roomsByType[TypeId]) {
+      getRooms(TypeId);
+    }
+  };
 
   const closePanel = () => {
     setActiveAllocation(null);
     setDraftRooms([]);
   };
-
 
   const toggleDraftRoom = (roomNo) => {
     setDraftRooms((prev) =>
@@ -129,7 +151,8 @@ const RoomAllocation = ({ value, onChange }) => {
 
     updated.push({
       id: activeAllocation.id ?? crypto.randomUUID(),
-      roomType: activeAllocation?.roomType,
+      roomType: activeAllocation.roomType,
+      typeId: activeAllocation.typeId, // ADD THIS
       rooms: draftRooms,
     });
 
@@ -156,6 +179,10 @@ const RoomAllocation = ({ value, onChange }) => {
     );
   };
 
+  const selectedTypeIds = useMemo(() => {
+    return new Set(roomAllocations.map((g) => g.typeId));
+  }, [roomAllocations]);
+
   //   useEffect(() => {
   //     if (!panelRef.current) return;
   //     const rect = panelRef.current.getBoundingClientRect();
@@ -174,9 +201,9 @@ const RoomAllocation = ({ value, onChange }) => {
     };
   }, [activeAllocation]);
 
-  /* ===============================
-     RENDER
-     =============================== */
+  useEffect(() => {
+    getRoomTypes();
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -184,31 +211,33 @@ const RoomAllocation = ({ value, onChange }) => {
 
       {/* ROOM TYPE BUTTONS */}
       <div className="flex gap-2 flex-wrap">
-        {ROOM_TYPES.map((type) => (
-          <div key={type} className="relative">
+        {roomTypes.map((typeObj) => (
+          <div key={typeObj.TypeId} className="relative">
             <button
               ref={(el) => {
                 if (!el) return;
 
-                buttonRefs.current[type] = el;
+                buttonRefs.current[typeObj.TypeId] = el;
 
-                if (activeAllocation?.roomType === type) {
+                if (activeAllocation?.typeId === typeObj.TypeId) {
                   refs.setReference(el);
                 }
               }}
               type="button"
-              onClick={() => openPanel(type)}
-              className={`px-3 py-1.5 rounded-lg shadow-md text-sm border-2 ${
-                activeAllocation?.roomType === type
+              onClick={() => openPanel(typeObj)}
+              className={`px-3 py-1.5 rounded-lg shadow-md text-sm border-2 transition ${
+                activeAllocation?.typeId === typeObj.TypeId
                   ? "bg-orange-500 text-white border-orange-500"
-                  : "bg-gray-100 hover:border-orange-500"
+                  : selectedTypeIds.has(typeObj.TypeId)
+                    ? "bg-orange-100 text-orange-700 border-orange-400"
+                    : "bg-gray-100 hover:border-orange-500"
               }`}
             >
-              + {type}
+              + {typeObj.RoomType}
             </button>
 
             {/* SELECTION PANEL */}
-            {activeAllocation?.roomType === type && (
+            {activeAllocation?.typeId === typeObj.TypeId && (
               <div
                 ref={refs.setFloating}
                 {...getFloatingProps()}
@@ -224,7 +253,7 @@ const RoomAllocation = ({ value, onChange }) => {
               >
                 {/* HEADER */}
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="font-semibold">{type} Rooms</h4>
+                  <h4 className="font-semibold">{typeObj.RoomType} Rooms</h4>
                   <button
                     type="button"
                     disabled={draftRooms.length === 0}
@@ -253,7 +282,9 @@ const RoomAllocation = ({ value, onChange }) => {
                 <div className="flex gap-2 mb-3 flex-wrap">
                   {[
                     "ALL",
-                    ...new Set(ROOMS_BY_TYPE[type].map((r) => r.floor)),
+                    ...new Set(
+                      (roomsByType[typeObj.TypeId] || []).map((r) => r.floor),
+                    ),
                   ].map((f) => (
                     <button
                       type="button"
@@ -273,8 +304,8 @@ const RoomAllocation = ({ value, onChange }) => {
                 </div>
 
                 {/* ROOM LIST */}
-                <div className="max-h-[calc(100vh-260px)] py-1.5 overflow-y-auto border-2 rounded-xl">
-                  {ROOMS_BY_TYPE[type]
+                <div className="max-h-[calc(100vh-560px)] py-1.5 overflow-y-auto border-2 rounded-xl">
+                  {(roomsByType[activeAllocation?.typeId] || [])
                     .filter(
                       (r) =>
                         // !floorFilter[panelKey] ||
@@ -297,7 +328,7 @@ const RoomAllocation = ({ value, onChange }) => {
                           onClick={() =>
                             !alreadyAssigned && toggleDraftRoom(room.roomNo)
                           }
-                          className={`flex items-center px-3 py-1  ... ${
+                          className={`flex items-center px-3 py-1 ${
                             alreadyAssigned
                               ? "opacity-40 cursor-not-allowed hover:bg-gray-200"
                               : selected
@@ -315,9 +346,9 @@ const RoomAllocation = ({ value, onChange }) => {
                             <span>Room {room.roomNo}</span>
                           </div>
 
-                          <span className="ml-auto text-xs text-gray-500">
+                          {/* <span className="ml-auto text-xs text-gray-500">
                             Floor {room.floor}
-                          </span>
+                          </span> */}
                         </div>
                       );
                     })}
@@ -345,7 +376,12 @@ const RoomAllocation = ({ value, onChange }) => {
                   <div className="flex gap-3 text-xs">
                     <button
                       type="button"
-                      onClick={() => openPanel(group.roomType, group)}
+                      onClick={() =>
+                        openPanel(
+                          { TypeId: group.typeId, RoomType: group.roomType },
+                          group,
+                        )
+                      }
                       className="text-gray-500 hover:underline font-medium"
                     >
                       Edit
@@ -362,7 +398,7 @@ const RoomAllocation = ({ value, onChange }) => {
 
                 <div className="flex flex-wrap gap-3">
                   {group.rooms.map((r) => {
-                    const room = ROOMS_BY_TYPE[group.roomType].find(
+                    const room = (roomsByType[group.typeId] || []).find(
                       (rm) => rm.roomNo === r.roomNo,
                     );
                     return (
@@ -371,7 +407,7 @@ const RoomAllocation = ({ value, onChange }) => {
                         className="relative shadow-md bg-gray-50 mb-1 border-2 border-orange-500 p-2.5 w-fit rounded-xl text-sm"
                       >
                         <span className="font-medium text-gray-800">
-                          Room {r.roomNo} • Floor {room?.floor}
+                          Room {r.roomNo} • Floor {room?.floor ?? "-"}
                         </span>
                         <div className="absolute -right-2 -top-2">
                           <button

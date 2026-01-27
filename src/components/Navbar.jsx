@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { useEffect, useRef, useState } from "react";
 import Loader from "./Loader";
+import MobileSidebar from "./MobileSidebar";
 
 const Navbar = () => {
   const {
@@ -259,126 +260,7 @@ const Navbar = () => {
       </nav>
 
       {/* --- MOBILE SIDEBAR & OVERLAY --- */}
-      <div className={`md:hidden`}>
-        {/* Background Overlay */}
-        {open && (
-          <div
-            className="fixed inset-0 bg-black/20 z-40 fade-in-fast"
-            onClick={() => setOpen(false)}
-          ></div>
-        )}
-
-        {/* The Actual Sidebar */}
-        <div
-          className={`bg-gray-200/40 fixed top-0 right-0 h-full w-fit text-black shadow-sm p-9 flex flex-col items-start gap-4 text-base transition-transform duration-300 ease-in-out z-50 backdrop-blur-sm border-b border-gray-100/30 ${
-            open ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="mt-4 flex flex-col gap-4 justify-center">
-            <button
-              onClick={() => {
-                navigate("/");
-                setOpen(false);
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <img className="w-5 h-5" src="/home.svg" alt="home" />
-                <p className="font-medium">Home</p>
-              </div>
-            </button>
-            <button
-              onClick={() => {
-                navigate("/dashboard");
-                setOpen(false);
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <img
-                  className="w-5 h-5 opacity-80"
-                  src="/dashboard.png"
-                  alt="dashboard"
-                />
-                <p className="font-medium">Dashboard</p>
-              </div>
-            </button>
-            <button
-              onClick={() => {
-                navigate("/dashboard/profile");
-                setOpen(false);
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <img
-                  className="w-5 h-5 opacity-80"
-                  src="/profile_icon.svg"
-                  alt="profile"
-                />
-                <p className="font-medium">Profile</p>
-              </div>
-            </button>
-            <button>
-              <div className="flex gap-2 items-center">
-                <img className="w-5 h-5" src="/service.png" alt="service" />
-                <p className="font-medium">Services</p>
-              </div>
-            </button>
-            <button
-              onClick={() => {
-                setShowAddRoom(true);
-                setOpen(false);
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <img className="w-5 h-5" src="/add_room.svg" alt="" />
-                <p className="font-medium">Add Room</p>
-              </div>
-            </button>
-            <button
-              onClick={() => {
-                navigate("dashboard/manage-stay");
-                setOpen(false);
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <img className="w-5 h-5" src="/stay2.png" alt="" />
-                <p className="font-medium">Manage Stay</p>
-              </div>
-            </button>
-            <button>
-              <div className="flex gap-2 items-center">
-                <img className="w-5 h-5" src="/contact.png" alt="contact" />
-                <p className="font-medium">Contact</p>
-              </div>
-            </button>
-            <button
-              onClick={() => {
-                setShowChangePassword(true);
-                setOpen(false);
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <img
-                  className="w-5 h-5"
-                  src="/change_password.svg"
-                  alt="change_password"
-                />
-                <p className="font-medium">Change Password</p>
-              </div>
-            </button>
-            <button
-              onClick={() => {
-                logout();
-                setOpen(false);
-              }}
-            >
-              <div className="flex gap-2 items-center">
-                <img className="w-5 h-5" src="/logout.svg" alt="" />
-                <p className="font-medium">Logout</p>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
+      <MobileSidebar open={open} setOpen={setOpen} />
     </div>
   );
 };

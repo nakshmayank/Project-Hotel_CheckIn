@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useAppContext } from "../context/AppContext";
+import { useAppContext } from "../../context/AppContext";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");

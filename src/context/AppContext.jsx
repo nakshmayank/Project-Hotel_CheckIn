@@ -15,6 +15,7 @@ export const AppContextProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
   const [showAddRoom, setShowAddRoom] = useState(false);
+  const [showAddRoomType, setShowAddRoomType] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
@@ -143,6 +144,8 @@ export const AppContextProvider = ({ children }) => {
     fetchUserData,
     isFirstLogin,
     setIsFirstLogin,
+    showAddRoomType,
+    setShowAddRoomType
   };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

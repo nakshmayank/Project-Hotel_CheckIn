@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAppContext } from "../context/AppContext";
+import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
-import AssignRoom from "../components/stay/AssignRoom";
-import ActiveStayCard from "../components/stay/ActiveStayCard";
-import CompletedStayCard from "../components/stay/CompletedStayCard";
+import AssignRoom from "../../components/stay/AssignRoom";
+import ActiveStayCard from "../../components/stay/ActiveStayCard";
+import CompletedStayCard from "../../components/stay/CompletedStayCard";
 
 const ManageStay = () => {
   const { axios, user, navigate } = useAppContext();
@@ -107,7 +107,7 @@ const ManageStay = () => {
           return new Date(b.chkindate) - new Date(a.chkindate);
       }
     });
-  
+
   // Search & Sort CompletedStay
   const filteredAndSortedCompletedStays = completedStays
     .filter((s) => {
@@ -368,8 +368,7 @@ const ManageStay = () => {
                           {/* Input-like box */}
                           <div
                             onClick={() => setShowSortList((prev) => !prev)}
-                            className={`px-2 py-1 rounded-lg border-2 bg-gray-50/90 cursor-pointer flex items-center justify-between min-w-[110px] shadow-md ${showSortList ? "border-orange-500" : "border-gray-300"}\
-                              `}
+                            className={`px-2 py-1 rounded-lg border-2 bg-gray-50/90 cursor-pointer flex items-center justify-between min-w-[110px] shadow-md ${showSortList ? "border-orange-500" : "border-gray-300"}`}
                           >
                             <span className="text-sm text-gray-800">
                               {SORT_LABEL_BY_VALUE[sortBy]}

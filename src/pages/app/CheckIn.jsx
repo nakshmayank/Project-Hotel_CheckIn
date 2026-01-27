@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { useAppContext } from "../context/AppContext";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
-import RoomAllocation from "../components/RoomAllocation";
+import imageCompression from "browser-image-compression";
+import RoomAllocation from "../../components/RoomAllocation";
 
 const CheckIn = () => {
   const { axios, user, navigate } = useAppContext();
@@ -9,7 +10,6 @@ const CheckIn = () => {
   const [checkinId, setCheckinId] = useState(null);
   const [isCheckinCreated, setIsCheckinCreated] = useState(false);
   const [members, setMembers] = useState([]);
-  // const [showRoomTypeList, setShowRoomTypeList] = useState(false);
   const [showIdTypeList, setShowIdTypeList] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -19,14 +19,6 @@ const CheckIn = () => {
 
   const fileRef = useRef(null);
 
-  const ID_TYPES = {
-    AADHAAR: 1,
-    PASSPORT: 2,
-    DRIVING_LICENSE: 3,
-    VOTER_ID: 4,
-    PAN_CARD: 5,
-  };
-
   const ID_TYPE_OPTIONS = [
     { label: "Aadhaar Card", value: 1 },
     { label: "Passport", value: 2 },
@@ -35,21 +27,24 @@ const CheckIn = () => {
     { label: "PAN Card", value: 5 },
   ];
 
-  const ID_TYPE_LABEL_BY_VALUE = {
-    1: "Aadhaar Card",
-    2: "Passport",
-    3: "Driving License",
-    4: "Voter ID",
-    5: "PAN Card",
-  };
+  const ID_TYPE_LABEL_BY_VALUE = useMemo(
+    () => ({
+      1: "Aadhaar Card",
+      2: "Passport",
+      3: "Driving License",
+      4: "Voter ID",
+      5: "PAN Card",
+    }),
+    [],
+  );
 
   const [checkinForm, setCheckinForm] = useState({
     fullName: "",
     email: "",
     mobile: "",
     address: "",
-    // roomNo: "",
-    // roomType: "",
+    roomNo: "",
+    roomType: "",
     noOfMember: "",
     stayDuration: "",
     // amount: "",
@@ -82,18 +77,27 @@ const CheckIn = () => {
   };
 
   const createCheckin = async () => {
+    if (loading) return;
     try {
       setLoading(true);
 
-      if (
-        roomAllocations.length === 0 ||
-        roomAllocations.some((g) => !g.rooms || g.rooms.length === 0)
-      ) {
-        toast.error("Please allocate at least one room");
+      if (checkinForm.mobile.length !== 10) {
+        toast.error("Enter valid 10 digit mobile");
         return;
       }
 
-      console.log(roomAllocations)
+      if (roomAllocations.flatMap((g) => g.rooms || []).length === 0) {
+        toast.error("Please select at least one room");
+        return;
+      }
+
+      // To send only room numbers separated by comma
+      const allRoomNumbers = roomAllocations
+        .flatMap((group) => group.rooms) // take all rooms arrays
+        .map((r) => r.roomNo) // extract numbers
+        .join(","); // convert to "101,201,202"
+
+      console.log(allRoomNumbers);
 
       const { data } = await axios.post("/api/v1/Hotel/HotelCheckIn", {
         AccessToken: user?.AccessToken,
@@ -101,9 +105,8 @@ const CheckIn = () => {
         Noofstay: Number(checkinForm.stayDuration),
         Mobile: checkinForm.mobile,
         Email: checkinForm.email,
-        Room: roomAllocations,
-        // RoomNo: checkinForm.roomNo,
-        // RoomType: checkinForm.roomType,
+        RoomNo: allRoomNumbers,
+        RoomType: "", // checkinForm.roomType not sent as of now
         // Amount: Number(checkinForm.amount),
         address: checkinForm.address,
         noOfMember: Number(checkinForm.noOfMember),
@@ -128,46 +131,94 @@ const CheckIn = () => {
     }
   };
 
-  const uploadMemberID = async () => {
-    const MAX_SIZE_MB = 5;
+  const compressIfImage = async (file) => {
+    if (!file.type.startsWith("image/")) return file; // skip PDFs
 
-    for (const file of addMemberForm.idFiles) {
-      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        toast.error("Each file must be under 5MB");
-        return;
-      }
-    }
+    const options = {
+      maxSizeMB: 0.8,
+      maxWidthOrHeight: 1600,
+      initialQuality: 0.7,
+      useWebWorker: true,
+    };
 
     try {
-      const formData = new FormData();
+      if (file.size < 500 * 1024) return file;
 
-      formData.append("accesstoken", user?.AccessToken);
-      formData.append("Chkid", checkinId);
-      addMemberForm.idFiles.forEach((file) => {
-        formData.append("files", file);
-      }); // File object
+      const compressedBlob = await imageCompression(file, options);
+      return new File([compressedBlob], file.name, {
+        type: compressedBlob.type,
+      });
+    } catch (error) {
+      console.log("Compression failed", error);
+      return file; // fallback
+    }
+  };
 
-      const response = await axios.post(
-        "/api/v1/Hotel/UploadMemberID",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
+  const uploadMemberID = async () => {
+    if (!checkinId) {
+      toast.error("Check-in not created yet");
+      return;
+    }
 
-      console.log(response?.data.output);
+    const files = addMemberForm.idFiles;
+
+    // file type validation
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    const pdfFiles = files.filter((f) => f.type === "application/pdf");
+
+    if (pdfFiles.length > 1) {
+      toast.error("Please upload only one PDF document");
+      return;
+    }
+
+    if (pdfFiles.length === 1 && imageFiles.length > 0) {
+      toast.error("Upload either PDF OR images, not both");
+      return;
+    }
+
+    if (imageFiles.length > 2) {
+      toast.error("Upload only front and back images");
+      return;
+    }
+
+    console.log(checkinId);
+
+    try {
+      let response = null;
+      for (const originalFile of files) {
+        const file = await compressIfImage(originalFile);
+
+        const formData = new FormData();
+        formData.append("accesstoken", user?.AccessToken);
+        formData.append("Chkid", checkinId);
+        formData.append("file", file); // single file
+
+        response = await axios.post("/api/v1/Hotel/UploadMemberID", formData);
+
+        if (Number(response?.data?.output) !== 200) {
+          toast.error(`Failed to upload ${file.name}`);
+          return;
+        }
+      }
+
+      console.log(response?.data?.output);
 
       return response;
     } catch (error) {
       console.log(error);
+      toast.error("ID upload failed");
     }
   };
 
   const addMember = async () => {
+    if (loading) return;
     try {
       console.log(checkinId);
+
+      if (!checkinId) {
+        toast.error("Create check-in first");
+        return;
+      }
 
       setLoading(true);
 
@@ -195,6 +246,8 @@ const CheckIn = () => {
         return;
       }
 
+      console.log(addMemberForm.idFiles.map((f) => f.name).join(", "));
+
       const { data } = await axios.post("/api/v1/Hotel/HotelCheckInMembers", {
         accesstoken: user?.AccessToken,
         Chkid: checkinId,
@@ -215,9 +268,9 @@ const CheckIn = () => {
 
         console.log(res);
 
-        console.log(res?.data.output);
+        console.log(res?.data?.output);
 
-        if (Number(res?.data.output) === 200) {
+        if (Number(res?.data?.output) === 200) {
           console.log("Member added");
 
           setMembers((prev) => [...prev, addMemberForm]);
@@ -269,6 +322,8 @@ const CheckIn = () => {
       });
       setRoomAllocations([]);
       setMembers([]);
+      setCheckinId(null);
+      setIsCheckinCreated(false);
     } catch (error) {
       console.log(error);
     }
@@ -288,6 +343,14 @@ const CheckIn = () => {
       grandTotal: total,
     }));
   }, [checkinForm.amount]);
+
+  useEffect(() => {
+    return () => {
+      addMemberForm.idFiles.forEach((file) => {
+        if (file.preview) URL.revokeObjectURL(file.preview);
+      });
+    };
+  }, []);
 
   useEffect(() => {
     const closeAll = () => {
@@ -391,7 +454,7 @@ const CheckIn = () => {
                             className="input"
                             placeholder="Enter 10-digit mobile number"
                             inputMode="numeric"
-                            pattern="[0-9]{10}"
+                            // pattern="[0-9]{10}"
                             maxLength={10}
                             value={checkinForm.mobile}
                             // onFocus={(e) =>
@@ -400,8 +463,14 @@ const CheckIn = () => {
                             // onBlur={(e) =>
                             //   (e.target.placeholder = "Contact Number")
                             // }
+                            // onChange={(e) =>
+                            //   handleCheckin("mobile", e.target.value)
+                            // }
                             onChange={(e) =>
-                              handleCheckin("mobile", e.target.value)
+                              handleCheckin(
+                                "mobile",
+                                e.target.value.replace(/\D/g, "").slice(0, 10),
+                              )
                             }
                             required
                           />
@@ -519,126 +588,6 @@ const CheckIn = () => {
                           value={roomAllocations}
                           onChange={setRoomAllocations}
                         />
-                      </div>
-                    </div>
-
-                    {/* <div className="">
-                      <h3 className="font-medium text-gray-900 mb-2">
-                        Room Details
-                      </h3>
-
-                      <div className="grid pl-1 grid-cols-[1fr_1fr] gap-2"> */}
-
-                    {/* Room Type */}
-                    {/* <div
-                          className="relative"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <p className="text-sm m-0.5 font-medium text-gray-700">
-                            Room Type
-                          </p>
-                          <div
-                            onClick={() =>
-                              setShowRoomTypeList(!showRoomTypeList)
-                            }
-                            className={`input flex items-center justify-between cursor-pointer ${showRoomTypeList && "border-orange-500"} `}
-                          >
-                            <span
-                              className={`${checkinForm.roomType ? "text-gray-900" : "text-orange-500"}
-                                  ${showRoomTypeList && "text-gray-500/90"}
-                                `}
-                            >
-                              {checkinForm.roomType || "Select room type"}
-                            </span>
-                            <img
-                              className={`w-3 h-3 transition-transform ${
-                                showRoomTypeList ? "rotate-180" : ""
-                              }`}
-                              src="/down.png"
-                            />
-                          </div>
-
-                          {showRoomTypeList && (
-                            <div className="absolute z-40 mt-0.5 w-full py-2 bg-gray-100 hover:border-orange-500 border-2 rounded-lg shadow-lg">
-                              {ROOM_TYPES.map((t) => (
-                                <div
-                                  key={t}
-                                  className="px-2.5 py-1 hover:bg-orange-400/20 cursor-pointer"
-                                  onClick={() => {
-                                    handleCheckin("roomType", t);
-                                    setShowRoomTypeList(false);
-                                  }}
-                                >
-                                  {t}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div> */}
-
-                    {/* Room Number */}
-                    {/* <div className="">
-                          <p className="text-sm m-0.5 font-medium text-gray-700">
-                            Room Number
-                          </p>
-                          <input
-                            className="input"
-                            placeholder="Select Room Number"
-                            value={checkinForm.roomNo}
-                            // onFocus={(e) =>
-                            //   (e.target.placeholder = "Enter room number")
-                            // }
-                            // onBlur={(e) =>
-                            //   (e.target.placeholder = "Room Number")
-                            // }
-                            onChange={(e) =>
-                              handleCheckin("roomNo", e.target.value)
-                            }
-                            required
-                          />
-                        </div> */}
-                    {/* </div> */}
-                    {/* </div> */}
-
-                    {/* ================= Charges ================= */}
-                    <div className="hidden">
-                      <h3 className="font-medium text-gray-900 mb-2">
-                        Charges
-                      </h3>
-
-                      <input
-                        className="input"
-                        placeholder="Base Amount"
-                        value={checkinForm.amount}
-                        onFocus={(e) =>
-                          (e.target.placeholder = "Enter base amount per night")
-                        }
-                        onBlur={(e) => (e.target.placeholder = "Base Amount")}
-                        onChange={(e) =>
-                          handleCheckin("amount", e.target.value)
-                        }
-                        // required
-                      />
-                    </div>
-
-                    {/* ================= Payment Summary ================= */}
-                    <div className="hidden bg-gray-100/70 p-4 rounded-lg space-y-0.5">
-                      <div className="flex justify-between text-sm">
-                        <span>Tax ({TAX_PERCENT}%)</span>
-                        <span>
-                          ₹ {checkinForm.tax}
-                          {".00"}
-                        </span>
-                      </div>
-
-                      <div className="border-t"></div>
-
-                      <div className="flex justify-between font-semibold text-base">
-                        <span>Total Payable</span>
-                        <span>
-                          ₹ {checkinForm.grandTotal}
-                          {".00"}
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -846,35 +795,78 @@ const CheckIn = () => {
                           className="hidden"
                           onChange={(e) => {
                             const files = Array.from(e.target.files);
+
+                            for (const file of files) {
+                              if (
+                                !["image/", "application/pdf"].some((t) =>
+                                  file.type.startsWith(t),
+                                )
+                              ) {
+                                toast.error("Only images or PDF files allowed");
+                                return;
+                              }
+
+                              if (file.size > 5 * 1024 * 1024) {
+                                toast.error("Each file must be under 5MB");
+                                return;
+                              }
+                            }
+
                             if (files.length > 2) {
                               toast.error(
                                 "Please upload only front and back of ID",
                               );
                               return;
                             }
-                            handleAddMember("idFiles", files);
+
+                            const filesWithPreview = files.map((file) => {
+                              if (file.type.startsWith("image/")) {
+                                file.preview = URL.createObjectURL(file);
+                              }
+                              return file;
+                            });
+
+                            handleAddMember("idFiles", filesWithPreview);
                           }}
                         />
                       </div>
 
                       {/* ID Preview */}
                       {addMemberForm.idFiles.length > 0 && (
-                        <div className="mt-2 flex gap-2 flex-wrap">
-                          {addMemberForm.idFiles.map((file, i) => (
-                            <div
-                              key={i}
-                              className="px-2 py-1 text-xs bg-gray-200 rounded-lg"
-                            >
-                              {file.name}
-                            </div>
-                          ))}
+                        <div className="mt-4 flex flex-col items-center">
+                          {/* Preview Thumbnails */}
+                          <div className="flex gap-4 flex-wrap justify-center">
+                            {addMemberForm.idFiles.map((file, i) => (
+                              <div
+                                key={i}
+                                className="relative w-24 h-24 rounded-lg overflow-hidden border shadow-md"
+                              >
+                                {file.type.startsWith("image/") ? (
+                                  <img
+                                    src={file.preview}
+                                    alt="preview"
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex items-center justify-center w-full h-full bg-gray-100 text-xs text-center p-2 font-medium">
+                                    PDF
+                                  </div>
+                                )}
 
+                                <div className="absolute bottom-0 w-full bg-black/60 text-white text-[10px] px-1 truncate text-center">
+                                  {file.name}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Remove Button */}
                           <button
                             type="button"
                             onClick={() => handleAddMember("idFiles", [])}
-                            className="text-xs text-red-600 underline"
+                            className="mt-2 text-xs text-red-600 font-medium hover:underline"
                           >
-                            Remove ID
+                            Remove Files
                           </button>
                         </div>
                       )}
@@ -904,6 +896,7 @@ const CheckIn = () => {
                     </button>
 
                     <button
+                      disabled={members.length === 0}
                       className={`px-5 py-3 font-semibold rounded-lg shadow ${
                         members.length === 0
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -916,65 +909,6 @@ const CheckIn = () => {
                 </form>
               </div>
             )}
-
-            {/* Added members List
-            {members.length > 0 && (
-              <div className="p-10">
-                <h3 className="font-bold text-lg mb-3">Added members</h3>
-                <div className="flex flex-wrap bg-gray-200/40 p-4 rounded-xl gap-5">
-                  {members.map((v, i) => (
-                    <div
-                      key={i}
-                      className="bg-gray-100/70 shadow-md p-4 rounded-lg text-sm min-w-44"
-                    >
-                      <p>
-                        <strong>
-                          {v.firstName} {v.lastName}
-                        </strong>
-                      </p>
-                      <p>{v.mobile}</p>
-                      <p>
-                        Room : {v.roomType}
-                        {v.roomNo ? v.roomNo : "not assigned yet"}
-                      </p>
-                      <p>
-                        {v.idType} : {v.idNumber}
-                      </p>
-                      {v.idProof && (
-                        <div>
-                          <span>ID : </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const url = URL.createObjectURL(v.idProof);
-                              window.open(url, "_blank");
-                            }}
-                            className="text-purple-900/80 text-xs underline"
-                          >
-                            View
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )} */}
-
-            {/* {members.length > 0 && (
-              <div className="mt-6 bg-gray-100/60 p-4 rounded-xl">
-                <h3 className="font-semibold mb-3">Added Members</h3>
-                <ul className="space-y-2">
-                  {members.map((m, i) => (
-                    <li key={i} className="text-sm">
-                      {m.fullName} – {m.mobile}
-                      {"ID Type : "}
-                      {ID_TYPE_LABEL_BY_VALUE[m.idType]}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )} */}
 
             {members.length > 0 && (
               <div className="p-5 mt-3">
@@ -1033,7 +967,6 @@ const CheckIn = () => {
               <button
                 onClick={() => {
                   setShowSuccess(false);
-                  setIsCheckinCreated(false); // reset flow
                   navigate("/dashboard");
                 }}
                 className="w-fit px-8 py-3 rounded-lg bg-gray-800 text-white font-medium shadow-md hover:scale-105 duration-300 hover:bg-gray-900 transition"
@@ -1043,14 +976,6 @@ const CheckIn = () => {
             </div>
           </div>
         )}
-
-        {/* Checkin banner */}
-        {/* <div className="w-fit flex items-center justify-center">
-            <div className="max-w-lg">
-              <img className="w-[70vh] p-2" src="/checkin_banner.png" alt="" />
-            </div>
-          </div> */}
-        {/* </div> */}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useAppContext } from "../context/AppContext";
 
 const Sidebar = () => {
-  const { user, navigate, setShowAddRoom, setShowChangePassword, logout } =
+  const { user, navigate, setShowAddRoom, setShowAddRoomType, setShowChangePassword, logout } =
     useAppContext();
 
   return (
@@ -74,6 +74,20 @@ const Sidebar = () => {
         <div className="flex gap-1 items-center mx-1 my-3">
           <div className="border-t border-gray-500 w-full"></div>
         </div>
+
+        {/* Add Room Type */}
+        <button
+          onClick={() => setShowAddRoomType(true)}
+          className="my-1 flex items-center gap-1.5"
+        >
+          <div className="rounded-full p-2 bg-white/80 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out">
+            <img className="w-4 h-4" src="/add_room.svg" alt="add_room" />
+          </div>
+
+          <div className="rounded-full flex-1 bg-white/80 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
+            <p className="text-left">Add Room Type</p>
+          </div>
+        </button>
 
         {/* Add Rooms */}
         <button

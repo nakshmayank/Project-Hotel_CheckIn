@@ -1,31 +1,32 @@
 import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import Home from "./pages/Home";
-import CheckIn from "./pages/CheckIn";
-import CheckOut from "./pages/CheckOut";
+import Home from "./pages/public/Home";
+import CheckIn from "./pages/app/CheckIn";
+import CheckOut from "./pages/app/CheckOut";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/app/Dashboard";
 import { useAppContext } from "./context/AppContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import ManageStay from "./pages/ManageStay";
+import ManageStay from "./pages/app/ManageStay";
 import { Toaster } from "react-hot-toast";
 import AddRoom from "./components/AddRoom";
 import ChangePassword from "./components/ChangePassword";
-import ResetPassword from "./pages/ResetPassword";
-import Profile from "./pages/Profile";
+import ResetPassword from "./pages/account/ResetPassword";
+import Profile from "./pages/account/Profile";
 import DashboardLayout from "./layout/DashboardLayout";
 import FirstLoginPopup from "./components/FirstLoginPopup";
-import Support from "./pages/Support";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import Contact from "./pages/Contact";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Terms from "./pages/Terms";
+import Support from "./pages/public/Support";
+import About from "./pages/public/About";
+import Services from "./pages/public/Services";
+import Contact from "./pages/public/Contact";
+import PrivacyPolicy from "./pages/public/PrivacyPolicy";
+import Terms from "./pages/public/Terms";
 import Login from "./components/Login";
+import AddRoomType from "./components/AddRoomType";
 
 const App = () => {
-  const { user, showAddRoom, showChangePassword, isFirstLogin, showLogin } =
+  const { user, showAddRoom, showAddRoomType, showChangePassword, isFirstLogin, showLogin } =
     useAppContext();
   return (
     <div className="md:bg-gray-300/40">
@@ -34,6 +35,7 @@ const App = () => {
 
       {showLogin && <Login />}
       {showAddRoom && <AddRoom />}
+      {showAddRoomType && <AddRoomType />}
       {/* {isFirstLogin && <FirstLoginPopup />} */}
       {showChangePassword && <ChangePassword />}
 
