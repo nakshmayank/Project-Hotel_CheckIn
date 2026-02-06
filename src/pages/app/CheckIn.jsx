@@ -5,7 +5,10 @@ import imageCompression from "browser-image-compression";
 import RoomAllocation from "../../components/RoomAllocation";
 import { jsPDF } from "jspdf";
 import { PDFDocument } from "pdf-lib";
-import green_badge from "/green_badge.svg"
+import GuestInfo from "../../components/checkin/GuestInfo";
+import StayDetails from "../../components/checkin/StayDetails";
+import AddMember from "../../components/checkin/AddMember";
+import Success from "../../components/checkin/Success";
 
 const CheckIn = () => {
   const { axios, user, navigate } = useAppContext();
@@ -27,14 +30,6 @@ const CheckIn = () => {
 
   const fileRef = useRef(null);
   const topRef = useRef(null);
-
-  const ID_TYPE_OPTIONS = [
-    { label: "Aadhaar Card", value: 1 },
-    { label: "Passport", value: 2 },
-    { label: "Driving License", value: 3 },
-    { label: "Voter ID", value: 4 },
-    { label: "PAN Card", value: 5 },
-  ];
 
   const ID_TYPE_LABEL_BY_VALUE = useMemo(
     () => ({
@@ -487,6 +482,10 @@ const CheckIn = () => {
           // tax: "",
           // grandTotal: "",
         });
+
+        setCheckinId(null);
+        setIsCheckinCreated(false);
+        setIsStayCreated(false);
         setRoomAllocations([]);
         setMembers([]);
       } else {
@@ -580,607 +579,49 @@ const CheckIn = () => {
             </h2>
 
             {!isCheckinCreated ? (
-              <div>
-                {/* Visitor Form */}
-                <div>
                   <div>
                     {!isStayCreated ? (
-                      <form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          createCheckin();
-                        }}
-                      >
-                        {/* ================= Guest Information ================= */}
-                        <div className="bg-gray-200/40 w-full shadow-lg p-2.5 md:p-5 mb-5 rounded-2xl space-y-3">
-                          <h3 className="font-medium text-gray-900 mb-2">
-                            Guest Information
-                          </h3>
-
-                          <div className="grid px-1 grid-cols-1 gap-3">
-                            <div>
-                              <p className="text-sm mb-0.5 font-medium text-gray-700">
-                                Full Name
-                              </p>
-                              <input
-                                className="input"
-                                placeholder="Enter full name"
-                                value={checkinForm.fullName}
-                                // onFocus={(e) =>
-                                //   (e.target.placeholder = "Enter full name")
-                                // }
-                                // onBlur={(e) => (e.target.placeholder = "Full Name")}
-                                onChange={(e) =>
-                                  handleCheckin("fullName", e.target.value)
-                                }
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <p className="text-sm mb-0.5 font-medium text-gray-700">
-                                Mobile Number
-                              </p>
-                              <input
-                                className="input"
-                                placeholder="Enter 10-digit mobile number"
-                                inputMode="numeric"
-                                // pattern="[0-9]{10}"
-                                maxLength={10}
-                                value={checkinForm.mobile}
-                                // onFocus={(e) =>
-                                //   (e.target.placeholder = "Enter mobile number")
-                                // }
-                                // onBlur={(e) =>
-                                //   (e.target.placeholder = "Contact Number")
-                                // }
-                                // onChange={(e) =>
-                                //   handleCheckin("mobile", e.target.value)
-                                // }
-                                onChange={(e) =>
-                                  handleCheckin(
-                                    "mobile",
-                                    e.target.value
-                                      .replace(/\D/g, "")
-                                      .slice(0, 10),
-                                  )
-                                }
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <p className="text-sm mb-0.5 font-medium text-gray-700">
-                                Email Address
-                              </p>
-                              <input
-                                className="input"
-                                placeholder="Enter email address"
-                                value={checkinForm.email}
-                                type="email"
-                                // onFocus={(e) =>
-                                //   (e.target.placeholder = "Enter email address")
-                                // }
-                                // onBlur={(e) =>
-                                //   (e.target.placeholder = "Email Address")
-                                // }
-                                onChange={(e) =>
-                                  handleCheckin("email", e.target.value)
-                                }
-                              />
-                            </div>
-
-                            <div>
-                              <p className="text-sm mb-0.5 font-medium text-gray-700">
-                                Residential Address
-                              </p>
-                              <textarea
-                                rows={3}
-                                className="input resize-none"
-                                placeholder="Enter residential address"
-                                value={checkinForm.address}
-                                // onFocus={(e) =>
-                                //   (e.target.placeholder = "Enter residential address")
-                                // }
-                                // onBlur={(e) =>
-                                //   (e.target.placeholder = "Residential Address")
-                                // }
-                                onChange={(e) =>
-                                  handleCheckin("address", e.target.value)
-                                }
-                                required
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex justify-end">
-                          <button
-                            className={`px-5 py-3 font-semibold rounded-xl bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer`}
-                          >
-                            {creatingCheckin ? (
-                              <div className="flex justify-center items-center gap-2">
-                                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                <span>Creating...</span>
-                              </div>
-                            ) : (
-                              "Create Check-In"
-                            )}
-                          </button>
-                        </div>
-                      </form>
+                      // Guest Information Form
+                      <GuestInfo
+                        checkinForm={checkinForm}
+                        handleCheckin={handleCheckin}
+                        createCheckin={createCheckin}
+                        creatingCheckin={creatingCheckin}
+                      />
                     ) : (
-                      <form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          addStayDetails();
-                        }}
-                      >
-                        <div className="bg-gray-200/40 w-full shadow-lg p-2.5 md:p-5 mb-5 rounded-2xl space-y-3">
-                          {/* ================= Stay Details ================= */}
-                          <div>
-                            <h3 className="font-medium text-gray-900 mb-2">
-                              Stay Details
-                            </h3>
-
-                            <div className="grid pl-1 grid-cols-[1fr_1fr] gap-2">
-                              {/* Number of members */}
-                              <div className="">
-                                <p className="text-sm m-0.5 font-medium text-gray-700">
-                                  Number of Members
-                                </p>
-                                <input
-                                  className="input"
-                                  type="number"
-                                  min={1}
-                                  placeholder="Enter number of members"
-                                  value={checkinForm.noOfMember}
-                                  disabled={members.length > 0}
-                                  // onFocus={(e) =>
-                                  //   (e.target.placeholder = "Enter number of members")
-                                  // }
-                                  // onBlur={(e) =>
-                                  //   (e.target.placeholder = "Number of Members")
-                                  // }
-                                  onChange={(e) =>
-                                    handleCheckin("noOfMember", e.target.value)
-                                  }
-                                  required
-                                />
-                              </div>
-
-                              {/* Stay Duration */}
-                              <div className="mb-2">
-                                <p className="text-sm m-0.5 font-medium text-gray-700">
-                                  Stay Duration (Nights)
-                                </p>
-                                <input
-                                  type="number"
-                                  min={1}
-                                  className="input"
-                                  placeholder="Enter stay duration"
-                                  value={checkinForm.stayDuration}
-                                  // onFocus={(e) =>
-                                  //   (e.target.placeholder = "Enter stay duration")
-                                  // }
-                                  // onBlur={(e) =>
-                                  //   (e.target.placeholder = "Stay Duration (Nights)")
-                                  // }
-                                  onChange={(e) =>
-                                    handleCheckin(
-                                      "stayDuration",
-                                      e.target.value,
-                                    )
-                                  }
-                                  required
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* ================= Room Details ================= */}
-                          <div className="mt-2">
-                            <h3 className="font-medium text-gray-900 mb-2">
-                              Room Allocation
-                            </h3>
-                            <div className="bg-gray-100/70 shadow-lg p-3 md:p-4 rounded-2xl space-y-2">
-                              <RoomAllocation
-                                value={roomAllocations}
-                                onChange={setRoomAllocations}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex justify-end">
-                          <button
-                            className={`px-5 py-3 font-semibold rounded-xl bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer`}
-                          >
-                            {addingStay ? (
-                              <div className="flex justify-center items-center gap-2">
-                                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                <span>Adding...</span>
-                              </div>
-                            ) : (
-                              "Add Stay Details"
-                            )}
-                          </button>
-                        </div>
-                      </form>
+                      // Stay Details Form
+                      <StayDetails
+                        addStayDetails={addStayDetails}
+                        checkinForm={checkinForm}
+                        handleCheckin={handleCheckin}
+                        roomAllocations={roomAllocations}
+                        setRoomAllocations={setRoomAllocations}
+                        addingStay={addingStay}
+                        members={members}
+                      />
                     )}
                   </div>
-                </div>
-              </div>
             ) : (
               <div>
-                {/* Visitor Form */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    addMember();
-                  }}
-                >
-                  <div className="bg-gray-200/40 mb-4 p-5 shadow-lg rounded-2xl space-y-2">
-                    <h3 className="font-medium text-gray-900">
-                      Member Details
-                    </h3>
-
-                    <div className="flex flex-col gap-3">
-                      {/* Full Name */}
-                      <input
-                        className="input"
-                        placeholder="Full Name"
-                        value={addMemberForm.fullName}
-                        onFocus={(e) =>
-                          (e.target.placeholder = "Enter full name")
-                        }
-                        onBlur={(e) => (e.target.placeholder = "Full Name")}
-                        onChange={(e) =>
-                          handleAddMember("fullName", e.target.value)
-                        }
-                      />
-
-                      {/* Mobile */}
-                      <input
-                        className="input"
-                        placeholder="Mobile Number"
-                        maxLength={10}
-                        value={addMemberForm.mobile}
-                        onFocus={(e) =>
-                          (e.target.placeholder = "Enter mobile number")
-                        }
-                        onBlur={(e) => (e.target.placeholder = "Mobile Number")}
-                        onChange={(e) =>
-                          handleAddMember("mobile", e.target.value)
-                        }
-                      />
-
-                      {/* Age */}
-                      <input
-                        type="number"
-                        min={1}
-                        className="input"
-                        placeholder="Age"
-                        value={addMemberForm.age}
-                        onFocus={(e) => (e.target.placeholder = "Enter age")}
-                        onBlur={(e) => (e.target.placeholder = "Age")}
-                        onChange={(e) => handleAddMember("age", e.target.value)}
-                      />
-
-                      {/* Gender – segmented control */}
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                          Gender
-                        </label>
-
-                        <div className="flex gap-3">
-                          {[
-                            { label: "Male", value: "M" },
-                            { label: "Female", value: "F" },
-                            { label: "Other", value: "O" },
-                          ].map((g) => (
-                            <button
-                              key={g.value}
-                              type="button"
-                              onClick={() => handleAddMember("gender", g.value)}
-                              className={`px-4 py-2 shadow-md rounded-lg text-sm font-medium transition-all ${addMemberForm.gender === g.value ? "bg-primary-500 text-white border-primary-500 shadow-lg" : "bg-gray-100 text-gray-700 hover:text-primary-500"}`}
-                            >
-                              {g.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* File Upload */}
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                          ID Proof
-                        </label>
-
-                        <div className="">
-                          <div className="grid grid-cols-1 sm:grid-cols-[1fr_2fr] gap-2">
-                            {/* ID Type */}
-                            <div
-                              className="relative"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {/* Input-like box */}
-                              <div
-                                onClick={() =>
-                                  setShowIdTypeList((prev) => !prev)
-                                }
-                                className={`input flex items-center justify-between shadow-md cursor-pointer ${showIdTypeList ? "border-primary-500 shadow-lg" : ""}`}
-                              >
-                                <span
-                                  className={
-                                    addMemberForm.idType
-                                      ? "text-gray-900"
-                                      : "text-primary-500"
-                                  }
-                                >
-                                  {addMemberForm.idType
-                                    ? ID_TYPE_LABEL_BY_VALUE[
-                                        addMemberForm.idType
-                                      ]
-                                    : "ID Type"}
-                                </span>
-
-                                <img
-                                  src="/down.png"
-                                  className={`w-3 h-3 transition-transform ${
-                                    showIdTypeList ? "rotate-180" : ""
-                                  }`}
-                                  alt="down_arrow"
-                                />
-                              </div>
-
-                              {/* Dropdown */}
-                              {showIdTypeList && (
-                                <div className="absolute z-40 mt-0.5 w-full py-1 bg-gray-100 border-2 hover:border-primary-500 rounded-lg shadow-lg overflow-hidden">
-                                  {ID_TYPE_OPTIONS.map((id) => (
-                                    <div
-                                      key={id.value}
-                                      onClick={() => {
-                                        handleAddMember("idType", id.value);
-                                        setShowIdTypeList(false);
-                                      }}
-                                      className="px-3 py-1.5 cursor-pointer text-sm text-gray-900 hover:bg-primary-200/60"
-                                    >
-                                      {id.label}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* File Input */}
-                            <div
-                              className={`flex items-center cursor-pointer relative rounded-lg overflow-hidden ${
-                                !addMemberForm.idType ? "opacity-70" : ""
-                              }`}
-                              onClick={() => {
-                                if (!addMemberForm.idType) {
-                                  toast.error("Please select ID Type first");
-                                  return;
-                                }
-                                fileRef.current?.click();
-                              }}
-                            >
-                              <div className="flex-1 px-3 py-2 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 transition">
-                                <span className=" text-sm text-gray-600 truncate">
-                                  {addMemberForm.idFiles.length > 0
-                                    ? `${addMemberForm.idFiles.length} file(s) selected`
-                                    : "Upload ID document (PDF / Image)"}
-                                </span>
-                              </div>
-                              <div className="absolute right-0 px-4 py-2 border-primary-500 border-2 hover:bg-primary-500 bg-primary-500 rounded-lg rounded-l-none">
-                                <span className="text-white text-md font-medium">
-                                  {addMemberForm.idFiles.length > 0
-                                    ? "Update ID"
-                                    : "Browse"}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="text-xs text-end text-gray-500 mt-1">
-                          *Upload front and back of ID as images or a single PDF
-                        </p>
-
-                        <input
-                          ref={fileRef}
-                          type="file"
-                          accept=".pdf,image/*"
-                          multiple
-                          capture="environment"
-                          className="hidden"
-                          onChange={(e) => {
-                            // const files = Array.from(e.target.files);
-                            const newFiles = Array.from(e.target.files);
-                            const currentFiles = addMemberForm.idFiles; // Get existing files
-
-                            // for (const file of files) {
-                            //   if (
-                            //     !["image/", "application/pdf"].some((t) =>
-                            //       file.type.startsWith(t),
-                            //     )
-                            //   ) {
-                            //     toast.error("Only images or PDF files allowed");
-                            //     return;
-                            //   }
-
-                            //   if (file.size > 5 * 1024 * 1024) {
-                            //     toast.error("Each file must be less than 5MB");
-                            //     return;
-                            //   }
-                            // }
-
-                            // Total check (Existing + New)
-                            if (currentFiles.length + newFiles.length > 2) {
-                              toast.error(
-                                "You can upload a maximum of 2 files (front and back)",
-                              );
-                              return;
-                            }
-
-                            const pdfCount = newFiles.filter(
-                              (f) => f.type === "application/pdf",
-                            ).length;
-                            if (pdfCount > 1) {
-                              toast.error("Upload one PDF only");
-                              return;
-                            }
-
-                            const processedNewFiles = [];
-                            for (const file of newFiles) {
-                              if (
-                                !["image/", "application/pdf"].some((t) =>
-                                  file.type.startsWith(t),
-                                )
-                              ) {
-                                toast.error("Only images or PDF files allowed");
-                                continue;
-                              }
-
-                              if (file.size > 5 * 1024 * 1024) {
-                                toast.error("Each file must be less than 5MB");
-                                return;
-                              }
-
-                              // Add preview URL for images
-                              if (file.type.startsWith("image/")) {
-                                file.preview = URL.createObjectURL(file);
-                              }
-                              processedNewFiles.push(file);
-                            }
-
-                            // MERGE: Keep old files and add the new ones
-                            handleAddMember("idFiles", [
-                              ...currentFiles,
-                              ...processedNewFiles,
-                            ]);
-
-                            // Reset input value so the same file can be selected again if deleted
-                            e.target.value = null;
-
-                            // const filesWithPreview = files.map((file) => {
-                            //   if (file.type.startsWith("image/")) {
-                            //     file.preview = URL.createObjectURL(file);
-                            //   }
-                            //   return file;
-                            // });
-
-                            // handleAddMember("idFiles", filesWithPreview);
-                          }}
-                        />
-                      </div>
-
-                      {/* ID Preview */}
-                      {addMemberForm.idFiles.length > 0 && (
-                        <div className="mt-4 flex flex-col items-center">
-                          <div className="flex gap-4 flex-wrap justify-center">
-                            {addMemberForm.idFiles.map((file, i) => (
-                              <div
-                                key={`${file.name}-${i}`}
-                                className="relative w-28 h-28 rounded-lg overflow-hidden border shadow-md group"
-                              >
-                                {/* File Content */}
-                                {file.type.startsWith("image/") ? (
-                                  <img
-                                    src={file.preview}
-                                    alt="preview"
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="flex items-center justify-center w-full h-full bg-gray-100 text-xs text-center p-2 font-medium">
-                                    PDF Document
-                                  </div>
-                                )}
-
-                                {/* Individual Remove Button (Overlay) */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    // Revoke URL to prevent memory leak
-                                    if (file.preview) {
-                                      URL.revokeObjectURL(file.preview);
-                                    }
-
-                                    // Filter out ONLY this specific file by index
-                                    const updatedFiles =
-                                      addMemberForm.idFiles.filter(
-                                        (_, index) => index !== i,
-                                      );
-                                    handleAddMember("idFiles", updatedFiles);
-                                  }}
-                                  className="absolute w-5 h-5 flex items-center justify-center top-1 right-1 bg-black/60 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors"
-                                  title="Remove this file"
-                                >
-                                  <span className="">×</span>
-                                </button>
-
-                                {/* Filename Label */}
-                                <div className="absolute bottom-0 w-full bg-black/60 text-white text-[10px] px-1 truncate text-center">
-                                  {file.name}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="flex justify-end gap-4">
-                    <button
-                      disabled={
-                        addingMember ||
-                        members.length === Number(checkinForm.noOfMember)
-                      }
-                      className={`px-5 py-3 rounded-xl font-medium shadow-lg ${
-                        members.length === Number(checkinForm.noOfMember)
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-primary-500 text-white hover:bg-primary-500 hover:shadow-xl"
-                      }`}
-                    >
-                      {addingMember ? (
-                        <div className="flex gap-2 items-center justify-center">
-                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                          <span>Adding...</span>
-                        </div>
-                      ) : (
-                        "Add Member"
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={finishCheckin}
-                      disabled={
-                        members.length !== Number(checkinForm.noOfMember) ||
-                        members.length === 0 ||
-                        finishingCheckin
-                      }
-                      className={`px-5 py-3 font-semibold rounded-xl shadow ${
-                        members.length !== Number(checkinForm.noOfMember)
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : " text-primary-500 border-2 border-primary-500 shadow-lg hover:bg-primary-100/50 hover:shadow-xl cursor-pointer"
-                      }`}
-                    >
-                      {finishingCheckin ? (
-                        <div className="flex gap-2 items-center justify-center">
-                          <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></span>
-                          <span>Finishing...</span>
-                        </div>
-                      ) : (
-                        "Finish Check-In"
-                      )}
-                    </button>
-                  </div>
-                </form>
+                {/* Member Form */}
+                <AddMember
+                  addMember={addMember}
+                  addMemberForm={addMemberForm}
+                  handleAddMember={handleAddMember}
+                  showIdTypeList={showIdTypeList}
+                  setShowIdTypeList={setShowIdTypeList}
+                  fileRef={fileRef}
+                  addingMember={addingMember}
+                  members={members}
+                  checkinForm={checkinForm}
+                  finishCheckin={finishCheckin}
+                  finishingCheckin={finishingCheckin}
+                  ID_TYPE_LABEL_BY_VALUE={ID_TYPE_LABEL_BY_VALUE}
+                />
               </div>
             )}
 
+            {/* Added Members List */}
             {members.length > 0 && (
               <div className="p-5 mt-3">
                 <h3 className="font-bold text-lg mb-3">Added Members</h3>
@@ -1213,40 +654,10 @@ const CheckIn = () => {
           </div>
         </div>
 
+        {/* Checkin Success Message */}
         {showSuccess && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-            <div className="w-full fade-in max-w-md bg-gray-200/70 rounded-2xl shadow-2xl px-8 py-8 text-center relative">
-              {/* Curvy Tick Badge */}
-              <div className="flex justify-center mb-6 fade-in">
-                <img className="w-24 fade-in" src={green_badge} alt="green_badge" />
-              </div>
-
-              {/* Text */}
-              <div className="flex justify-center">
-                <div className="max-w-xs">
-                  <h2 className="text-3xl font-semibold text-gray-800 mb-2">
-                    Check-In Confirmed
-                  </h2>
-                  <p className="text-gray-600 mb-8">
-                    The guest has been successfully checked in. You can now view
-                    stay details, manage members, or proceed with checkout.
-                  </p>
-                </div>
-              </div>
-
-              {/* Button */}
-              <button
-                onClick={() => {
-                  setCheckinId(null);
-                  setIsCheckinCreated(false);
-                  setShowSuccess(false);
-                  navigate("/dashboard/manage-stay");
-                }}
-                className="w-fit px-8 py-3 rounded-lg bg-gray-700 text-white font-medium shadow-md hover:scale-105 ease-in-out duration-300 hover:bg-gray-800 transition"
-              >
-                Manage Stay
-              </button>
-            </div>
+            <Success setShowSuccess={setShowSuccess} />
           </div>
         )}
       </div>

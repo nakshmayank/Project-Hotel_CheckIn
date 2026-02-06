@@ -177,16 +177,16 @@ const AddRoom = () => {
           ) : (
             <div className="space-y-3">
               {/* ADD MODE TOGGLE */}
-              <div className="px-10">
+              <div className="px-8">
                 {/* <label className="text-sm font-medium text-gray-700">Add Mode</label> */}
-                <div className="mt-1 flex bg-gray-200/50 rounded-full p-1.5">
+                <div className="mt-1 flex gap-1 bg-gray-200/50 rounded-full p-1.5">
                   <button
                     type="button"
                     onClick={() => setAddMode("S")}
-                    className={`flex-1 py-1.5 text-sm rounded-full transition ${
+                    className={`flex-1 py-1.5 text-sm rounded-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-95 ${
                       addMode === "S"
-                        ? "bg-white shadow text-primary-500"
-                        : "text-gray-600"
+                        ? "bg-white shadow text-primary-500 scale-105"
+                        : "text-gray-600 hover:scale-95"
                     }`}
                   >
                     Single Room
@@ -194,10 +194,10 @@ const AddRoom = () => {
                   <button
                     type="button"
                     onClick={() => setAddMode("R")}
-                    className={`flex-1 py-1.5 text-sm rounded-full transition ${
+                    className={`flex-1 py-1.5 text-sm rounded-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-95 ${
                       addMode === "R"
-                        ? "bg-white shadow text-primary-500"
-                        : "text-gray-600"
+                        ? "bg-white shadow text-primary-500 scale-105"
+                        : "text-gray-600 hover:scale-95"
                     }`}
                   >
                     Room Range

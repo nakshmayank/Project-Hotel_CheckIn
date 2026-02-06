@@ -1,7 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
-import green_badge from "/green_badge.svg"
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -56,7 +55,7 @@ const ResetPassword = () => {
     }
   };
 
-  if(user) {
+  if (user) {
     toast.error("Already logged in!");
     navigate("/dashboard");
     return;
@@ -75,7 +74,9 @@ const ResetPassword = () => {
             >
               <div className="flex items-center gap-1 hover:-translate-x-1 transition-transform duration-300">
                 <img className="w-3 h-3" src="/back2.png" alt="" />
-                <span className="text-sm font-medium text-gray-900">Back to Home</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Back to Home
+                </span>
               </div>
             </button>
 
@@ -85,7 +86,9 @@ const ResetPassword = () => {
 
             <div className="flex flex-col">
               <div className="mb-4">
-                <p className="text-sm mb-1 font-medium text-gray-800">New Password</p>
+                <p className="text-sm mb-1 font-medium text-gray-800">
+                  New Password
+                </p>
                 <div className="relative">
                   <input
                     name="password"
@@ -124,7 +127,9 @@ const ResetPassword = () => {
               </div>
 
               <div className="mb-4">
-                <p className="text-sm mb-1 font-medium text-gray-800">Confirm Password</p>
+                <p className="text-sm mb-1 font-medium text-gray-800">
+                  Confirm Password
+                </p>
                 <div className="relative">
                   <input
                     name="password"
@@ -171,13 +176,13 @@ const ResetPassword = () => {
                 }`}
               >
                 {loading ? (
-                        <div className="flex gap-2 items-center justify-center">
-                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                          <span>Resetting...</span>
-                        </div>
-                      ) : (
-                        "Reset Password"
-                      )}
+                  <div className="flex gap-2 items-center justify-center">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Resetting...</span>
+                  </div>
+                ) : (
+                  "Reset Password"
+                )}
               </button>
             </div>
           </form>
@@ -189,7 +194,30 @@ const ResetPassword = () => {
           <div className="w-full max-w-md bg-gray-200/70 rounded-2xl shadow-2xl px-8 py-8 text-center relative">
             {/* Curvy Tick Badge */}
             <div className="flex justify-center mb-6">
-              <img className="w-28 h-28 fade-in" src={green_badge} alt="green_badge" />
+              {/* <img className="w-28 h-28 fade-in" src={green_badge} alt="green_badge" /> */}
+              <svg
+              className="fade-in"
+                xmlns="http://www.w3.org/2000/svg"
+                xml:space="preserve"
+                width="112"
+                height="112"
+                viewBox="0 0 112 112"
+              >
+                <g fill="none" stroke-miterlimit="10" stroke-width="0">
+                  <path
+                    fill="#00c92b"
+                    d="M62.691 3.025a12.565 12.565 0 0 1 16.28 4.363 12.553 12.553 0 0 0 9.924 5.731A12.565 12.565 0 0 1 100.812 25.036a12.553 12.553 0 0 0 5.729 9.924 12.565 12.565 0 0 1 4.363 16.28 12.553 12.553 0 0 0 0 11.458 12.565 12.565 0 0 1 -4.363 16.281A12.553 12.553 0 0 0 100.812 88.9a12.565 12.565 0 0 1 -11.916 11.916 12.553 12.553 0 0 0 -9.924 5.731 12.565 12.565 0 0 1 -16.28 4.363 12.553 12.553 0 0 0 -11.458 0 12.565 12.565 0 0 1 -16.274 -4.373 12.553 12.553 0 0 0 -9.924 -5.731 12.565 12.565 0 0 1 -11.916 -11.918 12.553 12.553 0 0 0 -5.731 -9.924 12.553 12.553 0 0 1 -4.363 -16.276 12.553 12.553 0 0 0 0 -11.458 12.565 12.565 0 0 1 4.363 -16.281 12.553 12.553 0 0 0 5.731 -9.923A12.565 12.565 0 0 1 25.037 13.111a12.553 12.553 0 0 0 9.924 -5.731 12.565 12.565 0 0 1 16.277 -4.356 12.553 12.553 0 0 0 11.457 0"
+                  />
+                  <path
+                    fill="#00b22a"
+                    d="M47.053 83.148V59.296l31.793 -14.208 11.923 11.923z"
+                  />
+                  <path
+                    fill="#fff"
+                    d="M47.053 83.148 23.158 59.261l11.923 -11.937 11.972 11.972L75.538 30.777l11.923 11.914z"
+                  />
+                </g>
+              </svg>
             </div>
 
             {/* Text */}
@@ -206,7 +234,10 @@ const ResetPassword = () => {
 
             {/* Button */}
             <button
-              onClick={() => {navigate("/");setShowLogin(true)}}
+              onClick={() => {
+                navigate("/");
+                setShowLogin(true);
+              }}
               className="w-fit px-8 py-3 rounded-lg bg-gray-800 text-white font-medium shadow-md hover:scale-105 duration-300 hover:bg-gray-900 transition"
             >
               Back to Login
