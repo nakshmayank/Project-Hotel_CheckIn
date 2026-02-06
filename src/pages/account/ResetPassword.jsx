@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
+import green_badge from "/green_badge.svg"
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -10,7 +11,7 @@ const ResetPassword = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { axios, navigate, user } = useAppContext();
+  const { axios, navigate, user, setShowLogin } = useAppContext();
 
   const params = new URLSearchParams(window.location.search);
   const token = params.get("User");
@@ -62,14 +63,14 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-orange-300 to-amber-300/70 flex items-center justify-center px-4">
-      <div>
-        <div className="max-w-lg bg-gray-200/40 rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mx-auto relative">
-          <form onSubmit={submitHandler} className="p-5 pt-7">
+    <div className="min-h-screen bg-gray-300/40 flex items-center justify-center px-4">
+      <div className="w-full flex justify-center items-center">
+        <div className="w-full max-w-lg flex justify-center items-center py-8 bg-gray-200/70 rounded-3xl shadow-xl relative">
+          <form onSubmit={submitHandler} className="p-5 pt-7 w-full max-w-xs">
             {/* Back to Home Button */}
             <button
               type="button"
-              className="absolute top-3 left-3"
+              className="absolute top-5 left-5"
               onClick={() => navigate("/")}
             >
               <div className="flex items-center gap-1 hover:-translate-x-1 transition-transform duration-300">
@@ -93,8 +94,8 @@ const ResetPassword = () => {
                     placeholder="Enter new password"
                     type={showNewPassword ? "text" : "password"}
                     className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none 
-               placeholder:text-orange-600 focus:placeholder:text-gray-400 
-               focus:shadow-lg focus:border-orange-500"
+               placeholder:text-primary-500 focus:placeholder:text-gray-400 
+               focus:shadow-lg focus:border-primary-500"
                     required
                   />
 
@@ -103,7 +104,7 @@ const ResetPassword = () => {
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 
-               text-sm font-medium text-gray-600 hover:text-orange-600"
+               text-sm font-medium text-gray-600 hover:text-primary-500"
                   >
                     {showNewPassword ? (
                       <img
@@ -132,8 +133,8 @@ const ResetPassword = () => {
                     placeholder="Confirm new password"
                     type={showConfirmPassword ? "text" : "password"}
                     className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none 
-               placeholder:text-orange-600 focus:placeholder:text-gray-400 
-               focus:shadow-lg focus:border-orange-500"
+               placeholder:text-primary-500 focus:placeholder:text-gray-400 
+               focus:shadow-lg focus:border-primary-500"
                     required
                   />
 
@@ -142,7 +143,7 @@ const ResetPassword = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 
-               text-sm font-medium text-gray-600 hover:text-orange-600"
+               text-sm font-medium text-gray-600 hover:text-primary-500"
                   >
                     {showConfirmPassword ? (
                       <img
@@ -165,11 +166,18 @@ const ResetPassword = () => {
                 disabled={loading}
                 className={`w-full mt-2 py-3 rounded-lg font-semibold text-white shadow-lg transition-all duration-300 ${
                   loading
-                    ? "bg-orange-500/80 cursor-not-allowed"
-                    : "bg-orange-500 hover:bg-orange-600 hover:scale-105 hover:shadow-xl"
+                    ? "bg-primary-500/80 cursor-not-allowed"
+                    : "bg-primary-500 hover:bg-primary-500 hover:scale-105 hover:shadow-xl"
                 }`}
               >
-                {loading ? "Resetting..." : "Reset Password"}
+                {loading ? (
+                        <div className="flex gap-2 items-center justify-center">
+                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                          <span>Resetting...</span>
+                        </div>
+                      ) : (
+                        "Reset Password"
+                      )}
               </button>
             </div>
           </form>
@@ -181,7 +189,7 @@ const ResetPassword = () => {
           <div className="w-full max-w-md bg-gray-200/70 rounded-2xl shadow-2xl px-8 py-8 text-center relative">
             {/* Curvy Tick Badge */}
             <div className="flex justify-center mb-6">
-              <img src="/green_badge.png" alt="green_badge" />
+              <img className="w-28 h-28 fade-in" src={green_badge} alt="green_badge" />
             </div>
 
             {/* Text */}
@@ -198,7 +206,7 @@ const ResetPassword = () => {
 
             {/* Button */}
             <button
-              onClick={() => navigate("/")}
+              onClick={() => {navigate("/");setShowLogin(true)}}
               className="w-fit px-8 py-3 rounded-lg bg-gray-800 text-white font-medium shadow-md hover:scale-105 duration-300 hover:bg-gray-900 transition"
             >
               Back to Login

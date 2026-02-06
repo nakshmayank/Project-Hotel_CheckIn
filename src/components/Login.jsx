@@ -42,14 +42,14 @@ const Login = () => {
     try {
       setLoading(true);
 
-      console.log("I'm here")
+      console.log("I'm here");
 
       const { data } = await axios.post("/api/v1/Hotel/HotelLogin", {
         email: identifier,
         password,
       });
 
-      console.log(data)
+      console.log(data);
 
       const userId = data[0];
 
@@ -191,7 +191,7 @@ const Login = () => {
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
       <div>
         <div
-          className={`bg-gray-50/30 p-4 sm:p-5 md:p-6 rounded-2xl shadow-lg w-[85vw] max-w-sm relative`}
+          className={`bg-gray-50/30 fade-in-fast p-4 sm:p-5 md:p-6 rounded-2xl shadow-lg w-[85vw] max-w-sm relative`}
         >
           <form
             className="p-4"
@@ -241,7 +241,7 @@ const Login = () => {
                     placeholder="Hotel Name"
                     onFocus={(e) => (e.target.placeholder = "Enter hotel name")}
                     onBlur={(e) => (e.target.placeholder = "Hotel Name")}
-                    className="w-full border-2 shadow-md p-2 rounded-lg mb-2 outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                    className="w-full border-2 shadow-md p-2 rounded-lg mb-2 outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     type="text"
                     required
                   />
@@ -262,7 +262,7 @@ const Login = () => {
                       (e.target.placeholder = "Enter email address")
                     }
                     onBlur={(e) => (e.target.placeholder = "Email Address")}
-                    className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                    className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     type="email"
                     required
                   />
@@ -281,15 +281,15 @@ const Login = () => {
                         setShowCountryDropdown(!showCountryDropdown);
                       }}
                       className={`flex items-center justify-between p-2 pr-1.5 bg-white border-2 rounded-lg shadow-md cursor-pointer outline-none ${
-                        showCountryDropdown ? "border-orange-500" : ""
+                        showCountryDropdown ? "border-primary-500" : ""
                       }`}
                     >
                       <span className="text-gray-900">{countryCode}</span>
                       <span>
                         <img
                           className={`w-3 h-3 transition-transform ${
-                                      showCountryDropdown ? "rotate-180" : ""
-                                    }`}
+                            showCountryDropdown ? "rotate-180" : ""
+                          }`}
                           src="/down.png"
                           alt="down_arrow"
                         />
@@ -299,7 +299,7 @@ const Login = () => {
                     {/* Country Code Dropdown */}
                     {showCountryDropdown && (
                       <div
-                        className="absolute z-50 mt-0.5 py-2 w-full bg-white border-2 hover:border-orange-500 rounded-lg shadow-lg overflow-hidden"
+                        className="absolute z-50 mt-0.5 py-2 w-full bg-white border-2 hover:border-primary-500 rounded-lg shadow-lg overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {["+91", "+1", "+44"].map((code) => (
@@ -309,7 +309,7 @@ const Login = () => {
                               setCountryCode(code);
                               setShowCountryDropdown(false);
                             }}
-                            className="px-2 py-1 cursor-pointer text-gray-900 hover:bg-orange-200/60"
+                            className="px-2 py-1 cursor-pointer text-gray-900 hover:bg-primary-200/60"
                           >
                             {code}
                           </div>
@@ -332,7 +332,7 @@ const Login = () => {
                         (e.target.placeholder = "Enter 10-digit mobile number")
                       }
                       onBlur={(e) => (e.target.placeholder = "Mobile Number")}
-                      className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                      className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       type="tel"
                       required
                     />
@@ -360,7 +360,7 @@ const Login = () => {
                         if (!e.target.value) e.target.placeholder = "Password";
                       }}
                       type={showPassword ? "text" : "password"}
-                      className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                      className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       required
                     />
 
@@ -368,7 +368,7 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-orange-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-primary-500"
                     >
                       {showPassword ? (
                         <img
@@ -420,7 +420,7 @@ const Login = () => {
                   {/* Password Strength Info */}
                   {password && showPasswordInfo && passwordStrength && (
                     <div
-                      className={`absolute right-0 top-full bg-white border-2 rounded-xl shadow-xl p-3 text-xs z-50 mr-2 hover:border-orange-500 transition-all duration-200 ease-out  ${
+                      className={`absolute right-0 top-full bg-gray-50/60 backdrop-blur border-2 rounded-xl shadow-xl p-3 text-xs z-50 mr-2 hover:border-primary-500 transition-all duration-200 ease-out  ${
                         showPasswordInfo
                           ? "opacity-100 scale-100 pointer-events-auto"
                           : "opacity-0 scale-95 pointer-events-none"
@@ -489,8 +489,8 @@ const Login = () => {
                     onBlur={(e) => (e.target.placeholder = "Confirm Password")}
                     type={showConfirmPassword ? "text" : "password"}
                     className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none 
-               placeholder:text-orange-600 focus:placeholder:text-gray-400 
-               focus:shadow-lg focus:border-orange-500"
+               placeholder:text-primary-500 focus:placeholder:text-gray-400 
+               focus:shadow-lg focus:border-primary-500"
                     required
                   />
 
@@ -499,7 +499,7 @@ const Login = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 
-               text-sm font-medium text-gray-600 hover:text-orange-600"
+               text-sm font-medium text-gray-600 hover:text-primary-500"
                   >
                     {showConfirmPassword ? (
                       <img
@@ -519,11 +519,23 @@ const Login = () => {
 
                 <p className="text-sm mb-4 text-gray-900">
                   By creating an account, you agree to our{" "}
-                  <span className="text-orange-600 hover:underline cursor-pointer">
+                  <span
+                    className="text-primary-500 hover:underline cursor-pointer"
+                    onClick={() => {
+                      setShowLogin(false);
+                      navigate("/terms");
+                    }}
+                  >
                     Terms of Service
                   </span>{" "}
                   <span className="text-gray-900">and</span>{" "}
-                  <span className="text-orange-600 hover:underline cursor-pointer">
+                  <span
+                    className="text-primary-500 hover:underline cursor-pointer"
+                    onClick={() => {
+                      setShowLogin(false);
+                      navigate("/privacy-policy");
+                    }}
+                  >
                     Privacy Policy
                   </span>
                   .
@@ -544,7 +556,7 @@ const Login = () => {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="Enter email or mobile number"
-                  className="w-full border-2 shadow-md p-2 rounded-lg mb-4 outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                  className="w-full border-2 shadow-md p-2 rounded-lg mb-4 outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                   required
                 />
 
@@ -560,8 +572,8 @@ const Login = () => {
                     placeholder="Enter password"
                     type={showPassword ? "text" : "password"}
                     className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none 
-               placeholder:text-orange-600 focus:placeholder:text-gray-400 
-               focus:shadow-lg focus:border-orange-500"
+               placeholder:text-primary-500 focus:placeholder:text-gray-400 
+               focus:shadow-lg focus:border-primary-500"
                     required
                   />
 
@@ -570,7 +582,7 @@ const Login = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 
-               text-sm font-medium text-gray-600 hover:text-orange-600"
+               text-sm font-medium text-gray-600 hover:text-primary-500"
                   >
                     {showPassword ? (
                       <img
@@ -593,7 +605,7 @@ const Login = () => {
                   <label className="flex items-center gap-1 text-sm text-gray-900 cursor-pointer">
                     <input
                       type="checkbox"
-                      className="accent-orange-500 cursor-pointer"
+                      className="accent-primary-500 cursor-pointer"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
                     />
@@ -604,7 +616,7 @@ const Login = () => {
                     type="button"
                     onClick={() => setState("reset")}
                   >
-                    <p className="text-sm text-right text-orange-600 hover:underline">
+                    <p className="text-sm text-right text-primary-500 hover:underline">
                       Forgot password?
                     </p>
                   </button>
@@ -625,7 +637,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your registered email"
-                  className="w-full border-2 shadow-md p-2 rounded-lg mb-4 outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                  className="w-full border-2 shadow-md p-2 rounded-lg mb-4 outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                   required
                 />
               </div>
@@ -636,8 +648,8 @@ const Login = () => {
               disabled={loading}
               className={`w-full py-3 rounded-xl font-semibold text-white shadow-md hover:scale-105 transition-all duration-300 ${
                 loading
-                  ? "bg-orange-500/80 cursor-not-allowed"
-                  : "bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
+                  ? "bg-primary-500/80 cursor-not-allowed"
+                  : "bg-primary-500 hover:bg-primary-500 hover:shadow-lg"
               }`}
             >
               {loading ? (
@@ -666,7 +678,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setState("login")}
-                  className="text-orange-600 font-semibold hover:underline"
+                  className="text-primary-500 font-semibold hover:underline"
                 >
                   Sign In
                 </button>
@@ -677,7 +689,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setState("register")}
-                  className="text-orange-600 font-semibold hover:underline"
+                  className="text-primary-500 font-semibold hover:underline"
                 >
                   Sign Up
                 </button>

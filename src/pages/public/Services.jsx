@@ -93,7 +93,7 @@ const Services = () => {
                     key={j}
                     className="flex gap-4 bg-gray-100/70 rounded-xl p-5 shadow-sm hover:shadow-md transition"
                   >
-                    <div className="p-2 h-fit rounded-lg bg-orange-500/10 text-orange-600">
+                    <div className="p-2 h-fit rounded-lg bg-primary-500/10 text-primary-500">
                       <item.icon className="w-5 h-5" />
                     </div>
 

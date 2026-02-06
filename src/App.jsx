@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import Home from "./pages/public/Home";
 import CheckIn from "./pages/app/CheckIn";
@@ -15,7 +15,6 @@ import ChangePassword from "./components/ChangePassword";
 import ResetPassword from "./pages/account/ResetPassword";
 import Profile from "./pages/account/Profile";
 import DashboardLayout from "./layout/DashboardLayout";
-import FirstLoginPopup from "./components/FirstLoginPopup";
 import Support from "./pages/public/Support";
 import About from "./pages/public/About";
 import Services from "./pages/public/Services";
@@ -23,23 +22,29 @@ import Contact from "./pages/public/Contact";
 import PrivacyPolicy from "./pages/public/PrivacyPolicy";
 import Terms from "./pages/public/Terms";
 import Login from "./components/Login";
-import AddRoomType from "./components/AddRoomType";
+import { useEffect } from "react";
 
 const App = () => {
-  const { user, showAddRoom, showAddRoomType, showChangePassword, isFirstLogin, showLogin } =
-    useAppContext();
+  const { user, showAddRoom, showChangePassword, showLogin } = useAppContext();
+
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
+
   return (
     <div className="md:bg-gray-300/40">
+      {/* bg-gray-300/40 */}
       {<Navbar />}
       <Toaster />
 
       {showLogin && <Login />}
       {showAddRoom && <AddRoom />}
-      {showAddRoomType && <AddRoomType />}
-      {/* {isFirstLogin && <FirstLoginPopup />} */}
       {showChangePassword && <ChangePassword />}
 
       <div className={showLogin ? "pointer-events-none" : ""}>
+
         <Routes>
           <Route
             path="/"
@@ -54,6 +59,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/dashboard"
             element={

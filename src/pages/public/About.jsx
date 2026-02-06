@@ -24,7 +24,7 @@ const About = () => {
         {/* What / Why Section */}
         <div className="bg-gray-100/70 rounded-2xl p-6 md:p-8 shadow-md">
           <div className="flex items-start gap-4">
-            <div className="p-3 rounded-xl bg-orange-500/10 text-orange-600">
+            <div className="p-3 rounded-xl bg-primary-500/10 text-primary-500">
               <Building2 className="w-6 h-6" />
             </div>
             <div>
@@ -44,7 +44,7 @@ const About = () => {
         {/* Feature Rows (NOT cards) */}
         <div className="space-y-6">
           <div className="flex gap-4">
-            <Workflow className="w-5 h-5 text-orange-600 mt-1" />
+            <Workflow className="w-5 h-5 text-primary-500 mt-1" />
             <div>
               <h3 className="font-semibold text-gray-900">
                 Workflow-First Design
@@ -57,7 +57,7 @@ const About = () => {
           </div>
 
           <div className="flex gap-4">
-            <ShieldCheck className="w-5 h-5 text-orange-600 mt-1" />
+            <ShieldCheck className="w-5 h-5 text-primary-500 mt-1" />
             <div>
               <h3 className="font-semibold text-gray-900">
                 Secure Handling of Guest Data
@@ -70,7 +70,7 @@ const About = () => {
           </div>
 
           <div className="flex gap-4">
-            <TrendingUp className="w-5 h-5 text-orange-600 mt-1" />
+            <TrendingUp className="w-5 h-5 text-primary-500 mt-1" />
             <div>
               <h3 className="font-semibold text-gray-900">
                 Built to Scale Reliably

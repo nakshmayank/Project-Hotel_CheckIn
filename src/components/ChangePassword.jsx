@@ -71,7 +71,7 @@ const ChangePassword = () => {
                   Current Password
                 </p>
                 <input
-                  className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                  className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                   placeholder="Enter current password"
                   type="password"
                   onChange={(e) => setOld(e.target.value)}
@@ -89,7 +89,7 @@ const ChangePassword = () => {
                     value={newPassword}
                     placeholder="Enter new password"
                     type={showNewPassword ? "text" : "password"}
-                    className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                    className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     required
                   />
 
@@ -97,7 +97,7 @@ const ChangePassword = () => {
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-orange-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-primary-500"
                   >
                     {showNewPassword ? (
                       <img
@@ -126,7 +126,7 @@ const ChangePassword = () => {
                     value={confirmPassword}
                     placeholder="Confirm new password"
                     type={showConfirmPassword ? "text" : "password"}
-                    className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                    className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     required
                   />
 
@@ -134,7 +134,7 @@ const ChangePassword = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-orange-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-primary-500"
                   >
                     {showConfirmPassword ? (
                       <img
@@ -162,7 +162,7 @@ const ChangePassword = () => {
               >
                 Maybe Later
               </button>
-              <button className="bg-orange-600/80 shadow-md hover:scale-105 duration-300 transition-transform ease-in-out hover:bg-orange-600 hover:shadow-lg text-white px-5 p-2 rounded-lg font-semibold">
+              <button className="bg-primary-500/80 shadow-md hover:scale-105 duration-300 transition-transform ease-in-out hover:bg-primary-500 hover:shadow-lg text-white px-5 p-2 rounded-lg font-semibold">
               <span>
                 
               </span>

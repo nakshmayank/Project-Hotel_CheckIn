@@ -51,7 +51,7 @@ const Support = () => {
               className="bg-gray-100/70 rounded-2xl p-6 shadow-md hover:shadow-lg transition"
             >
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-orange-500/10 text-orange-600">
+                <div className="p-3 rounded-xl bg-primary-500/10 text-primary-500">
                   <card.icon className="w-6 h-6" />
                 </div>
                 <div>
@@ -61,7 +61,7 @@ const Support = () => {
                   <p className="text-sm text-gray-600 mt-1">
                     {card.description}
                   </p>
-                  <button className="mt-3 text-sm font-medium text-orange-600 hover:underline">
+                  <button className="mt-3 text-sm font-medium text-primary-500 hover:underline">
                     {card.action}
                   </button>
                 </div>
@@ -82,7 +82,7 @@ const Support = () => {
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-sm">
             <div className="flex items-center gap-2 text-gray-800">
               <Mail className="w-4 h-4" />
-              <span>support@yourapp.com</span>
+              <span>support@inndez.com</span>
             </div>
             <div className="text-gray-600">🕒 9:00 AM – 9:00 PM</div>
           </div>

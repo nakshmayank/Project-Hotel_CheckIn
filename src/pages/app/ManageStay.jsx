@@ -53,7 +53,7 @@ const ManageStay = () => {
       setActiveStays(res?.data || []);
 
       // To ensure skeleton visibility
-      await new Promise((r) => setTimeout(r, 300));
+      // await new Promise((r) => setTimeout(r, 300));
     } catch (error) {
       console.log(error);
     } finally {
@@ -72,7 +72,7 @@ const ManageStay = () => {
       setCompletedStays(res?.data || []);
 
       // To ensure skeleton visibility
-      await new Promise((r) => setTimeout(r, 300));
+      // await new Promise((r) => setTimeout(r, 300));
     } catch (error) {
       console.log(error);
     } finally {
@@ -88,7 +88,7 @@ const ManageStay = () => {
       return (
         s.name?.toLowerCase().includes(q) ||
         s.mobile?.toLowerCase().includes(q) ||
-        s.email?.toLowerCase().includes(q)
+        s.RoomType?.toLowerCase().includes(q)
       );
     })
     .sort((a, b) => {
@@ -116,7 +116,7 @@ const ManageStay = () => {
       return (
         s.name?.toLowerCase().includes(q) ||
         s.mobile?.toLowerCase().includes(q) ||
-        s.email?.toLowerCase().includes(q)
+        s.RoomType?.toLowerCase().includes(q)
       );
     })
     .sort((a, b) => {
@@ -132,7 +132,7 @@ const ManageStay = () => {
 
         case "DATE_DESC":
         default:
-          return new Date(b.chkindate) - new Date(a.chkindate);
+          // return new Date(b.chkindate) - new Date(a.chkindate);
       }
     });
 
@@ -252,9 +252,13 @@ const ManageStay = () => {
   }, [sortBy, debouncedSearch, activeTab]);
 
   useEffect(() => {
-    fetchStayData();
-    fetchCompletedStayData();
-  }, []);
+    
+    if(activeTab === "ACTIVE") {
+      fetchStayData();
+    } else {
+      fetchCompletedStayData();
+    }
+  }, [activeTab]);
 
   // useEffect(() => {
   //   setShowLoading(true);
@@ -306,7 +310,7 @@ const ManageStay = () => {
                 onClick={() => setActiveTab("ACTIVE")}
                 className={`p-3 px-4 rounded-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-95 ${
                   activeTab === "ACTIVE"
-                    ? "bg-orange-500 text-white shadow-lg scale-105"
+                    ? "bg-primary-500 text-white shadow-lg scale-105"
                     : "text-gray-800 hover:text-black hover:scale-95"
                 }`}
               >
@@ -317,7 +321,7 @@ const ManageStay = () => {
                 onClick={() => setActiveTab("COMPLETED")}
                 className={`p-3 px-4 rounded-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-95 ${
                   activeTab === "COMPLETED"
-                    ? "bg-orange-500 text-white shadow-lg scale-105"
+                    ? "bg-primary-500 text-white shadow-lg scale-105"
                     : "text-gray-800 hover:text-black hover:scale-95"
                 }`}
               >
@@ -339,13 +343,13 @@ const ManageStay = () => {
                     <div className="flex flex-col mx-1 gap-6 lg:gap-3 lg:flex-row lg:justify-between mb-2 lg:mb-4">
                       {/* Search */}
                       <div className="flex items-center justify-center w-full lg:max-w-sm">
-                        <div className="flex items-center justify-between gap-1 px-5 w-full bg-gray-50/90 rounded-full border-2 shadow-md border-gray-500/40 focus-within:border-orange-500 transition">
+                        <div className="flex items-center justify-between gap-1 px-5 w-full bg-gray-50/90 rounded-full border-2 shadow-md border-gray-500/40 focus-within:border-primary-500 transition">
                           <input
                             type="text"
-                            placeholder="Search by name, email or mobile"
+                            placeholder="Search by name, mobile or room number"
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            className="bg-transparent w-full py-2 placeholder:text-orange-600 focus:placeholder:text-gray-500/90 outline-none text-sm"
+                            className="bg-transparent w-full py-2 placeholder:text-primary-500 focus:placeholder:text-gray-500/90 outline-none text-sm"
                           />
                           <img
                             src="/search_icon.svg"
@@ -368,7 +372,7 @@ const ManageStay = () => {
                           {/* Input-like box */}
                           <div
                             onClick={() => setShowSortList((prev) => !prev)}
-                            className={`px-2 py-1 rounded-lg border-2 bg-gray-50/90 cursor-pointer flex items-center justify-between min-w-[110px] shadow-md ${showSortList ? "border-orange-500" : "border-gray-300"}`}
+                            className={`px-2 py-1 rounded-lg border-2 bg-gray-50/90 cursor-pointer flex items-center justify-between min-w-[110px] shadow-md ${showSortList ? "border-primary-500" : "border-gray-300"}`}
                           >
                             <span className="text-sm text-gray-800">
                               {SORT_LABEL_BY_VALUE[sortBy]}
@@ -385,7 +389,7 @@ const ManageStay = () => {
 
                           {/* Dropdown list */}
                           {showSortList && (
-                            <div className="absolute right-0 py-1.5 mt-0.5 w-full bg-gray-100 border-2 hover:border-orange-500 rounded-lg shadow-lg overflow-hidden">
+                            <div className="absolute right-0 py-1.5 mt-0.5 w-full bg-gray-100 border-2 hover:border-primary-500 rounded-lg shadow-lg overflow-hidden">
                               {SORT_OPTIONS.map((opt) => (
                                 <div
                                   key={opt.value}
@@ -393,7 +397,7 @@ const ManageStay = () => {
                                     setSortBy(opt.value);
                                     setShowSortList(false);
                                   }}
-                                  className={`px-3 py-1 text-sm cursor-pointer hover:bg-orange-400/20 ${sortBy === opt.value ? "text-orange-700" : ""}`}
+                                  className={`px-3 py-1 text-sm cursor-pointer hover:bg-primary-400/20 ${sortBy === opt.value ? "text-primary-500" : ""}`}
                                 >
                                   {opt.label}
                                 </div>
@@ -432,8 +436,8 @@ const ManageStay = () => {
                               checkingOutId={checkingOutId}
                               onViewMembers={handleViewMembers}
                               onAssignRoom={() => {
-                                setSelectedStay(stay);
-                                setShowAssignRoom(true);
+                                // setSelectedStay(stay);
+                                // setShowAssignRoom(true);
                               }}
                               onCheckout={() => {
                                 setSelectedCheckoutId(stay.chkid);
@@ -463,7 +467,7 @@ const ManageStay = () => {
                       <div className="flex gap-4 mt-6 justify-end">
                         <button
                           onClick={() => navigate("/checkin")}
-                          className="px-4 p-2 rounded-lg font-semibold shadow-md bg-orange-500 text-white hover:bg-orange-600"
+                          className="px-4 p-2 rounded-lg font-semibold shadow-md bg-primary-500 text-white hover:bg-primary-500"
                         >
                           Check-In
                         </button>
@@ -477,7 +481,7 @@ const ManageStay = () => {
                         onClick={() =>
                           setVisibleActiveCount((prev) => prev + 5)
                         }
-                        className="px-5 py-2 rounded-lg bg-orange-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-orange-600 hover:scale-105 transition"
+                        className="px-5 py-2 rounded-lg bg-primary-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-primary-500 hover:scale-105 transition"
                       >
                         Load more stays
                       </button>
@@ -530,7 +534,7 @@ const ManageStay = () => {
                             onClick={() =>
                               setVisibleCompletedCount((prev) => prev + 5)
                             }
-                            className="px-5 py-2 rounded-lg bg-orange-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-orange-600 hover:scale-105 transition"
+                            className="px-5 py-2 rounded-lg bg-primary-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-primary-500 hover:scale-105 transition"
                           >
                             Load more stays
                           </button>
@@ -583,7 +587,7 @@ const ManageStay = () => {
                   setShowCheckoutConfirm(false);
                   setSelectedCheckoutId(null);
                 }}
-                className="px-4 py-2 rounded-lg border-2 shadow-md bg-gray-100  hover:border-orange-500 text-gray-700 transition"
+                className="px-4 py-2 rounded-lg border-2 shadow-md bg-gray-100  hover:border-primary-500 text-gray-700 transition"
               >
                 Cancel
               </button>
@@ -592,9 +596,10 @@ const ManageStay = () => {
                 onClick={async () => {
                   setShowCheckoutConfirm(false);
                   await checkOut(selectedCheckoutId);
+                  await fetchCompletedStayData();
                   setSelectedCheckoutId(null);
                 }}
-                className="px-4 py-2 rounded-lg bg-orange-500 text-white shadow-md hover:bg-orange-600 hover:scale-105 transition"
+                className="px-4 py-2 rounded-lg bg-primary-500 text-white shadow-md hover:bg-primary-500 hover:scale-105 transition"
               >
                 Yes, Check Out
               </button>

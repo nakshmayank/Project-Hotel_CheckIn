@@ -1,21 +1,21 @@
 const Services = () => {
   const services = [
     {
-      image: "/service-checkin.png",
+      image: "/service-checkin.jpg",
       alt: "Digital Check-In",
       title: "Digital Check-In",
       description: "Fast and paperless visitor check-in using intuitive digital forms. Reduce wait times and improve guest satisfaction.",
-      color: "from-orange-500 to-orange-600"
+      color: "from-primary-500 to-primary-500"
     },
     {
-      image: "/service-checkout.png",
+      image: "/service-checkout.jpg",
       alt: "Instant Check-Out",
       title: "Instant Check-Out",
       description: "Streamlined check-out process with automatic time recording and instant confirmations. Complete in seconds.",
       color: "from-blue-500 to-blue-600"
     },
     {
-      image: "/service-analytics.png",
+      image: "/service-analytics.jpg",
       alt: "Smart Analytics",
       title: "Smart Analytics",
       description: "Real-time visitor tracking, detailed reports, and actionable insights to optimize your operations.",
@@ -24,14 +24,14 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="relative py-24 overflow-hidden" >
+    <section id="services" className="relative py-12 pt-20 overflow-hidden" >
       <div className="absolute inset-0 bg-white -z-10"></div>
-      <div className="absolute top-20 left-0 w-72 h-72 bg-orange-100/50 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-20 left-0 w-72 h-72 bg-primary-100/50 rounded-full blur-3xl -z-10"></div>
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-20 space-y-4">
-          <span className="inline-block px-4 py-1.5 bg-orange-100 text-orange-700 text-sm font-semibold rounded-full tracking-wide">OUR FEATURES</span>
+          <span className="inline-block px-4 py-1.5 bg-primary-100 text-primary-500 text-sm font-semibold rounded-full tracking-wide">OUR FEATURES</span>
           <h2 className="text-4xl font-bold text-gray-900 leading-tight">
             Everything You Need to Succeed
           </h2>
@@ -60,7 +60,7 @@ const Services = () => {
 
               {/* Content */}
               <div className="p-8 space-y-4">
-                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-orange-600 group-hover:to-blue-600 group-hover:bg-clip-text transition-all duration-300">
+                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-primary-500 group-hover:to-blue-600 group-hover:bg-clip-text transition-all duration-300">
                   {service.title}
                 </h3>
                 <p className="text-gray-600 leading-relaxed text-lg">

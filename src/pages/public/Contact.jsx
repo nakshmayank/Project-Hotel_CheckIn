@@ -33,13 +33,13 @@ const Contact = () => {
 
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-3 text-gray-800">
-                <Mail className="w-4 h-4 text-orange-600" />
-                <span>support@yourapp.com</span>
+                <Mail className="w-4 h-4 text-primary-500" />
+                <span>support@inndez.com</span>
               </div>
 
               <div className="flex items-center gap-3 text-gray-800">
-                <Phone className="w-4 h-4 text-orange-600" />
-                <span>+91 9XXXXXXXXX</span>
+                <Phone className="w-4 h-4 text-primary-500" />
+                <span>+91 8800214384</span>
               </div>
 
               <div className="flex items-center gap-3 text-gray-600">
@@ -52,7 +52,7 @@ const Contact = () => {
 
         {/* Escalation Notice */}
         <div className="flex gap-4 bg-gray-200/60 rounded-xl p-6">
-          <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-primary-500 mt-0.5" />
           <p className="text-sm text-gray-600">
             For critical operational issues during active guest stays, priority
             assistance is available during support hours.

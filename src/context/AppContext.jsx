@@ -15,10 +15,10 @@ export const AppContextProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
   const [showAddRoom, setShowAddRoom] = useState(false);
-  const [showAddRoomType, setShowAddRoomType] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [dashCount, setDashCount] = useState({});
 
   const fetchUser = async () => {
     try {
@@ -29,14 +29,27 @@ export const AppContextProvider = ({ children }) => {
       const storedUser = storage.getItem("authUser");
       const storedToken = storage.getItem("accessToken");
 
-      if (storedUser && storedToken) {
-        setUser(JSON.parse(storedUser));
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${storedToken}`;
+      if (!storedUser || !storedToken) {
+        setAuthLoading(false);
+        return;
       }
-    } catch {
-      setUser(null);
+
+      // Validate token with backend
+      const { data } = await axios.post("/api/v1/Hotel/Hotelchkaccesstoken", {
+        accesstoken: storedToken,
+      });
+
+      console.log(data[0]?.result);
+
+      if (String(data[0]?.result) === "1") {
+        setUser(JSON.parse(storedUser));
+        axios.defaults.headers.common["Authorization"] =
+          `Bearer ${storedToken}`;
+      } else {
+        forceLogout();
+      }
+    } catch (error) {
+      forceLogout();
     } finally {
       setTimeout(() => {
         setAuthLoading(false);
@@ -57,14 +70,37 @@ export const AppContextProvider = ({ children }) => {
       //   console.log("userData doesn't exist");
       // }
 
+      console.log(data);
+
       if (Number(data[0]?.Status) === 1) {
         setUserData(data[0]);
-        console.log(data[0]?.Name)
+        console.log(data[0]?.Name);
       } else {
         console.log("UserData not received");
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const fetchDashCount = async () => {
+    try {
+      if (user === null) return;
+      const { data } = await axios.post(
+        "/api/v1/Hotel/HotelGetDashboardcount",
+        { accesstoken: user?.AccessToken },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      setDashCount(data[0]);
+
+      console.log(data[0]);
+    } catch (error) {
+      console.log(error.response?.data || error);
     }
   };
 
@@ -95,19 +131,52 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const forceLogout = () => {
+    localStorage.removeItem("authUser");
+    localStorage.removeItem("accessToken");
+
+    sessionStorage.removeItem("authUser");
+    sessionStorage.removeItem("accessToken");
+
+    delete axios.defaults.headers.common["Authorization"];
+
+    setUser(null);
+    setUserData(null);
+
+    navigate("/");
+    toast.error("Session expired. Please login again.");
+  };
+
   console.log(user?.AccessToken);
 
+  console.log(dashCount.active);
+
   useEffect(() => {
+    const protectedRoutes = [
+  "HotelGetDetails",
+  "HotelGetDashboardcount",
+  "HotelLogout"
+];
+
     const interceptor = axios.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // backend returning Status:0 instead of 401
+        if (
+          Array.isArray(response.data) &&
+          response.data[0]?.Status === 0 &&
+          protectedRoutes.some(route => response.config.url.includes(route))
+        ) {
+          forceLogout();
+        }
+        return response;
+      },
       (error) => {
         if (error.response?.status === 401) {
-          logout();
+          forceLogout();
         }
         return Promise.reject(error);
-      }
+      },
     );
-
     return () => {
       axios.interceptors.response.eject(interceptor);
     };
@@ -120,6 +189,7 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       fetchUserData();
+      fetchDashCount();
     }
   }, [user]);
 
@@ -144,8 +214,9 @@ export const AppContextProvider = ({ children }) => {
     fetchUserData,
     isFirstLogin,
     setIsFirstLogin,
-    showAddRoomType,
-    setShowAddRoomType
+    dashCount,
+    setDashCount,
+    fetchDashCount,
   };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

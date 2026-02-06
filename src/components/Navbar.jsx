@@ -28,7 +28,7 @@ const Navbar = () => {
     "U";
 
   const profileImageUrl = user?.pimg
-    ? `https://api.careersphare.com/HotelLogo/${user.pimg}`
+    ? `https://api.inndez.com/HotelLogo/${user.pimg}`
     : null;
 
   useEffect(() => {
@@ -52,15 +52,16 @@ const Navbar = () => {
 
   return (
     <div className="fixed top-0 w-full z-30">
-      <nav className="flex items-center justify-between shadow-3xl transition-all backdrop-blur-sm px-2.5 md:px-10 py-5">
+      <nav className="flex items-center justify-between shadow-3xl transition-all backdrop-blur-sm px-3.5 md:px-10 py-5">
         {/* Left - Logo */}
         <div className="w-fit">
           <Link to="/" className="items-center">
             {/* <img className="max-w-24" src="/logo.png" alt="" /> */}
+            <img className="h-8" src="/inndez_orange_logo.png" alt="logo" />
 
-            <p className="font-bold text-3xl text-gray-700">
-              Stay<span className="text-orange-500">In</span>
-            </p>
+            {/* <p className="font-bold text-3xl text-gray-700">
+              Inn<span className="text-primary-500">Dez</span>
+            </p> */}
           </Link>
         </div>
 
@@ -68,31 +69,31 @@ const Navbar = () => {
         <div className="hidden md:flex flex-1 justify-center items-center gap-8">
           <Link
             to="/"
-            className="text-gray-800 text-lg hover:text-orange-600 font-medium"
+            className="text-gray-800 text-lg hover:text-primary-500 font-medium"
           >
             {user ? "Dashboard" : "Home"}
           </Link>
           <Link
             to="/services"
-            className="text-gray-800 text-lg hover:text-orange-600 font-medium"
+            className="text-gray-800 text-lg hover:text-primary-500 font-medium"
           >
             Services
           </Link>
           <Link
             to="/support"
-            className="text-gray-800 text-lg hover:text-orange-600 font-medium"
+            className="text-gray-800 text-lg hover:text-primary-500 font-medium"
           >
             Support
           </Link>
           <Link
             to="/about"
-            className="text-gray-800 hidden lg:block text-lg hover:text-orange-600 font-medium"
+            className="text-gray-800 hidden lg:block text-lg hover:text-primary-500 font-medium"
           >
             About
           </Link>
           <Link
             to="/contact"
-            className="text-gray-800 hidden lg:block text-lg hover:text-orange-600 font-medium"
+            className="text-gray-800 hidden lg:block text-lg hover:text-primary-500 font-medium"
           >
             Contact
           </Link>
@@ -110,7 +111,7 @@ const Navbar = () => {
                       {/* Welcome text */}
                       <span className="hidden sm:block text-md font-medium text-gray-900">
                         Welcome,{" "}
-                        <span className="font-semibold text-orange-500">
+                        <span className="font-semibold text-primary-500">
                           {firstName}
                           {"!"}
                         </span>
@@ -119,7 +120,7 @@ const Navbar = () => {
                       {/* Profile avatar */}
                       <button
                         onClick={() => setShowProfileMenu(!showProfileMenu)}
-                        className="w-8 h-8 rounded-full overflow-hidden shadow bg-orange-500 flex items-center justify-center cursor-pointer transition duration-150 hover:scale-110"
+                        className="w-8 h-8 rounded-full overflow-hidden shadow bg-gray-300/80 flex items-center justify-center cursor-pointer transition duration-150 hover:scale-110"
                       >
                         {profileImageUrl ? (
                           <img
@@ -142,7 +143,7 @@ const Navbar = () => {
                       alt="profile"
                     />
 
-                    <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold cursor-pointer select-none transition duration-150 hover:scale-110">
+                    <div className="w-8 h-8 rounded-full bg-primary-500 text-white flex items-center justify-center font-semibold cursor-pointer select-none transition duration-150 hover:scale-110">
                       {userData?.FullName?.charAt(0).toUpperCase() || "U"}
                     </div>
                   </button> */}
@@ -150,7 +151,7 @@ const Navbar = () => {
                       <div className="absolute w-64 top-10 -right-0 shadow-md border p-5 rounded-xl z-40 text-sm bg-gray-100/80 transition-all backdrop-blur-xl border-b border-gray-100/10 opacity-0 fade-in-fast">
                         <ul className="flex flex-col w-50">
                           <li className="p-1.5 pl-3">
-                            <p className="text-lg font-semibold text-orange-500">
+                            <p className="text-lg font-semibold text-primary-500">
                               {userData?.Name}
                             </p>
                             <p>{user?.EmailId}</p>
@@ -161,7 +162,7 @@ const Navbar = () => {
                               navigate("/dashboard");
                               setShowProfileMenu(!showProfileMenu);
                             }}
-                            className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-400/20 cursor-pointer font-medium"
+                            className="flex p-1.5 pl-3 gap-2 items-center hover:bg-primary-400/20 cursor-pointer font-medium"
                           >
                             <img
                               className="w-4 h-4 opacity-80"
@@ -175,7 +176,7 @@ const Navbar = () => {
                               navigate("/dashboard/profile");
                               setShowProfileMenu(false);
                             }}
-                            className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-400/20 cursor-pointer font-medium"
+                            className="flex p-1.5 pl-3 gap-2 items-center hover:bg-primary-400/20 cursor-pointer font-medium"
                           >
                             <img
                               className="w-4 h-4"
@@ -190,7 +191,7 @@ const Navbar = () => {
                               setShowChangePassword(true);
                               setShowProfileMenu(false);
                             }}
-                            className="flex p-1.5 pl-3 gap-2 items-center hover:bg-orange-400/20 cursor-pointer font-medium"
+                            className="flex p-1.5 pl-3 gap-2 items-center hover:bg-primary-400/20 cursor-pointer font-medium"
                           >
                             <img
                               className="w-4 h-4"
@@ -205,7 +206,7 @@ const Navbar = () => {
                               logout();
                               setShowProfileMenu(!showProfileMenu);
                             }}
-                            className="flex items-center p-1.5 pl-3 gap-2 hover:bg-orange-400/20 cursor-pointer font-medium"
+                            className="flex items-center p-1.5 pl-3 gap-2 hover:bg-primary-400/20 cursor-pointer font-medium"
                           >
                             <img
                               className="w-4 h-4"
@@ -239,7 +240,7 @@ const Navbar = () => {
                     setState("login");
                     setShowLogin(true);
                   }}
-                  className="px-4 py-1.5 text-nowrap text-orange-500 border-orange-500 border-2 shadow-md hover:scale-105 ease-in-out duration-300 rounded-lg hover:shadow-lg"
+                  className="px-2.5 py-1 text-nowrap text-primary-500 border-primary-500 border-2 shadow-md hover:scale-105 ease-in-out duration-300 rounded-lg hover:shadow-lg"
                 >
                   Sign In
                 </button>
@@ -249,7 +250,7 @@ const Navbar = () => {
                     setState("register");
                     setShowLogin(true);
                   }}
-                  className="px-4 py-2 text-nowrap bg-orange-500 text-white shadow-md hover:scale-105 ease-in-out duration-300 rounded-lg hover:bg-orange-600 hover:shadow-lg"
+                  className="px-2.5 py-1.5 text-nowrap bg-primary-500 text-white shadow-md hover:scale-105 ease-in-out duration-300 rounded-lg hover:bg-primary-600 hover:shadow-lg"
                 >
                   Sign Up
                 </button>

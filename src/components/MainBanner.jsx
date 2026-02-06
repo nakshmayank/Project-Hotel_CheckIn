@@ -4,91 +4,80 @@ const MainBanner = () => {
   const { setState, setShowLogin, showLogin } = useAppContext();
 
   return (
-    <section className="relative bg-[url('/service-bg.png')]  shadow-xl rounded-t-2xl bg-cover bg-top bg-no-repeat overflow-hidden">
-      {/* Gradient Background */}
-      {/* <img src="/service-bg.png" alt="" className="" /> */}
+    <section className="relative w-full shadow-xl rounded-t-2xl overflow-hidden">
+      {/* Background Image */}
+      <img
+        src="/main_banner.jpg"
+        className="absolute hidden md:flex inset-0 w-full h-full object-cover object-center"
+        alt=""
+      />
+      <img
+        src="/main_banner_mobile.jpg"
+        className="md:hidden flex absolute inset-0 w-full h-full object-cover object-top"
+        alt=""
+      />
 
-      <div className={`flex justify-center py-20 ${showLogin ? "" : "backdrop-blur-sm"}`}>
-        {/* <div className="absolute inset-0  -z-10"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl -z-10"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -z-10"></div> */}
-        {/* <div className="p-5 rounded-2xl">
-          <h1 className="text-6xl text-center text-[#44B1CF] font-bold pt-10">A Complete Digital Hotel Management Solution</h1>
-        </div> */}
+      {/* 🔥 VISIBILITY OVERLAY (MAIN FIX) */}
+      <div className="absolute inset-0 bg-black/40 md:bg-transparent md:bg-gradient-to-r from-black/90 via-black/20 to-transparent"></div>
 
-        <div className="max-w-2xl p-5">
-          {/* Right: Text Content - Positioned on Right */}
-          <div className="w-full">
-            <div className="flex flex-col justify-center items-center space-y-16">
-              <div className="space-y-6 flex flex-col items-center">
-                {/* Top Heading */}
-                <div className="inline-block">
-                  <span className="px-4 py-1.5 bg-orange-100/30 text-white text-sm font-semibold rounded-full tracking-wide">
-                    MODERNIZE YOUR OPERATIONS
-                  </span>
-                </div>
-                <div>
-                  <h1 className="text-4xl lg:text-6xl text-center font-bold text-orange-500 leading-tight tracking-tight">
-                    Smart Digital <br />{" "}
-                    <span className="text-white bg-clip-text">
-                      Check-In Management
-                    </span>
-                  </h1>
-                </div>
-                <div>
-                  <p className="text-lg text-center text-white leading-relaxed max-w-2xl">
-                    Transform your hotel's guest experience with an intuitive
-                    digital check-in system. Eliminate paperwork, enhance
-                    security, and delight guests with seamless operations.
-                  </p>
-                </div>
+      <div
+        className={`relative px-5 md:pl-24 py-24 md:py-36 z-10 flex items-center justify-center w-full md:w-[50vw] 2xl:w-[42vw]`}
+      >
+        {/* Content Container */}
+        <div className="w-full">
+          
+          <div className="flex flex-col items-center md:items-start space-y-14">
+
+            {/* Headings */}
+            <div className="space-y-6 flex flex-col items-center md:items-start">
+              <div className="flex flex-col gap-2 text-4xl lg:text-6xl font-bold leading-tight tracking-tight">
+                <h1 className="text-white">Modern Technology, </h1>
+                <span className="text-primary-500">
+                  Timeless Hospitality
+                </span>
               </div>
 
-              {/* Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <button
-                  onClick={() => {
-                    setState("register");
-                    setShowLogin(true);
-                  }}
-                  className="group px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                  <span>Register your Hotel</span>
-                  <svg
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
-                </button>
-                <button className="px-8 py-4 border-2 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-300">
-                  Watch Demo
-                </button>
+              <p className="text-lg text-center md:text-left text-white/85 leading-relaxed max-w-4xl">
+                Transform your hotel's guest experience with an intuitive digital
+                check-in system. Eliminate paperwork, enhance security, and delight
+                guests with seamless operations.
+              </p>
+            </div>
+
+            {/* Features */}
+            <div className="ml-4 flex flex-col text-white gap-5">
+              <div className="flex gap-2 items-center">
+                <img className="w-4 h-4" src="/check.png" alt="check" />
+                <p>Seamless Digital Check-In & Check-Out at No Cost</p>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-5 pt-4">
-                <div className="bg-gray-200/10 text-center rounded-2xl p-4 w-full">
-                  <p className="text-3xl font-bold text-gray-700">500+</p>
-                  <p className="text-sm text-white mt-1">Hotels Trust Us</p>
-                </div>
-                <div className="bg-gray-200/10 text-center rounded-2xl p-4 w-full">
-                  <p className="text-3xl font-bold text-white">2M+</p>
-                  <p className="text-sm text-white mt-1">Guests Processed</p>
-                </div>
-                <div className="bg-gray-200/10 text-center rounded-2xl p-4 w-full">
-                  <p className="text-3xl font-bold text-orange-500">99.9%</p>
-                  <p className="text-sm text-white mt-1">Uptime</p>
-                </div>
+              <div className="flex gap-2 items-center">
+                <img className="w-4 h-4" src="/check.png" alt="check" />
+                <p>Centralized Digital Guest Records at Your Fingertips</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <img className="w-4 h-4" src="/check.png" alt="check" />
+                <p>24*7 Support</p>
               </div>
             </div>
+
+            {/* Button (UNCHANGED LOGIC) */}
+            <div className="w-full flex justify-center pt-5">
+              <button
+                onClick={() => {
+                  setState("register");
+                  setShowLogin(true);
+                }}
+                className="group px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <span>Register your Hotel</span>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+              </button>
+            </div>
+
           </div>
         </div>
       </div>

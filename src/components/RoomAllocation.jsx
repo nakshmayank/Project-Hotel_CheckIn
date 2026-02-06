@@ -19,9 +19,13 @@ const RoomAllocation = ({ value, onChange }) => {
   const [activeAllocation, setActiveAllocation] = useState(null);
   const [draftRooms, setDraftRooms] = useState([]);
   const [search, setSearch] = useState({});
-  const [floorFilter, setFloorFilter] = useState({});
+  // const [floorFilter, setFloorFilter] = useState({});
   const [roomTypes, setRoomTypes] = useState([]);
   const [roomsByType, setRoomsByType] = useState({});
+  const [roomsLoadingByType, setRoomsLoadingByType] = useState({});
+  const [roomTypesLoading, setRoomTypesLoading] = useState(true);
+  const [typesVisible, setTypesVisible] = useState(false);
+  const [noRoomType, setNoRoomType] = useState(false);
 
   const buttonRefs = useRef({});
 
@@ -31,6 +35,7 @@ const RoomAllocation = ({ value, onChange }) => {
 
   const getRoomTypes = async () => {
     try {
+      setRoomTypesLoading(true);
       const { data } = await axios.post("/api/v1/Hotel/HotelGetRoomType", {
         accesstoken: user?.AccessToken,
       });
@@ -38,16 +43,21 @@ const RoomAllocation = ({ value, onChange }) => {
       if (data?.length) {
         setRoomTypes(data);
       } else {
+        setNoRoomType(true);
         toast.error("No room type found");
       }
     } catch (error) {
       console.log(error);
       toast.error("Failed to fetch room types");
+    } finally {
+      setRoomTypesLoading(false);
     }
   };
 
   const getRooms = async (typeId) => {
     try {
+      setRoomsLoadingByType((prev) => ({ ...prev, [typeId]: true }));
+
       const { data } = await axios.post("/api/v1/Hotel/HotelGetRooms", {
         accesstoken: user?.AccessToken,
         TypeId: typeId,
@@ -62,11 +72,15 @@ const RoomAllocation = ({ value, onChange }) => {
           })),
         }));
       } else {
+        closePanel();
         toast.error("No room found");
       }
     } catch (error) {
       console.log(error);
+      closePanel();
       toast.error("Failed to fetch rooms");
+    } finally {
+      setRoomsLoadingByType((prev) => ({ ...prev, [typeId]: false }));
     }
   };
 
@@ -115,7 +129,7 @@ const RoomAllocation = ({ value, onChange }) => {
     const key = target?.id ?? `new-${RoomType}`;
 
     setSearch((p) => ({ ...p, [key]: "" }));
-    setFloorFilter((p) => ({ ...p, [key]: "ALL" }));
+    // setFloorFilter((p) => ({ ...p, [key]: "ALL" }));
 
     setActiveAllocation({
       id: target?.id ?? null,
@@ -190,6 +204,15 @@ const RoomAllocation = ({ value, onChange }) => {
   //   }, [activeAllocation]);
 
   useEffect(() => {
+    if (!roomTypesLoading && roomTypes.length > 0) {
+      const t = setTimeout(() => setTypesVisible(true), 50); // small delay for smoothness
+      return () => clearTimeout(t);
+    } else {
+      setTypesVisible(false);
+    }
+  }, [roomTypesLoading, roomTypes.length]);
+
+  useEffect(() => {
     if (activeAllocation) {
       document.body.style.overflow = "hidden";
     } else {
@@ -207,79 +230,92 @@ const RoomAllocation = ({ value, onChange }) => {
 
   return (
     <div className="space-y-4">
-      <p className="font-medium text-sm">Select Room Type</p>
+      <p className="font-medium text-sm text-gray-700">Select Room Type</p>
 
       {/* ROOM TYPE BUTTONS */}
       <div className="flex gap-2 flex-wrap">
-        {roomTypes.map((typeObj) => (
-          <div key={typeObj.TypeId} className="relative">
-            <button
-              ref={(el) => {
-                if (!el) return;
+        {roomTypesLoading ? (
+          // Room Type Button Skeleton
+          [...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="h-9 w-28 rounded-lg bg-gray-300/70 animate-pulse"
+            />
+          ))
+        ) : noRoomType ? (
+          <div className="w-full text-center">
+            <span className="text-sm text-gray-500 italic">no room type found</span>
+          </div>
+        ) : (
+          roomTypes.map((typeObj) => (
+            <div key={typeObj.TypeId} className="relative">
+              <button
+                ref={(el) => {
+                  if (!el) return;
 
-                buttonRefs.current[typeObj.TypeId] = el;
+                  buttonRefs.current[typeObj.TypeId] = el;
 
-                if (activeAllocation?.typeId === typeObj.TypeId) {
-                  refs.setReference(el);
-                }
-              }}
-              type="button"
-              onClick={() => openPanel(typeObj)}
-              className={`px-3 py-1.5 rounded-lg shadow-md text-sm border-2 transition ${
-                activeAllocation?.typeId === typeObj.TypeId
-                  ? "bg-orange-500 text-white border-orange-500"
-                  : selectedTypeIds.has(typeObj.TypeId)
-                    ? "bg-orange-100 text-orange-700 border-orange-400"
-                    : "bg-gray-100 hover:border-orange-500"
-              }`}
-            >
-              + {typeObj.RoomType}
-            </button>
-
-            {/* SELECTION PANEL */}
-            {activeAllocation?.typeId === typeObj.TypeId && (
-              <div
-                ref={refs.setFloating}
-                {...getFloatingProps()}
-                style={{
-                  position: strategy,
-                  top: y ?? 0,
-                  left: x ?? 0,
+                  if (activeAllocation?.typeId === typeObj.TypeId) {
+                    refs.setReference(el);
+                  }
                 }}
-                className={`z-50 w-[320px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-80px)] bg-gray-50 border rounded-xl shadow-xl p-4
+                type="button"
+                onClick={() => openPanel(typeObj)}
+                className={`px-3 py-1.5 rounded-lg shadow-md text-sm border-2 transition ${
+                  activeAllocation?.typeId === typeObj.TypeId
+                    ? "bg-primary-500 text-white border-primary-500"
+                    : selectedTypeIds.has(typeObj.TypeId)
+                      ? "bg-primary-100 text-primary-500 border-primary-400"
+                      : "bg-gray-100 hover:border-primary-500"
+                }`}
+              >
+                + {typeObj.RoomType}
+              </button>
+
+              {/* SELECTION PANEL */}
+              {activeAllocation?.typeId === typeObj.TypeId && (
+                <div
+                  ref={refs.setFloating}
+                  {...getFloatingProps()}
+                  style={{
+                    position: strategy,
+                    top: y ?? 0,
+                    left: x ?? 0,
+                  }}
+                  className={`z-50 fade-in w-[280px] bg-gray-50 border rounded-xl shadow-xl p-4
                   
                 `}
-                // style={{ left: "50%", transform: "translateX(-50%)" }}
-              >
-                {/* HEADER */}
-                <div className="flex justify-between items-center mb-3">
-                  <h4 className="font-semibold">{typeObj.RoomType} Rooms</h4>
-                  <button
-                    type="button"
-                    disabled={draftRooms.length === 0}
-                    onClick={commitDraft}
-                    className={`text-sm font-medium ${
-                      draftRooms.length === 0
-                        ? "text-gray-400/70 cursor-not-allowed"
-                        : "text-orange-600 hover:text-orange-700"
-                    }`}
-                  >
-                    Done
-                  </button>
-                </div>
+                  // style={{ left: "50%", transform: "translateX(-50%)" }}
+                >
+                  {/* HEADER */}
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-semibold">{typeObj.RoomType} Rooms</h4>
+                    <button
+                      type="button"
+                      disabled={draftRooms.length === 0}
+                      onClick={commitDraft}
+                      className={`text-sm font-medium ${
+                        draftRooms.length === 0
+                          ? "text-gray-400/70 cursor-not-allowed"
+                          : "text-primary-500 hover:text-primary-500"
+                      }`}
+                    >
+                      Done
+                    </button>
+                  </div>
 
-                {/* SEARCH */}
-                <input
-                  placeholder="Search room..."
-                  value={search[panelKey] || ""}
-                  onChange={(e) =>
-                    setSearch((p) => ({ ...p, [panelKey]: e.target.value }))
-                  }
-                  className="w-full mb-3 px-3 py-2 border-2 rounded-lg text-sm"
-                />
+                  {/* SEARCH */}
+                  <input
+                    placeholder="Search room..."
+                    value={search[panelKey] || ""}
+                    onChange={(e) =>
+                      setSearch((p) => ({ ...p, [panelKey]: e.target.value }))
+                    }
+                    className="w-full mb-3 px-3 py-2 border-2 rounded-lg text-sm"
+                  />
 
-                {/* FLOOR FILTER */}
-                <div className="flex gap-2 mb-3 flex-wrap">
+                  {/* FLOOR FILTER */}
+                  {/* <div className="flex gap-2 mb-3 flex-wrap">
                   {[
                     "ALL",
                     ...new Set(
@@ -292,71 +328,77 @@ const RoomAllocation = ({ value, onChange }) => {
                       onClick={() =>
                         setFloorFilter((p) => ({ ...p, [panelKey]: f }))
                       }
-                      className={`px-3 py-1 rounded-full shadow-sm text-xs border-2 hover:border-orange-500 ${
+                      className={`px-3 py-1 rounded-full shadow-sm text-xs border-2 hover:border-primary-500 ${
                         floorFilter[panelKey] === f
-                          ? "bg-orange-500 text-white border-orange-500"
+                          ? "bg-primary-500 text-white border-primary-500"
                           : "bg-white"
                       }`}
                     >
                       {f === "ALL" ? "All" : `Floor ${f}`}
                     </button>
                   ))}
+                </div> */}
+
+                  {/* ROOM LIST */}
+                  <div className=" h-44   py-1.5 overflow-y-scroll border-2 rounded-xl">
+                    {roomsLoadingByType[activeAllocation?.typeId] ? (
+                      // SKELETONS
+                      <div className="space-y-2 px-3 py-2 animate-pulse">
+                        {[...Array(8)].map((_, i) => (
+                          <div key={i} className="h-6 bg-gray-200 rounded-md" />
+                        ))}
+                      </div>
+                    ) : (
+                      (roomsByType[activeAllocation?.typeId] || [])
+                        // .filter(
+                        //   (r) =>
+                        //     floorFilter[panelKey] === "ALL" ||
+                        //     r.floor === floorFilter[panelKey],
+                        // )
+                        .filter((r) =>
+                          r.roomNo.toString().includes(search[panelKey] || ""),
+                        )
+                        .map((room) => {
+                          const alreadyAssigned = assignedRoomsSet.has(
+                            room.roomNo,
+                          );
+                          const selected = draftRooms.some(
+                            (r) => r.roomNo === room.roomNo,
+                          );
+
+                          return (
+                            <div
+                              key={room.roomNo}
+                              onClick={() =>
+                                !alreadyAssigned && toggleDraftRoom(room.roomNo)
+                              }
+                              className={`flex items-center px-3 py-1 ${
+                                alreadyAssigned
+                                  ? "opacity-40 cursor-not-allowed hover:bg-gray-200"
+                                  : selected
+                                    ? "bg-primary-200/50"
+                                    : "cursor-pointer hover:bg-primary-100/40"
+                              }`}
+                            >
+                              <div className="flex gap-1 items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={selected}
+                                  className="accent-primary-500"
+                                  readOnly
+                                />
+                                <span>Room {room.roomNo}</span>
+                              </div>
+                            </div>
+                          );
+                        })
+                    )}
+                  </div>
                 </div>
-
-                {/* ROOM LIST */}
-                <div className="max-h-[calc(100vh-560px)] py-1.5 overflow-y-auto border-2 rounded-xl">
-                  {(roomsByType[activeAllocation?.typeId] || [])
-                    .filter(
-                      (r) =>
-                        // !floorFilter[panelKey] ||
-                        floorFilter[panelKey] === "ALL" ||
-                        r.floor === floorFilter[panelKey],
-                    )
-                    .filter((r) =>
-                      r.roomNo.toString().includes(search[panelKey] || ""),
-                    )
-                    .map((room) => {
-                      const alreadyAssigned = assignedRoomsSet.has(room.roomNo);
-
-                      const selected = draftRooms.some(
-                        (r) => r.roomNo === room.roomNo,
-                      );
-
-                      return (
-                        <div
-                          key={room.roomNo}
-                          onClick={() =>
-                            !alreadyAssigned && toggleDraftRoom(room.roomNo)
-                          }
-                          className={`flex items-center px-3 py-1 ${
-                            alreadyAssigned
-                              ? "opacity-40 cursor-not-allowed hover:bg-gray-200"
-                              : selected
-                                ? "bg-orange-200/50"
-                                : "cursor-pointer hover:bg-orange-100/40"
-                          }`}
-                        >
-                          <div className="flex gap-1 items-center">
-                            <input
-                              type="checkbox"
-                              checked={selected}
-                              className="accent-orange-500"
-                              readOnly
-                            />
-                            <span>Room {room.roomNo}</span>
-                          </div>
-
-                          {/* <span className="ml-auto text-xs text-gray-500">
-                            Floor {room.floor}
-                          </span> */}
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* SUMMARY */}
@@ -404,10 +446,11 @@ const RoomAllocation = ({ value, onChange }) => {
                     return (
                       <div
                         key={r.roomNo}
-                        className="relative shadow-md bg-gray-50 mb-1 border-2 border-orange-500 p-2.5 w-fit rounded-xl text-sm"
+                        className="relative shadow-md bg-gray-50 mb-1 border-2 border-primary-500 p-2.5 w-fit rounded-xl text-sm"
                       >
                         <span className="font-medium text-gray-800">
-                          Room {r.roomNo} • Floor {room?.floor ?? "-"}
+                          Room {r.roomNo}
+                          {/* • Floor {room?.floor ?? "-"}  */}
                         </span>
                         <div className="absolute -right-2 -top-2">
                           <button

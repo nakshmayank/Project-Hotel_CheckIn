@@ -16,6 +16,9 @@ const CompletedStayCard = ({
           <b>Check-In:</b> {stay.chkindate.toLocaleString()}
         </p>
         <p>
+          <b>Check-Out:</b> {stay.chkoutdate.toLocaleString()}
+        </p>
+        <p>
           <b>Check-In ID:</b> {stay.chkid}
         </p>
         <p>
@@ -31,14 +34,14 @@ const CompletedStayCard = ({
           <b>Address:</b> {stay.Address}
         </p>
         <p>
-          <b>Stay Duration:</b> {stay.Noofstay}
+          <b>Stay Duration:</b> {stay.Noofstay}{" nights"}
         </p>
         <p>
-          <b>Room Type:</b> {stay.RoomType}
+          <b>Room Number:</b> {(stay.RoomType).split(",").map(item => item.trim()).join(", ")}
         </p>
-        <p>
+        {/* <p>
           <b>Grand Total:</b> {stay.Gtotal}
-        </p>
+        </p> */}
       </div>
 
       {/* Members */}
@@ -49,10 +52,10 @@ const CompletedStayCard = ({
           </p>
           <button
             onClick={() => onViewMembers(stay.chkid)}
-            className="text-sm font-medium text-orange-600 hover:underline"
+            className="text-sm font-medium text-primary-500 hover:underline"
           >
             {expandedChkId !== stay.chkid
-              ? `View members (${stay.chkid})`
+              ? `View members`
               : "Hide members"}
           </button>
         </div>

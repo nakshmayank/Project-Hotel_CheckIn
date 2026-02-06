@@ -21,7 +21,7 @@ const Profile = () => {
     licenseno: "",
     photo: null,
     photoPreview: user?.pimg
-      ? `https://api.careersphare.com/HotelLogo/${user.pimg}`
+      ? `https://api.inndez.com/HotelLogo/${user.pimg}`
       : null,
   });
 
@@ -63,7 +63,7 @@ const Profile = () => {
 
   const uploadProfilePhoto = async () => {
     if (!form.photo) {
-      toast.error("Logo not selected");
+      toast.error("Select a logo first");
       return;
     }
 
@@ -93,7 +93,7 @@ const Profile = () => {
 
         setForm((prev) => ({
           ...prev,
-          photoPreview: `https://api.careersphare.com/HotelLogo/${newPimg}?t=${Date.now()}`,
+          photoPreview: `https://api.inndez.com/HotelLogo/${newPimg}?t=${Date.now()}`,
         }));
 
         setUser(updatedUser);
@@ -156,13 +156,13 @@ const Profile = () => {
     }
   };
 
-  const fallbackLetter = form.name?.charAt(0)?.toUpperCase() || "U";
+  const fallbackLetter = user?.FullName.charAt(0)?.toUpperCase() || "U";
 
   useEffect(() => {
     if (user?.pimg) {
       setForm((prev) => ({
         ...prev,
-        photoPreview: `https://api.careersphare.com/HotelLogo/${
+        photoPreview: `https://api.inndez.com/HotelLogo/${
           user.pimg
         }?t=${Date.now()}`,
       }));
@@ -181,13 +181,13 @@ const Profile = () => {
 
           {/* Profile Card */}
           <div className="bg-gray-200/40 p-8 rounded-2xl shadow-md mb-6 animate-pulse">
-            <div className="flex flex-col md:flex-row justify-between gap-6">
+            <div className="flex gap-2 items-center">
+              <div className="w-1 h-7 bg-gray-300/70 rounded"></div>
+              <div className="h-6 w-20 bg-gray-300/70 rounded"></div>
+            </div>
+            <div className="flex flex-col-reverse md:flex-row justify-between gap-8">
               {/* Left info */}
               <div className="space-y-5">
-                <div className="flex gap-2 items-center">
-                  <div className="w-1 h-7 bg-gray-300/70 rounded"></div>
-                  <div className="h-6 w-20 bg-gray-300/70 rounded"></div>
-                </div>
                 <div>
                   <div className="h-3 w-24 bg-gray-300/70 rounded mb-2"></div>
                   <div className="h-5 w-56 bg-gray-300/80 rounded"></div>
@@ -263,25 +263,25 @@ const Profile = () => {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2.5 flex gap-1 items-center rounded-xl bg-orange-500 text-white shadow-md transition-all hover:scale-105 ease-in-out duration-300 hover:shadow-lg hover:bg-orange-600"
+                    className="px-5 py-2.5 flex gap-1 items-center rounded-xl bg-primary-500 text-white shadow-md transition-all hover:scale-105 ease-in-out duration-300 hover:shadow-lg hover:bg-primary-500"
                   >
                     <img className="w-4 h-4" src="/edit_icon.svg" alt="" />
-                    <span>Edit Profile</span>
+                    <span>Edit</span>
                   </button>
                 )}
               </div>
 
               {/* USER INFORMATION */}
               <div className="bg-gray-200/40 p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow mb-6">
-                <div className="flex flex-col md:flex-row justify-center md:justify-between gap-6">
+                <div className="flex gap-2 mb-4">
+                  <div className="bg-primary-500 w-1 h-7"></div>
+                  <p className="font-semibold text-xl">Profile</p>
+                </div>
+                <div className="flex flex-col-reverse md:flex-row justify-center md:justify-between gap-8">
                   {/* Left */}
-                  <div className="w-fit">
+                  <div className="">
                     {!isEditing ? (
                       <div className="fade-in-fast">
-                        <div className="flex gap-2 mb-4">
-                          <div className="bg-orange-500 w-1 h-7"></div>
-                          <p className="font-semibold text-xl">Profile</p>
-                        </div>
                         <div className="flex flex-col gap-5 ml-3">
                           <div>
                             <p className="font-medium text-sm text-gray-600">
@@ -322,7 +322,21 @@ const Profile = () => {
                             placeholder={
                               userData?.Name || "Enter your full name"
                             }
-                            className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                            className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-gray-800">
+                            Email Address
+                          </label>
+                          <input
+                            name="email"
+                            value={form.email}
+                            onChange={handleChange}
+                            disabled
+                            placeholder={userData?.email || "Enter your email"}
+                            className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                           />
                         </div>
 
@@ -338,21 +352,7 @@ const Profile = () => {
                             placeholder={
                               userData?.mobile || "Enter mobile number"
                             }
-                            className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-medium text-gray-800">
-                            Email Address
-                          </label>
-                          <input
-                            name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            disabled
-                            placeholder={userData?.email || "Enter your email"}
-                            className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                            className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                           />
                         </div>
                       </div>
@@ -362,7 +362,7 @@ const Profile = () => {
                   {/* Right – Profile Photo */}
                   <div className="justify-center flex">
                     <div className="flex flex-col items-center justify-center w-40">
-                      <label className="relative group w-40 h-40 rounded-full hover:ring-4 hover:ring-orange-500/80 ring-transparent shadow-[0_0_25px_rgba(249,115,22,0.10)] hover:shadow-[0_0_35px_rgba(249,115,22,0.70)] overflow-hidden hover:scale-105 duration-500 transition-all ease-in-out cursor-pointer bg-gray-300/80">
+                      <label className="relative group w-40 h-40 rounded-full shadow-md hover:shadow-lg overflow-hidden hover:scale-105 duration-500 transition-all ease-in-out cursor-pointer">
                         {form.photoPreview ? (
                           <img
                             src={form.photoPreview}
@@ -371,14 +371,14 @@ const Profile = () => {
                             className={`w-full h-full object-cover transition duration-300 group-hover:scale-110 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
                           />
                         ) : (
-                          <div className="w-full h-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold">
+                          <div className="w-full h-full bg-gray-300/80 flex items-center justify-center text-white text-4xl font-bold">
                             {fallbackLetter}
                           </div>
                         )}
 
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                           <img
-                            className="w-10 h-10 opacity-80"
+                            className="w-8 h-8 opacity-80"
                             src="/edit_logo.svg"
                             alt=""
                           />
@@ -397,7 +397,7 @@ const Profile = () => {
                       {(form.photo || isEditing) && (
                         <button
                           onClick={uploadProfilePhoto}
-                          className="mt-6 px-3 py-2 text-sm bg-orange-500 text-white rounded-lg shadow-md hover:shadow-lg transition-colors hover:bg-orange-600"
+                          className="mt-6 px-4 py-2.5 text-sm bg-primary-500 text-white rounded-xl shadow-md hover:shadow-lg transition-colors hover:bg-primary-500"
                         >
                           {uploading ? (
                             <div className="flex items-center justify-center gap-2">
@@ -421,7 +421,7 @@ const Profile = () => {
                 {!isEditing ? (
                   <div>
                     <div className="flex gap-2 mb-4">
-                      <div className="bg-orange-500 w-1 h-7"></div>
+                      <div className="bg-primary-500 w-1 h-7"></div>
                       <p className="font-semibold text-xl">
                         Hotel / Business Details
                       </p>
@@ -489,7 +489,7 @@ const Profile = () => {
                         placeholder={
                           userData?.address || "Enter your full address"
                         }
-                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       />
                     </div>
 
@@ -502,7 +502,7 @@ const Profile = () => {
                         value={form.gstno}
                         onChange={handleChange}
                         placeholder={userData?.gstno || "Enter GST number"}
-                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       />
                     </div>
 
@@ -515,7 +515,7 @@ const Profile = () => {
                         value={form.tinno}
                         onChange={handleChange}
                         placeholder={userData?.tinno || "Enter TIN number"}
-                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       />
                     </div>
 
@@ -530,7 +530,7 @@ const Profile = () => {
                         placeholder={
                           userData?.licenseno || "Enter license number"
                         }
-                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-orange-600 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-orange-500"
+                        className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       />
                     </div>
                   </div>
@@ -542,14 +542,14 @@ const Profile = () => {
                 <div className="flex justify-end gap-5 mt-6">
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 bg-gray-600 hover:shadow-lg transition-colors hover:bg-gray-700 text-white rounded-lg"
+                    className="px-4 py-2 border-2 border-primary-500 shadow-md hover:shadow-lg transition-colors hover:bg-primary-200/20 text-primary-500 rounded-xl"
                   >
                     Cancel
                   </button>
 
                   <button
                     onClick={updateUserData}
-                    className="px-5 py-2 rounded-lg bg-orange-500 text-white shadow-md transition-colors hover:shadow-lg hover:bg-orange-600"
+                    className="px-5 py-2 rounded-xl bg-primary-500 text-white shadow-md transition-colors hover:shadow-lg hover:bg-primary-500"
                   >
                     {loading ? (
                       <div className="flex items-center justify-center gap-2">

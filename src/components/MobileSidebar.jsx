@@ -15,8 +15,7 @@ const MobileSidebar = ({ open, setOpen }) => {
   const isActive = (path) => location.pathname.endsWith(path);
   const close = () => setOpen(false);
 
-  const firstName =
-    user?.FullName || userData?.Name || "User";
+  const firstName = user?.FullName || userData?.Name || "User";
   const email = user?.EmailId || "";
 
   return (
@@ -34,11 +33,11 @@ const MobileSidebar = ({ open, setOpen }) => {
         }`}
       >
         {user && (
-          <div className="px-5 py-8 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-orange-100 flex items-center justify-center font-semibold text-orange-600 shrink-0">
+          <div className="px-5 py-7 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center font-semibold text-primary-500 shrink-0">
               {user?.pimg ? (
                 <img
-                  src={`https://api.careersphare.com/HotelLogo/${user.pimg}`}
+                  src={`https://api.inndez.com/HotelLogo/${user.pimg}`}
                   alt="profile"
                   className="w-full h-full object-cover"
                 />
@@ -56,7 +55,28 @@ const MobileSidebar = ({ open, setOpen }) => {
           </div>
         )}
 
-        <div className="flex-1 space-y-5 overflow-y-auto px-4 flex flex-col">
+        <div className="flex-1 space-y-5 overflow-y-auto hide-scrollbar px-4 flex flex-col">
+          {/* 🔥 PRIMARY ACTION — NEW CHECK-IN */}
+          <div className="">
+            <button
+              onClick={() => {
+                navigate("/dashboard/checkin");
+                close();
+              }}
+              className={`relative w-full pl-3 py-2 flex items-center justify-start gap-2 text-primary-500 hover:bg-gray-100/40 rounded-lg active:scale-[0.98] transition-all ${
+                isActive("/dashboard/checkin")
+                  ? "bg-primary-100/30 shadow-lg"
+                  : "bg-gray-100/20 shadow-md hover:bg-gray-100/30"
+              }`}
+            >
+              {isActive("/dashboard/checkin") && (
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
+              )}
+              <img src="/checkin.svg" className="w-5 h-5" alt="" />
+              New Check-In
+            </button>
+          </div>
+
           <div className="">
             <p className="text-[12px] font-semibold tracking-[0.12em] text-gray-900 uppercase mb-3">
               Main
@@ -70,12 +90,12 @@ const MobileSidebar = ({ open, setOpen }) => {
               }}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 isActive("/dashboard")
-                  ? "bg-orange-100/30 text-orange-600 shadow-md"
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
                   : "text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {isActive("/dashboard") && (
-                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-orange-500" />
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
               )}
               <img src="/dashboard.png" className="w-5 h-5 shrink-0" alt="" />
               Dashboard
@@ -89,12 +109,12 @@ const MobileSidebar = ({ open, setOpen }) => {
               }}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 isActive("/dashboard/manage-stay")
-                  ? "bg-orange-100/30 text-orange-600 shadow-md"
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
                   : "text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {isActive("/dashboard/manage-stay") && (
-                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-orange-500" />
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
               )}
               <img src="/stay2.png" className="w-5 h-5 shrink-0" alt="" />
               Manage Stay
@@ -120,12 +140,12 @@ const MobileSidebar = ({ open, setOpen }) => {
               }}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 isActive("/services")
-                  ? "bg-orange-100/30 text-orange-600 shadow-md"
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
                   : "text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {isActive("/services") && (
-                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-orange-500" />
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
               )}
               <img src="/service.png" className="w-5 h-5 shrink-0" alt="" />
               Services
@@ -145,12 +165,12 @@ const MobileSidebar = ({ open, setOpen }) => {
               }}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 isActive("/about")
-                  ? "bg-orange-100/30 text-orange-600 shadow-md"
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
                   : "text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {isActive("/about") && (
-                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-orange-500" />
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
               )}
               <img src="/info.png" className="w-5 h-5 shrink-0" alt="" />
               About
@@ -164,12 +184,12 @@ const MobileSidebar = ({ open, setOpen }) => {
               }}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 isActive("/support")
-                  ? "bg-orange-100/30 text-orange-600 shadow-md"
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
                   : "text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {isActive("/support") && (
-                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-orange-500" />
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
               )}
               <img src="/support.png" className="w-5 h-5 shrink-0" alt="" />
               Support
@@ -183,12 +203,12 @@ const MobileSidebar = ({ open, setOpen }) => {
               }}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 isActive("/contact")
-                  ? "bg-orange-100/30 text-orange-600 shadow-md"
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
                   : "text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {isActive("/contact") && (
-                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-orange-500" />
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
               )}
               <img src="/contact.png" className="w-5 h-5 shrink-0" alt="" />
               Contact
@@ -210,12 +230,12 @@ const MobileSidebar = ({ open, setOpen }) => {
               }}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 isActive("/dashboard/profile")
-                  ? "bg-orange-100/30 text-orange-600 shadow-md"
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
                   : "text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {isActive("/dashboard/profile") && (
-                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-orange-500" />
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
               )}
               <img
                 src="/profile_icon.svg"

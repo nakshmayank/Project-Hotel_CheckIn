@@ -30,6 +30,12 @@ const ActiveStayCard = ({
         <p>
           <b>Email:</b> {stay.email}
         </p>
+        <p>
+          <b>Stay Duration:</b> {stay.Noofstay}
+        </p>
+        <p>
+          <b>Room Numbers:</b> {(stay.RoomType).split(",").map(item => item.trim()).join(", ")}
+        </p>
       </div>
 
       {/* Members */}
@@ -40,10 +46,10 @@ const ActiveStayCard = ({
           </p>
           <button
             onClick={() => onViewMembers(stay.chkid)}
-            className="text-sm font-medium text-orange-600 hover:underline"
+            className="text-sm font-medium text-primary-500 hover:underline"
           >
             {expandedChkId !== stay.chkid
-              ? `View members (${stay.chkid})`
+              ? `View members`
               : "Hide members"}
           </button>
         </div>
@@ -68,20 +74,20 @@ const ActiveStayCard = ({
 
       {/* Actions */}
       <div className="border-t border-gray-500/30 pt-5 flex justify-end gap-3 mt-3">
-        <button
+        {/* <button
           onClick={() => onAssignRoom(stay)}
-          className="px-4 py-2 rounded-lg border-2 border-orange-500 text-orange-500 shadow-lg hover:bg-orange-100/50 transition"
+          className="px-4 py-2 rounded-lg border-2 border-primary-500 text-primary-500 shadow-lg hover:bg-primary-100/50 transition"
         >
           Modify Stay
-        </button>
+        </button> */}
 
         <button
           onClick={() => onCheckout(stay.chkid)}
           disabled={checkingOutId === stay.chkid}
           className={`px-4 py-2 text-white rounded-lg shadow-md transition-all duration-300 ${
             checkingOutId === stay.chkid
-              ? "bg-orange-400 cursor-not-allowed"
-              : "bg-orange-500 hover:bg-orange-600 hover:scale-105"
+              ? "bg-primary-400 cursor-not-allowed"
+              : "bg-primary-500 hover:bg-primary-500 hover:scale-105"
           }`}
         >
           {checkingOutId === stay.chkid ? "Checking Out..." : "Check Out"}

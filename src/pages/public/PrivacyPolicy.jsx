@@ -32,7 +32,7 @@ const PrivacyPolicy = () => {
           </p>
 
           <p>
-            The Company, i.e., <strong>nova enterprises</strong>, is committed to
+            The Company, i.e., <strong>TechVio Enterprises</strong>, is committed to
             protecting the privacy of its users (“You” / “Your”). The Company
             strives to provide a safe and secure user experience by protecting
             the personal information (“PII”) that resides with the Company.
@@ -66,12 +66,12 @@ const PrivacyPolicy = () => {
         <section className="mt-10 space-y-4">
           <h2 className="text-xl font-semibold">Who are we?</h2>
           <p>
-            elightrecruit is a talent platform operating an online employment
+            inndez is a talent platform operating an online employment
             marketplace across India, Singapore, Malaysia, Philippines,
             Hong Kong, and Gulf regions.
           </p>
           <p>
-            For India and Gulf regions, <strong>nova enterprises</strong> is the
+            For India and Gulf regions, <strong>TechVio Enterprises</strong> is the
             legal entity responsible for processing personal information.
           </p>
         </section>
@@ -189,7 +189,7 @@ const PrivacyPolicy = () => {
           </h2>
           <p>
             Registered users may withdraw consent by emailing
-            <strong> compliance@elightrecruit.com</strong>. Accounts may be
+            <strong> compliance@inndez.com</strong>. Accounts may be
             deleted within 7 days.
           </p>
           <p>
@@ -204,15 +204,15 @@ const PrivacyPolicy = () => {
             Legal & Contact Information
           </h2>
           <p>
-            Registered Office: nova enterprises, New Delhi – 59, India
+            Registered Office: TechVio Enterprises, New Delhi – 59, India
           </p>
           <p>
             Legal Department Email:{" "}
-            <strong>privacypolicy@elightrecruit.com</strong>
+            <strong>privacypolicy@inndez.com</strong>
           </p>
           <p>
             Data Protection Officer:{" "}
-            <strong>sanjeev@elightrecruit.com</strong>
+            <strong>sanjeev@inndez.com</strong>
           </p>
         </section>
 

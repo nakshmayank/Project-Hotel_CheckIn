@@ -52,8 +52,9 @@ const AssignRoom = ({ stay, onClose, onSuccess }) => {
         <div className="mb-2 text-sm">
           <p className="font-medium mb-1">Edit Stay</p>
           <div>
-            <p>Number of Members: <span>{stay.noOfMembers}</span></p>
-            <p>Stay Duration: <span>{stay.stayDuration}</span></p>
+            {/* <p>Number of Members: <span>{stay.noOfMembers}</span></p> */}
+            <p>Stay Duration: <span>{stay.Noofstay}</span></p>
+            <p>Room Numbers: <span>{stay.RoomType}</span></p>
           </div>
         </div>
 
@@ -71,7 +72,7 @@ const AssignRoom = ({ stay, onClose, onSuccess }) => {
               roomAllocations.length === 0 ||
               roomAllocations.some((g) => g.rooms.length === 0)
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-orange-500 text-white hover:bg-orange-600"
+                : "bg-primary-500 text-white hover:bg-primary-500"
             }`}
           >
             Assign Rooms

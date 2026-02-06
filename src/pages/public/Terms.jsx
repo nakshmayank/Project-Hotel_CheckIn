@@ -6,7 +6,7 @@ const Terms = () => {
       {/* Title */}
       <header className="mb-10">
         <h1 className="text-3xl font-semibold">
-          Terms & Conditions
+          Terms of Service
         </h1>
         <p className="mt-2 text-sm text-gray-500">
           Effective Date: December 2025
@@ -34,9 +34,9 @@ const Terms = () => {
           <p>
             This document/agreement (hereinafter referred to as “Agreement”)
             sets forth the Terms (hereinafter referred to as “Terms”) that apply
-            to the access and use of the website www.elightrecruit.com and its
+            to the access and use of the website www.inndez.com and its
             Mobile Application “stayin” (collectively referred to as the
-            “Platform”), which is managed and operated by nova enterprises,
+            “Platform”), which is managed and operated by TechVio Enterprises,
             deemed to be existing under the Companies Act, 2013, having its
             registered office at New Delhi – 110059, India (hereinafter referred
             to as the “Company”).
@@ -350,9 +350,9 @@ const Terms = () => {
             21. Grievance Redressal & DPO
           </h2>
           <p>
-            Contact Email: <strong>privacypolicy@elightrecruit.in</strong>
+            Contact Email: <strong>privacypolicy@inndez.in</strong>
           </p>
-          <p>Legal Department, nova enterprises</p>
+          <p>Legal Department, TechVio Enterprises</p>
         </section>
 
         <section>
