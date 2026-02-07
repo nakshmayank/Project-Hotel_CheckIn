@@ -12,7 +12,6 @@ const Navbar = () => {
     navigate,
     authLoading,
     logout,
-    setShowAddRoom,
     setShowChangePassword,
     userData,
   } = useAppContext();
@@ -22,13 +21,9 @@ const Navbar = () => {
 
   const firstName =
     user?.FullName?.split(" ")[0] || userData?.Name?.split(" ")[0];
-  const fallbackLetter =
-    user?.FullName?.charAt(0)?.toUpperCase() ||
-    userData?.Name?.charAt(0)?.toUpperCase() ||
-    "U";
 
   const profileImageUrl = user?.pimg
-    ? `https://api.inndez.com/HotelLogo/${user.pimg}`
+    ? `${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`
     : null;
 
   useEffect(() => {
@@ -120,7 +115,7 @@ const Navbar = () => {
                       {/* Profile avatar */}
                       <button
                         onClick={() => setShowProfileMenu(!showProfileMenu)}
-                        className="w-8 h-8 rounded-full overflow-hidden shadow bg-gray-300/80 flex items-center justify-center cursor-pointer transition duration-150 hover:scale-110"
+                        className="w-8 h-8 rounded-full overflow-hidden shadow bg-gray-300 flex items-center justify-center cursor-pointer transition duration-150 hover:scale-105 ease-in-out"
                       >
                         {profileImageUrl ? (
                           <img
@@ -129,9 +124,11 @@ const Navbar = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-white font-semibold">
-                            {fallbackLetter}
-                          </span>
+                          <img
+                            src="/profile_logo.svg"
+                            alt="loading avatar"
+                            className="inset-0 w-full h-full object-cover opacity-60 animate-pulse"
+                          />
                         )}
                       </button>
                     </div>

@@ -1,3 +1,5 @@
+import { useAppContext } from "../../context/AppContext";
+
 const Gender = {
   M: "Male",
   F: "Female",
@@ -12,51 +14,89 @@ const ID_TYPE = {
   5: "PAN Card",
 };
 
-const BASE_URL = "https://api.inndez.com/memersidphoto/";
+const BASE_URL = "https://apitest.inndez.com/mf/";
 
 const MemberCard = ({ member }) => {
+  const { axios } = useAppContext();
 
   const getIdFiles = () => {
     if (!member.IDFilename) return [];
-    return member.IDFilename.split(",").map(f => f.trim()).filter(Boolean);
+    return member.IDFilename.split(",")
+      .map((f) => f.trim())
+      .filter(Boolean);
   };
 
   const viewFile = (fileName) => {
-  const url = BASE_URL + fileName;
+    const url = BASE_URL + fileName;
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.setAttribute("download", fileName); // force download
-  a.setAttribute("target", "_blank");   // fallback open
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-};
+    const a = document.createElement("a");
+    a.href = url;
+    a.setAttribute("download", fileName); // force download
+    a.setAttribute("target", "_blank"); // fallback open
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
 
+  const viewId = async () => {
+    try {
+      const { data } = await axios.get(`/api/v1/Hotel/mf/${member.IDFilename}`, {
+        responseType: "blob",
+      });
 
-  const handleViewIds = async () => {
-  const files = getIdFiles();
+      const blob = new Blob([data], { type: "application/pdf" });
 
-  for (const file of files) {
-    viewFile(file);
-    await new Promise(r => setTimeout(r, 500)); // 0.5 sec gap
-  }
-};
+      const url = window.URL.createObjectURL(blob);
 
+      // Step 4: Create <a> tag and trigger download
+      const link = document.createElement("a");
+      link.href = url;
+      // link.setAttribute("download", `${file}`); // filename
+      link.setAttribute("target", "_blank");
+      document.body.appendChild(link);
+      link.click();
+
+      // Step 5: Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //   const handleViewIds = async () => {
+  //   const files = getIdFiles();
+
+  //   for (const file of files) {
+  //     viewFile(file);
+  //     await new Promise(r => setTimeout(r, 500)); // 0.5 sec gap
+  //   }
+  // };
 
   return (
     <div className="bg-gray-100/70 text-sm p-4 mb-3 rounded-2xl shadow-md hover:shadow-lg transition-shadow">
-      <p><b>Name:</b> {member.name}</p>
-      <p><b>Age:</b> {member.age}</p>
-      <p><b>Gender:</b> {Gender[member.gender]}</p>
-      <p><b>Mobile:</b> {member.mobile}</p>
-      <p><b>ID Type:</b> {ID_TYPE[member.IDType]}</p>
+      <p>
+        <b>Name:</b> {member.name}
+      </p>
+      <p>
+        <b>Age:</b> {member.age}
+      </p>
+      <p>
+        <b>Gender:</b> {Gender[member.gender]}
+      </p>
+      <p>
+        <b>Mobile:</b> {member.mobile}
+      </p>
+      <p>
+        <b>ID Type:</b> {ID_TYPE[member.IDType]}
+      </p>
 
       <p className="flex gap-1">
         <b>ID File:</b>
         {member.IDFilename && (
           <button
-            onClick={handleViewIds}
+            onClick={viewId}
             className="text-primary-500 text-sm font-medium hover:underline"
           >
             View ID

@@ -7,21 +7,29 @@ const Sidebar = () => {
   return (
     <div className="py-8 w-full md:px-7 lg:px-16 transition-all">
       <div className="flex flex-col gap-4 items-center justify-center mb-6">
-        <label className="relative block shadow-lg rounded-full w-32 h-32 bg-gray-300/80 hover:scale-105 duration-300 transition-all overflow-hidden">
-          {user?.pimg ? <img
-            className="w-full h-full object-cover"
-            src={
-              user?.pimg
-                ? `https://api.inndez.com/HotelLogo/${user.pimg}`
-                : "/"
-            }
-            alt="logo"
-          /> : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">
-      {user?.FullName?.charAt(0)?.toUpperCase() || "U"}
-    </div>}
+        <label className="relative block shadow-lg rounded-full w-32 h-32 bg-gray-300 hover:scale-105 duration-300 transition-all ease-in-out overflow-hidden">
+          {user?.pimg ? (
+            <img
+              className="w-full h-full object-cover"
+              src={
+                user?.pimg
+                  ? `${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`
+                  : "/"
+              }
+              alt="logo"
+            />
+          ) : (
+            <img
+              src="/profile_logo.svg"
+              alt="loading avatar"
+              className="absolute inset-0 w-full h-full object-cover opacity-60 animate-pulse"
+            />
+          )}
         </label>
         <div className="flex flex-col items-center">
-          <p className="text-lg text-gray-900 font-semibold">{user?.FullName}</p>
+          <p className="text-lg text-gray-900 font-semibold">
+            {user?.FullName}
+          </p>
           <p className="text-sm text-gray-700 font-medium">{user?.EmailId}</p>
         </div>
       </div>

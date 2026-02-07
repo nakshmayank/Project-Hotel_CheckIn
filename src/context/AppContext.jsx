@@ -39,8 +39,6 @@ export const AppContextProvider = ({ children }) => {
         accesstoken: storedToken,
       });
 
-      console.log(data[0]?.result);
-
       if (String(data[0]?.result) === "1") {
         setUser(JSON.parse(storedUser));
         axios.defaults.headers.common["Authorization"] =
@@ -60,21 +58,13 @@ export const AppContextProvider = ({ children }) => {
   const fetchUserData = async () => {
     try {
       if (user === null) return;
+
       const { data } = await axios.post("/api/v1/Hotel/HotelGetDetails", {
         AccessToken: user?.AccessToken,
       });
-      // const userData = data[0];
-      // if(userData?.Status === 1){
-      // setUserData(userData);
-      // } else {
-      //   console.log("userData doesn't exist");
-      // }
-
-      console.log(data);
 
       if (Number(data[0]?.Status) === 1) {
         setUserData(data[0]);
-        console.log(data[0]?.Name);
       } else {
         console.log("UserData not received");
       }
@@ -96,9 +86,11 @@ export const AppContextProvider = ({ children }) => {
         },
       );
 
-      setDashCount(data[0]);
-
-      console.log(data[0]);
+      if (data[0]) {
+        setDashCount(data[0]);
+      } else {
+        console.log("Failed to fetch dashboard data");
+      }
     } catch (error) {
       console.log(error.response?.data || error);
     }
@@ -147,16 +139,12 @@ export const AppContextProvider = ({ children }) => {
     toast.error("Session expired. Please login again.");
   };
 
-  console.log(user?.AccessToken);
-
-  console.log(dashCount.active);
-
   useEffect(() => {
     const protectedRoutes = [
-  "HotelGetDetails",
-  "HotelGetDashboardcount",
-  "HotelLogout"
-];
+      "HotelGetDetails",
+      "HotelGetDashboardcount",
+      "HotelLogout",
+    ];
 
     const interceptor = axios.interceptors.response.use(
       (response) => {
@@ -164,7 +152,7 @@ export const AppContextProvider = ({ children }) => {
         if (
           Array.isArray(response.data) &&
           response.data[0]?.Status === 0 &&
-          protectedRoutes.some(route => response.config.url.includes(route))
+          protectedRoutes.some((route) => response.config.url.includes(route))
         ) {
           forceLogout();
         }
@@ -188,6 +176,7 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
+      console.log("Access Token:", user?.AccessToken);
       fetchUserData();
       fetchDashCount();
     }

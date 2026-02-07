@@ -21,7 +21,7 @@ const Profile = () => {
     licenseno: "",
     photo: null,
     photoPreview: user?.pimg
-      ? `https://api.inndez.com/HotelLogo/${user.pimg}`
+      ? `${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`
       : null,
   });
 
@@ -93,7 +93,7 @@ const Profile = () => {
 
         setForm((prev) => ({
           ...prev,
-          photoPreview: `https://api.inndez.com/HotelLogo/${newPimg}?t=${Date.now()}`,
+          photoPreview: `${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${newPimg}?t=${Date.now()}`,
         }));
 
         setUser(updatedUser);
@@ -156,13 +156,11 @@ const Profile = () => {
     }
   };
 
-  const fallbackLetter = user?.FullName.charAt(0)?.toUpperCase() || "U";
-
   useEffect(() => {
     if (user?.pimg) {
       setForm((prev) => ({
         ...prev,
-        photoPreview: `https://api.inndez.com/HotelLogo/${
+        photoPreview: `${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${
           user.pimg
         }?t=${Date.now()}`,
       }));
@@ -247,6 +245,12 @@ const Profile = () => {
       setShowLoading(false);
     }
   }, [userData]);
+
+  useEffect(() => {
+    if (form.photoPreview) {
+      setImageLoaded(false); // important
+    }
+  }, [form.photoPreview]);
 
   return (
     <div className="py-12 px-5">
@@ -362,18 +366,22 @@ const Profile = () => {
                   {/* Right – Profile Photo */}
                   <div className="justify-center flex">
                     <div className="flex flex-col items-center justify-center w-40">
-                      <label className="relative group w-40 h-40 rounded-full shadow-md hover:shadow-lg overflow-hidden hover:scale-105 duration-500 transition-all ease-in-out cursor-pointer">
-                        {form.photoPreview ? (
+                      <label className="relative group w-40 h-40 bg-gray-300 rounded-full shadow-md hover:shadow-lg overflow-hidden hover:scale-105 duration-500 transition-all ease-in-out cursor-pointer">
+                        {!imageLoaded && (
+                          <img
+                            src="/profile_logo.svg"
+                            alt="loading avatar"
+                            className="absolute inset-0 w-full h-full object-cover opacity-60 animate-pulse"
+                          />
+                        )}
+
+                        {form.photoPreview && (
                           <img
                             src={form.photoPreview}
                             alt="Profile_logo"
                             onLoad={() => setImageLoaded(true)}
-                            className={`w-full h-full object-cover transition duration-300 group-hover:scale-110 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                            className={`w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
                           />
-                        ) : (
-                          <div className="w-full h-full bg-gray-300/80 flex items-center justify-center text-white text-4xl font-bold">
-                            {fallbackLetter}
-                          </div>
                         )}
 
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
