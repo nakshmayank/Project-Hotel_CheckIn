@@ -37,7 +37,7 @@ const MobileSidebar = ({ open, setOpen }) => {
             <div className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center font-semibold text-primary-500 shrink-0">
               {user?.pimg ? (
                 <img
-                  src={`https://api.inndez.com/HotelLogo/${user.pimg}`}
+                  src={`${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`}
                   alt="profile"
                   className="w-full h-full object-cover"
                 />

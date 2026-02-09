@@ -42,14 +42,10 @@ const Login = () => {
     try {
       setLoading(true);
 
-      console.log("I'm here");
-
       const { data } = await axios.post("/api/v1/Hotel/HotelLogin", {
         email: identifier,
         password,
       });
-
-      console.log(data);
 
       const userId = data[0];
 

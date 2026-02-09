@@ -23,9 +23,10 @@ import PrivacyPolicy from "./pages/public/PrivacyPolicy";
 import Terms from "./pages/public/Terms";
 import Login from "./components/Login";
 import { useEffect } from "react";
+import Loader from "./components/Loader";
 
 const App = () => {
-  const { user, showAddRoom, showChangePassword, showLogin } = useAppContext();
+  const { user, showAddRoom, showChangePassword, showLogin, globalLoader } = useAppContext();
 
   const location = useLocation();
 
@@ -42,6 +43,7 @@ const App = () => {
       {showLogin && <Login />}
       {showAddRoom && <AddRoom />}
       {showChangePassword && <ChangePassword />}
+      {globalLoader && <Loader/>}
 
       <div className={showLogin ? "pointer-events-none" : ""}>
 

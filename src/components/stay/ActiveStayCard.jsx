@@ -34,7 +34,10 @@ const ActiveStayCard = ({
           <b>Stay Duration:</b> {stay.Noofstay}
         </p>
         <p>
-          <b>Room Numbers:</b> {(stay.RoomType).split(",").map(item => item.trim()).join(", ")}
+          <b>Room Numbers:</b>{" "}
+          {stay.RoomType.split(",")
+            .map((item) => item.trim())
+            .join(", ")}
         </p>
       </div>
 
@@ -48,9 +51,7 @@ const ActiveStayCard = ({
             onClick={() => onViewMembers(stay.chkid)}
             className="text-sm font-medium text-primary-500 hover:underline"
           >
-            {expandedChkId !== stay.chkid
-              ? `View members`
-              : "Hide members"}
+            {expandedChkId !== stay.chkid ? `View members` : "Hide members"}
           </button>
         </div>
 
@@ -90,7 +91,14 @@ const ActiveStayCard = ({
               : "bg-primary-500 hover:bg-primary-500 hover:scale-105"
           }`}
         >
-          {checkingOutId === stay.chkid ? "Checking Out..." : "Check Out"}
+          {checkingOutId === stay.chkid ? (
+            <div className="flex gap-2 items-center">
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>Checking Out...</span>
+            </div>
+          ) : (
+            "Check Out"
+          )}
         </button>
       </div>
     </div>

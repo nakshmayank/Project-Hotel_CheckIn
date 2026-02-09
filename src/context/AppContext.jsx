@@ -19,6 +19,7 @@ export const AppContextProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [dashCount, setDashCount] = useState({});
+  const [globalLoader, setGlobalLoader] = useState(false);
 
   const fetchUser = async () => {
     try {
@@ -98,6 +99,7 @@ export const AppContextProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      setGlobalLoader(true);
       const { data } = await axios.post("/api/v1/Hotel/HotelLogout", {
         AccessToken: user?.AccessToken,
       });
@@ -120,23 +122,32 @@ export const AppContextProvider = ({ children }) => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setGlobalLoader(false);
     }
   };
 
   const forceLogout = () => {
-    localStorage.removeItem("authUser");
-    localStorage.removeItem("accessToken");
+    try {
+      setAuthLoading(true);
+      localStorage.removeItem("authUser");
+      localStorage.removeItem("accessToken");
 
-    sessionStorage.removeItem("authUser");
-    sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("authUser");
+      sessionStorage.removeItem("accessToken");
 
-    delete axios.defaults.headers.common["Authorization"];
+      delete axios.defaults.headers.common["Authorization"];
 
-    setUser(null);
-    setUserData(null);
+      setUser(null);
+      setUserData(null);
 
-    navigate("/");
-    toast.error("Session expired. Please login again.");
+      navigate("/");
+      toast.error("Session expired. Please login again.");
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -206,6 +217,8 @@ export const AppContextProvider = ({ children }) => {
     dashCount,
     setDashCount,
     fetchDashCount,
+    globalLoader,
+    setGlobalLoader
   };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
