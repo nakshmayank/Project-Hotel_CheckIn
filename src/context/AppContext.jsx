@@ -188,6 +188,7 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       console.log("Access Token:", user?.AccessToken);
+      console.log("Profile:", user?.pimg);
       fetchUserData();
       fetchDashCount();
     }

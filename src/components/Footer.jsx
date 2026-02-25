@@ -14,11 +14,11 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto py-12">
         {/* Top Grid */}
-        <div className="flex flex-col sm:flex-row text-center sm:text-left gap-10 items-center sm:items-start sm:justify-between">
+        <div className="flex flex-col px-6 md:px-16 2xl:px-6 lg:flex-row text-center lg:text-left gap-10 items-center xl:items-start xl:justify-between">
           {/* Brand (LEFT) */}
-          <div className="flex flex-col items-center md:items-start">
+          <div className="flex flex-col items-center lg:items-start">
             {/* <h2 className="text-xl font-semibold text-gray-700">Inn<span className="text-primary-500">Dez</span></h2> */}
             <img className="h-7" src="/inndez_orange_logo.png" alt="logo" />
             <p className="mt-3 text-sm text-gray-400 max-w-sm">
@@ -33,13 +33,13 @@ const Footer = () => {
           </div>
 
           {/* Right Section */}
-          <div className="flex flex-col items-center sm:items-start sm:flex-row gap-12">
+          <div className="w-full flex flex-wrap gap-6 justify-between lg:justify-end xl:w-fit lg:items-start lg:flex-row lg:gap-12">
             {/* Quick Links */}
             <div>
               <h3 className="text-sm font-semibold text-white mb-4">
                 Quick Links
               </h3>
-              <ul className="space-y-3 flex flex-col items-center sm:items-start text-sm">
+              <ul className="space-y-3 flex flex-col items-start text-sm">
                 <li>
                   <Link
                     to="/about"
@@ -105,11 +105,11 @@ const Footer = () => {
 
             {/* Policies */}
             <div>
-              <h3 className="text-sm font-semibold text-white mb-4">
+              <h3 className="text-sm text-left font-semibold text-white mb-4">
                 Policies
               </h3>
-              <ul className="space-y-3 text-sm text-gray-400">
-                <li className="pt-2">
+              <ul className="space-y-3 flex flex-col items-start text-sm text-gray-400">
+                <li className="">
                   <Link to="/privacy-policy" className="hover:text-white">
                     Privacy Policy
                   </Link>
@@ -124,10 +124,10 @@ const Footer = () => {
 
             {/* Policies & Trust */}
             <div className="">
-              <h3 className="text-sm font-semibold text-white mb-4">
+              <h3 className="text-sm text-left font-semibold text-white mb-4">
                 Trust & Legal
               </h3>
-              <ul className="space-y-3 flex flex-col items-center sm:items-start text-sm text-gray-400">
+              <ul className="space-y-3 flex flex-col items-start text-sm text-gray-400">
                 <li className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-green-400" />
                   Secure Data Handling
@@ -153,12 +153,12 @@ const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-700 my-8"></div>
+        <div className="border-t border-gray-700 mx-6 2xl:mx-0 my-8"></div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+        <div className="flex flex-col px-6 md:px-16 2xl:px-6 md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
           <span>
-            © {new Date().getFullYear()} TechVio Enterprises. All rights reserved.
+            © {new Date().getFullYear()} Techvio Enterprises. All rights reserved.
           </span>
 
           {/* Social Icons */}

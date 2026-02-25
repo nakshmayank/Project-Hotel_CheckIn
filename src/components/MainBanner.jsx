@@ -21,7 +21,7 @@ const MainBanner = () => {
       <div className="absolute inset-0 bg-black/40 md:bg-transparent md:bg-gradient-to-r from-black/90 via-black/20 to-transparent"></div>
 
       <div
-        className={`relative px-5 md:pl-24 py-24 md:py-36 z-10 flex items-center justify-center w-full md:w-[50vw] 2xl:w-[42vw]`}
+        className={`relative px-3 md:pl-12 lg:pl-24 py-24 md:py-36 z-10 flex items-center justify-center w-full md:w-[50vw] 2xl:w-[42vw]`}
       >
         {/* Content Container */}
         <div className="w-full">
@@ -30,35 +30,40 @@ const MainBanner = () => {
 
             {/* Headings */}
             <div className="space-y-6 flex flex-col items-center md:items-start">
-              <div className="flex flex-col gap-2 text-4xl lg:text-6xl font-bold leading-tight tracking-tight">
-                <h1 className="text-white">Modern Technology, </h1>
-                <span className="text-primary-500">
-                  Timeless Hospitality
+              <div className="flex flex-col gap-2 text-4xl text-center md:text-left lg:text-6xl font-bold leading-tight tracking-tight">
+                {/* Modern Technology, Timeless Hospitality */}
+                <h1 className="text-primary-500">Crafting Welcomes </h1>
+                <span className="text-white">
+                  Where Honor Meets Comfort
                 </span>
               </div>
 
               <p className="text-lg text-center md:text-left text-white/85 leading-relaxed max-w-4xl">
-                Transform your hotel's guest experience with an intuitive digital
+              Elevate each arrival with a seamless welcome experience, where comfort, care, and quiet precision shape every guest’s journey.
+                {/* Transform your hotel's guest experience with an intuitive digital
                 check-in system. Eliminate paperwork, enhance security, and delight
-                guests with seamless operations.
+                guests with seamless operations. */}
               </p>
             </div>
 
             {/* Features */}
-            <div className="ml-4 flex flex-col text-white gap-5">
+            <div className="lg:ml-4 flex flex-col text-white gap-3">
               <div className="flex gap-2 items-center">
                 <img className="w-4 h-4" src="/check.png" alt="check" />
-                <p>Seamless Digital Check-In & Check-Out at No Cost</p>
+                <p>Effortless Arrivals and Graceful Departures</p>
+                {/* <p>Seamless Check-In & Check-Out at No Cost</p> */}
               </div>
 
               <div className="flex gap-2 items-center">
                 <img className="w-4 h-4" src="/check.png" alt="check" />
-                <p>Centralized Digital Guest Records at Your Fingertips</p>
+                <p>Every Guest Detail, Thoughtfully Organized</p>
+                {/* <p>Centralized Guest Records at Your Fingertips</p> */}
               </div>
 
               <div className="flex gap-2 items-center">
                 <img className="w-4 h-4" src="/check.png" alt="check" />
-                <p>24*7 Support</p>
+                <p>Dedicated Support, Whenever You Need It</p>
+                {/* <p>24*7 Support</p> */}
               </div>
             </div>
 

@@ -21,12 +21,12 @@ const CompletedStayCard = ({
         <p>
           <b>Check-In ID:</b> {stay.chkid}
         </p>
-        <p>
+        {/* <p>
           <b>Name:</b> {stay.name}
         </p>
         <p>
           <b>Mobile:</b> {stay.mobile}
-        </p>
+        </p> */}
         <p>
           <b>Email:</b> {stay.email}
         </p>

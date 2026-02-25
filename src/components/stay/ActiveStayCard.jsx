@@ -21,14 +21,17 @@ const ActiveStayCard = ({
         <p>
           <b>Check-In:</b> {stay.chkindate.toLocaleString()}
         </p>
-        <p>
+        {/* <p>
           <b>Name:</b> {stay.name}
         </p>
         <p>
           <b>Mobile:</b> {stay.mobile}
-        </p>
+        </p> */}
         <p>
           <b>Email:</b> {stay.email}
+        </p>
+        <p>
+          <b>Address:</b> {stay.Address}
         </p>
         <p>
           <b>Stay Duration:</b> {stay.Noofstay}

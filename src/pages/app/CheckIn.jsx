@@ -2,10 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
 import imageCompression from "browser-image-compression";
-import RoomAllocation from "../../components/RoomAllocation";
 import { jsPDF } from "jspdf";
 import { PDFDocument } from "pdf-lib";
-import GuestInfo from "../../components/checkin/GuestInfo";
 import StayDetails from "../../components/checkin/StayDetails";
 import AddMember from "../../components/checkin/AddMember";
 import Success from "../../components/checkin/Success";
@@ -14,14 +12,11 @@ const CheckIn = () => {
   const { axios, user, navigate } = useAppContext();
 
   const [checkinId, setCheckinId] = useState(null);
-  const [isCheckinCreated, setIsCheckinCreated] = useState(false);
   const [isStayCreated, setIsStayCreated] = useState(false);
   const [members, setMembers] = useState([]);
   const [showIdTypeList, setShowIdTypeList] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [roomAllocations, setRoomAllocations] = useState([]);
-
-  const [creatingCheckin, setCreatingCheckin] = useState(false);
   const [addingStay, setAddingStay] = useState(false);
   const [addingMember, setAddingMember] = useState(false);
   const [finishingCheckin, setFinishingCheckin] = useState(false);
@@ -43,9 +38,9 @@ const CheckIn = () => {
   );
 
   const [checkinForm, setCheckinForm] = useState({
-    fullName: "",
+    // fullName: "",
     email: "",
-    mobile: "",
+    // mobile: "",
     address: "",
     roomNo: "",
     roomType: "",
@@ -81,50 +76,50 @@ const CheckIn = () => {
   };
 
   // Step 1 : Create Check-In
-  const createCheckin = async () => {
-    if (creatingCheckin) return;
+  // const createCheckin = async () => {
+  //   if (creatingCheckin) return;
 
-    if (checkinForm.mobile.length !== 10) {
-      toast.error("Enter a valid 10-digit mobile number");
-      return;
-    }
+  //   if (checkinForm.mobile.length !== 10) {
+  //     toast.error("Enter a valid 10-digit mobile number");
+  //     return;
+  //   }
 
-    try {
-      setCreatingCheckin(true);
+  //   try {
+  //     setCreatingCheckin(true);
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelCheckIn", {
-        AccessToken: user?.AccessToken,
-        Name: checkinForm.fullName,
-        Mobile: checkinForm.mobile,
-        Email: checkinForm.email,
-        address: checkinForm.address,
-        // Noofstay: Number(checkinForm.stayDuration),
-        // RoomNo: allRoomNumbers,
-        // RoomType: "", // checkinForm.roomType not sent as of now
-        // Amount: Number(checkinForm.amount),
-        // noOfMember: Number(checkinForm.noOfMember),
-        // taxamount: Number(checkinForm.tax),
-        // GTotal: Number(checkinForm.grandTotal),
-      });
+  //     const { data } = await axios.post("/api/v1/Hotel/HotelCheckIn", {
+  //       AccessToken: user?.AccessToken,
+  //       Name: checkinForm.fullName,
+  //       Mobile: checkinForm.mobile,
+  //       Email: checkinForm.email,
+  //       address: checkinForm.address,
+  //       // Noofstay: Number(checkinForm.stayDuration),
+  //       // RoomNo: allRoomNumbers,
+  //       // RoomType: "", // checkinForm.roomType not sent as of now
+  //       // Amount: Number(checkinForm.amount),
+  //       // noOfMember: Number(checkinForm.noOfMember),
+  //       // taxamount: Number(checkinForm.tax),
+  //       // GTotal: Number(checkinForm.grandTotal),
+  //     });
 
-      console.log(data);
+  //     console.log(data);
 
-      if (String(data[0]?.result) !== "0") {
-        setCheckinId(Number(data[0]?.result.split("_")[0]));
-        setIsStayCreated(true);
-        toast.success("Check-In created");
-      } else {
-        toast.error("Failed to create checkin.. Try again!");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Server error. Please try again.");
-    } finally {
-      setCreatingCheckin(false);
-    }
-  };
+  //     if (String(data[0]?.result) !== "0") {
+  //       setCheckinId(Number(data[0]?.result.split("_")[0]));
+  //       setIsStayCreated(true);
+  //       toast.success("Check-In created");
+  //     } else {
+  //       toast.error("Failed to create checkin.. Try again!");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Server error. Please try again.");
+  //   } finally {
+  //     setCreatingCheckin(false);
+  //   }
+  // };
 
-  //Step 2 : Stay Details
+  //Step 1 : Stay Details
   const addStayDetails = async () => {
     if (addingStay) return;
 
@@ -133,15 +128,8 @@ const CheckIn = () => {
       return;
     }
 
-    if (!checkinId) {
-      toast.error("Create a checkin first");
-      return;
-    }
-
     try {
       setAddingStay(true);
-
-      console.log(checkinId);
 
       // To send only room numbers separated by comma
       const allRoomNumbers = roomAllocations
@@ -149,19 +137,24 @@ const CheckIn = () => {
         .map((r) => r.roomNo) // extract numbers
         .join(","); // convert to "101,201,202"
 
-      console.log(allRoomNumbers);
+      // console.log(allRoomNumbers);
       const { data } = await axios.post("/api/v1/Hotel/HotelCheckIn_stydtl", {
         AccessToken: user?.AccessToken,
-        chkid: checkinId,
+        email: checkinForm.email,
+        address: checkinForm.address,
+        // chkid: checkinId,
         Noofstay: Number(checkinForm.stayDuration),
         RoomNo: allRoomNumbers,
       });
 
-      if (Number(data[0]?.result) === 1) {
-        setIsCheckinCreated(true);
+      console.log(data[0]?.result)
+
+      if (data[0]?.result && data[0]?.result !== "0") {
+        setIsStayCreated(true);
+        setCheckinId(Number(data[0]?.result));
         toast.success("Stay details added");
       } else {
-        toast.error("Failed to add stay details");
+        toast.error("Failed to checkin");
       }
     } catch (error) {
       console.log(error);
@@ -169,30 +162,6 @@ const CheckIn = () => {
       setAddingStay(false);
     }
   };
-
-  // Compress ID
-  // const compressIfImage = async (file) => {
-  //   if (!file.type.startsWith("image/")) return file; // skip PDFs
-
-  //   const options = {
-  //     maxSizeMB: 0.8,
-  //     maxWidthOrHeight: 1600,
-  //     initialQuality: 0.7,
-  //     useWebWorker: true,
-  //   };
-
-  //   try {
-  //     if (file.size < 500 * 1024) return file;
-
-  //     const compressedBlob = await imageCompression(file, options);
-  //     return new File([compressedBlob], file.name, {
-  //       type: compressedBlob.type,
-  //     });
-  //   } catch (error) {
-  //     console.log("Compression failed", error);
-  //     return file; // fallback
-  //   }
-  // };
 
   const fileToBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -299,22 +268,6 @@ const CheckIn = () => {
     let finalPdfBlob;
 
     try {
-      // let response = null;
-      // for (const originalFile of files) {
-      //   const file = await compressIfImage(originalFile);
-
-      //   const formData = new FormData();
-      //   formData.append("accesstoken", user?.AccessToken);
-      //   formData.append("Chkid", checkinId);
-      //   formData.append("file", file); // single file
-
-      //   response = await axios.post("/api/v1/Hotel/UploadMemberID", formData);
-
-      //   if (Number(response?.data?.output) !== 200) {
-      //     toast.error(`Failed to upload ${file.name}`);
-      //     return;
-      //   }
-      // }
 
       // CASE 1 → IMAGES (1 or 2)
       if (imageFiles.length > 0 && pdfFiles.length === 0) {
@@ -364,9 +317,11 @@ const CheckIn = () => {
     }
   };
 
-  // Step 3 : Add Member
+  // Step 2 : Add Member
   const addMember = async () => {
     if (addingMember) return;
+
+    console.log(checkinId);
 
     if (!checkinId) {
       toast.error("Create check-in first");
@@ -484,7 +439,6 @@ const CheckIn = () => {
         });
 
         setCheckinId(null);
-        setIsCheckinCreated(false);
         setIsStayCreated(false);
         setRoomAllocations([]);
         setMembers([]);
@@ -494,7 +448,6 @@ const CheckIn = () => {
 
       // toast.success("Check-In Successful");
       // navigate("/dashboard/manage-stay");
-      // setIsCheckinCreated(false);
     } catch (error) {
       console.log(error);
     } finally {
@@ -503,14 +456,14 @@ const CheckIn = () => {
   };
 
   useEffect(() => {
-    if (isStayCreated || isCheckinCreated) {
+    if (isStayCreated) {
       // Force the browser to the absolute top of the page
       window.scrollTo({
         top: 0,
         behavior: "smooth",
       });
     }
-  }, [isStayCreated, isCheckinCreated]);
+  }, [isStayCreated]);
 
   useEffect(() => {
     return () => {
@@ -537,7 +490,7 @@ const CheckIn = () => {
         <div ref={topRef} className="w-full max-w-2xl fade-in">
           {/* Check-In Details */}
           <div className="">
-            {isCheckinCreated && (
+            {isStayCreated && (
               <div className="flex flex-col mb-5 bg-gray-200/40 p-4 shadow-md rounded-xl opacity-0 fade-in">
                 <div className="mb-5">
                   <p className="text-gray-900 text-lg font-semibold">
@@ -575,50 +528,36 @@ const CheckIn = () => {
           {/* Check-In/Add member form */}
           <div className="">
             <h2 className="text-2xl text-gray-900 text-center font-bold mb-5">
-              {isCheckinCreated ? "Add Members" : "Check-In"}
+              {isStayCreated ? "Add Members" : "Check-In"}
             </h2>
 
-            {!isCheckinCreated ? (
-                  <div>
-                    {!isStayCreated ? (
-                      // Guest Information Form
-                      <GuestInfo
-                        checkinForm={checkinForm}
-                        handleCheckin={handleCheckin}
-                        createCheckin={createCheckin}
-                        creatingCheckin={creatingCheckin}
-                      />
-                    ) : (
-                      // Stay Details Form
-                      <StayDetails
-                        addStayDetails={addStayDetails}
-                        checkinForm={checkinForm}
-                        handleCheckin={handleCheckin}
-                        roomAllocations={roomAllocations}
-                        setRoomAllocations={setRoomAllocations}
-                        addingStay={addingStay}
-                        members={members}
-                      />
-                    )}
-                  </div>
+            {!isStayCreated ? (
+              // Stay Details Form
+              <StayDetails
+                addStayDetails={addStayDetails}
+                checkinForm={checkinForm}
+                handleCheckin={handleCheckin}
+                roomAllocations={roomAllocations}
+                setRoomAllocations={setRoomAllocations}
+                addingStay={addingStay}
+                members={members}
+              />
             ) : (
-              <div>
-                {/* Member Form */}
-                <AddMember
-                  addMember={addMember}
-                  addMemberForm={addMemberForm}
-                  handleAddMember={handleAddMember}
-                  showIdTypeList={showIdTypeList}
-                  setShowIdTypeList={setShowIdTypeList}
-                  fileRef={fileRef}
-                  addingMember={addingMember}
-                  members={members}
-                  checkinForm={checkinForm}
-                  finishCheckin={finishCheckin}
-                  finishingCheckin={finishingCheckin}
-                  ID_TYPE_LABEL_BY_VALUE={ID_TYPE_LABEL_BY_VALUE}
-                />
-              </div>
+              // Member Form
+              <AddMember
+                addMember={addMember}
+                addMemberForm={addMemberForm}
+                handleAddMember={handleAddMember}
+                showIdTypeList={showIdTypeList}
+                setShowIdTypeList={setShowIdTypeList}
+                fileRef={fileRef}
+                addingMember={addingMember}
+                members={members}
+                checkinForm={checkinForm}
+                finishCheckin={finishCheckin}
+                finishingCheckin={finishingCheckin}
+                ID_TYPE_LABEL_BY_VALUE={ID_TYPE_LABEL_BY_VALUE}
+              />
             )}
 
             {/* Added Members List */}

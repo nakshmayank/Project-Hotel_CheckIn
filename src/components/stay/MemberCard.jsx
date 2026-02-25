@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 
 const Gender = {
@@ -23,6 +24,8 @@ const MemberCard = ({ member }) => {
         responseType: "blob",
       });
 
+      console.log(data)
+
       const blob = new Blob([data], { type: "application/pdf" });
 
       const url = window.URL.createObjectURL(blob);
@@ -30,7 +33,7 @@ const MemberCard = ({ member }) => {
       // Step 4: Create <a> tag and trigger download
       const link = document.createElement("a");
       link.href = url;
-      // link.setAttribute("download", `${file}`); // filename
+      // link.setAttribute("download", `${member.IDFilename}`); // filename
       link.setAttribute("target", "_blank");
       document.body.appendChild(link);
       link.click();
@@ -39,6 +42,7 @@ const MemberCard = ({ member }) => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
+      toast.error("No record found");
       console.log(error);
     }
   };

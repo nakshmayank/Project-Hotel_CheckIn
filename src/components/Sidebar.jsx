@@ -5,9 +5,9 @@ const Sidebar = () => {
   const { user, navigate, setShowAddRoom, setShowChangePassword, logout } =
     useAppContext();
 
-    const location = useLocation();
+  const location = useLocation();
 
-    const isActive = (path) => location.pathname.endsWith(path);
+  const isActive = (path) => location.pathname.endsWith(path);
 
   return (
     <div className="py-8 w-full md:px-7 lg:px-16 transition-all">
@@ -16,11 +16,7 @@ const Sidebar = () => {
           {user?.pimg ? (
             <img
               className="w-full h-full object-cover"
-              src={
-                user?.pimg
-                  ? `${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`
-                  : "/"
-              }
+              src={`${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`}
               alt="logo"
             />
           ) : (
@@ -52,33 +48,49 @@ const Sidebar = () => {
         {/* Check-In Button */}
         <button
           onClick={() => navigate("/dashboard/checkin")}
-          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard/checkin") && "pl-1 bg-primary-500/60"}`}
+          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard/checkin") && "pl-1 bg-primary-500"}`}
         >
-          <div className={`${isActive("/dashboard/checkin") ? "slide-in-right " : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}>
+          <div
+            className={`${isActive("/dashboard/checkin") ? "slide-in-right " : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}
+          >
             <img className="w-4 h-4" src="/checkin.svg" alt="checkin" />
           </div>
 
-          <div className={`${isActive("/dashboard/checkin") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}>
-            <p className="text-primary-500 font-medium text-left">New Check-In</p>
+          <div
+            className={`${isActive("/dashboard/checkin") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}
+          >
+            <p className="text-primary-500 font-medium text-left">
+              New Check-In
+            </p>
           </div>
         </button>
 
         {/* Main Section */}
         <div className="mt-2.5">
-          <p className="w-full text-xs font-semibold tracking-[0.08em] text-gray-800 uppercase">Main</p>
+          <p className="w-full text-xs font-semibold tracking-[0.08em] text-gray-800 uppercase">
+            Main
+          </p>
         </div>
 
         {/* Dashboard */}
         <button
           onClick={() => navigate("/dashboard")}
-          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard") && "pl-1 bg-primary-500/60"}`}
+          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard") && "pl-1 bg-primary-500"}`}
         >
-          <div className={`${isActive("/dashboard") ? "slide-in-right" : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}>
+          <div
+            className={`${isActive("/dashboard") ? "slide-in-right" : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}
+          >
             <img className="w-4 h-4" src="/dashboard.png" alt="dashboard" />
           </div>
 
-          <div className={`${isActive("/dashboard") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}>
-            <p className={`${isActive("/dashboard") ? "text-primary-500" : "text-gray-800"} font-medium text-left`}>Overview</p>
+          <div
+            className={`${isActive("/dashboard") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}
+          >
+            <p
+              className={`${isActive("/dashboard") ? "text-primary-500" : "text-gray-800"} font-medium text-left`}
+            >
+              Overview
+            </p>
           </div>
         </button>
         {/* <button
@@ -91,14 +103,22 @@ const Sidebar = () => {
 
         <button
           onClick={() => navigate("/dashboard/manage-stay")}
-          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard/manage-stay") && "pl-1 bg-primary-500/60"}`}
+          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard/manage-stay") && "pl-1 bg-primary-500"}`}
         >
-          <div className={`${isActive("/dashboard/manage-stay") ? "slide-in-right" : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}>
+          <div
+            className={`${isActive("/dashboard/manage-stay") ? "slide-in-right" : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}
+          >
             <img className="w-4 h-4" src="/stay2.png" alt="manage_stay" />
           </div>
 
-          <div className={`${isActive("/dashboard/manage-stay") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}>
-            <p className={`${isActive("/dashboard/manage-stay") ? "text-primary-500" : "text-gray-800"} font-medium text-left`}>Manage Stay</p>
+          <div
+            className={`${isActive("/dashboard/manage-stay") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}
+          >
+            <p
+              className={`${isActive("/dashboard/manage-stay") ? "text-primary-500" : "text-gray-800"} font-medium text-left`}
+            >
+              Manage Stay
+            </p>
           </div>
         </button>
 
@@ -107,7 +127,9 @@ const Sidebar = () => {
           onClick={() => setShowAddRoom(true)}
           className="my-1 flex items-center gap-1.5"
         >
-          <div className={`bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out`}>
+          <div
+            className={`bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out`}
+          >
             <img className="w-4 h-4" src="/add_room.svg" alt="add_room" />
           </div>
 
@@ -126,20 +148,30 @@ const Sidebar = () => {
 
         {/* Main Section */}
         <div className="mt-2.5">
-          <p className="w-full text-xs font-semibold tracking-[0.08em] text-gray-800 uppercase">Account</p>
+          <p className="w-full text-xs font-semibold tracking-[0.08em] text-gray-800 uppercase">
+            Account
+          </p>
         </div>
 
         {/* Profile */}
         <button
           onClick={() => navigate("/dashboard/profile")}
-          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard/profile") && "pl-1 bg-primary-500/60"}`}
+          className={`my-1 flex items-center gap-1.5 rounded-full ${isActive("/dashboard/profile") && "pl-1 bg-primary-500"}`}
         >
-          <div className={`${isActive("/dashboard/profile") ? "slide-in-right" : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}>
+          <div
+            className={`${isActive("/dashboard/profile") ? "slide-in-right" : "transition-transform hover:scale-110 duration-300 ease-in-out"} bg-white/70 rounded-full p-2 shadow-lg`}
+          >
             <img className="w-4 h-4" src="/profile_icon.svg" alt="profile" />
           </div>
 
-          <div className={`${isActive("/dashboard/profile") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}>
-            <p className={`${isActive("/dashboard/profile") ? "text-primary-500" : "text-gray-800"} font-medium text-left`}>My Profile</p>
+          <div
+            className={`${isActive("/dashboard/profile") ? "transform-none hover:transform-none fade-in" : "transition-transform duration-300 ease-in-out hover:scale-105"} rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}
+          >
+            <p
+              className={`${isActive("/dashboard/profile") ? "text-primary-500" : "text-gray-800"} font-medium text-left`}
+            >
+              My Profile
+            </p>
           </div>
         </button>
 
@@ -147,7 +179,9 @@ const Sidebar = () => {
           onClick={() => setShowChangePassword(true)}
           className="my-1 flex items-center gap-1.5"
         >
-          <div className={`bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out`}>
+          <div
+            className={`bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out`}
+          >
             <img
               className="w-4 h-4"
               src="/change_password.svg"
@@ -156,7 +190,9 @@ const Sidebar = () => {
           </div>
 
           <div className="rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
-            <p className="text-gray-800 font-medium text-left">Change Password</p>
+            <p className="text-gray-800 font-medium text-left">
+              Change Password
+            </p>
           </div>
         </button>
 

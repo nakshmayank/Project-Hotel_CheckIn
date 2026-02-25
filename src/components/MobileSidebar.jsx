@@ -34,7 +34,7 @@ const MobileSidebar = ({ open, setOpen }) => {
       >
         {user && (
           <div className="px-5 py-7 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center font-semibold text-primary-500 shrink-0">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center font-semibold text-primary-500 shrink-0">
               {user?.pimg ? (
                 <img
                   src={`${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`}

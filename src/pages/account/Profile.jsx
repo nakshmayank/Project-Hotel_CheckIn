@@ -72,6 +72,7 @@ const Profile = () => {
 
       const formData = new FormData();
       formData.append("file", form.photo);
+      console.log(formData)
 
       const { data } = await axios.post("/api/v1/Hotel/UploadLogo", formData, {
         headers: {

@@ -52,7 +52,7 @@ const Navbar = () => {
         <div className="w-fit">
           <Link to="/" className="items-center">
             {/* <img className="max-w-24" src="/logo.png" alt="" /> */}
-            <img className="h-8" src="/inndez_orange_logo.png" alt="logo" />
+            <img className="h-8" src="/inndez_orange_logo.svg" alt="logo" />
 
             {/* <p className="font-bold text-3xl text-gray-700">
               Inn<span className="text-primary-500">Dez</span>

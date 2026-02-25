@@ -68,7 +68,8 @@ const BottomBanner = () => {
               <div className="hidden sm:block w-1 h-1 bg-white/40 rounded-full"></div>
               <div className="flex items-center gap-2">
                 <img className="w-4 h-4" src="/check.png" alt="check" />
-                No credit card required
+                {/* No credit card required */}
+                No extra cost
               </div>
               <div className="hidden sm:block w-1 h-1 bg-white/40 rounded-full"></div>
               <div className="flex items-center gap-2">

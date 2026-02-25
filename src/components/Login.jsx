@@ -18,7 +18,6 @@ const Login = () => {
   const [countryCode, setCountryCode] = useState("+91");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(null);
-  const [showPasswordHints, setShowPasswordHints] = useState(false);
   const [showPasswordInfo, setShowPasswordInfo] = useState(false);
 
   const checkPasswordStrength = (password) => {

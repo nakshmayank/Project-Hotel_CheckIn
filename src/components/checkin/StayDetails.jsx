@@ -1,13 +1,14 @@
 import RoomAllocation from "../RoomAllocation";
 
-const StayDetails = ({addStayDetails,
+const StayDetails = ({
+  addStayDetails,
   checkinForm,
   handleCheckin,
   roomAllocations,
   setRoomAllocations,
   addingStay,
-  members}
-) => {
+  members,
+}) => {
   return (
     <form
       onSubmit={(e) => {
@@ -16,6 +17,50 @@ const StayDetails = ({addStayDetails,
       }}
     >
       <div className="bg-gray-200/40 w-full shadow-lg p-2.5 md:p-5 mb-5 rounded-2xl space-y-3">
+        {/* Basic Details */}
+        <h3 className="font-medium text-gray-900 mb-2">Basic Information</h3>
+
+        <div className="grid px-1 grid-cols-1 gap-3">
+
+          <div>
+            <p className="text-sm mb-0.5 font-medium text-gray-700">
+              Email Address
+            </p>
+            <input
+              className="input"
+              placeholder="Enter email address"
+              value={checkinForm.email}
+              type="email"
+              // onFocus={(e) =>
+              //   (e.target.placeholder = "Enter email address")
+              // }
+              // onBlur={(e) =>
+              //   (e.target.placeholder = "Email Address")
+              // }
+              onChange={(e) => handleCheckin("email", e.target.value)}
+            />
+          </div>
+
+          <div>
+            <p className="text-sm mb-0.5 font-medium text-gray-700">
+              Residential Address
+            </p>
+            <textarea
+              rows={3}
+              className="input resize-none"
+              placeholder="Enter residential address"
+              value={checkinForm.address}
+              // onFocus={(e) =>
+              //   (e.target.placeholder = "Enter residential address")
+              // }
+              // onBlur={(e) =>
+              //   (e.target.placeholder = "Residential Address")
+              // }
+              onChange={(e) => handleCheckin("address", e.target.value)}
+              required
+            />
+          </div>
+        </div>
         {/* ================= Stay Details ================= */}
         <div>
           <h3 className="font-medium text-gray-900 mb-2">Stay Details</h3>
