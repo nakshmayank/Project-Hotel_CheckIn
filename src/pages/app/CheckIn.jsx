@@ -102,8 +102,6 @@ const CheckIn = () => {
   //       // GTotal: Number(checkinForm.grandTotal),
   //     });
 
-  //     console.log(data);
-
   //     if (String(data[0]?.result) !== "0") {
   //       setCheckinId(Number(data[0]?.result.split("_")[0]));
   //       setIsStayCreated(true);
@@ -137,24 +135,19 @@ const CheckIn = () => {
         .map((r) => r.roomNo) // extract numbers
         .join(","); // convert to "101,201,202"
 
-      // console.log(allRoomNumbers);
-      const { data } = await axios.post("/api/v1/Hotel/HotelCheckIn_stydtl", {
-        AccessToken: user?.AccessToken,
+      const res = await axios.post("/api/v1/Hotel/HotelCheckIn_stydtl", {
         email: checkinForm.email,
         address: checkinForm.address,
-        // chkid: checkinId,
         Noofstay: Number(checkinForm.stayDuration),
         RoomNo: allRoomNumbers,
       });
 
-      console.log(data[0]?.result)
-
-      if (data[0]?.result && data[0]?.result !== "0") {
+      if (res.status === 200) {
         setIsStayCreated(true);
-        setCheckinId(Number(data[0]?.result));
-        toast.success("Stay details added");
+        setCheckinId(Number(res?.data.output));
+        toast.success("Stay details added..");
       } else {
-        toast.error("Failed to checkin");
+        toast.error("Failed to checkin..");
       }
     } catch (error) {
       console.log(error);
@@ -294,23 +287,20 @@ const CheckIn = () => {
         .replace(/[^a-zA-Z0-9]/g, "")}_${addMemberForm.mobile.slice(-6)}.pdf`;
 
       const formData = new FormData();
-      formData.append("accesstoken", user?.AccessToken);
       formData.append("Chkid", checkinId);
       formData.append("file", finalPdfBlob, uniqueFileName);
 
-      const response = await axios.post(
+      const res = await axios.post(
         "/api/v1/Hotel/UploadMemberID",
         formData,
       );
 
-      if (Number(response?.data?.output) !== 200) {
+      if (res.status !== 200) {
         toast.error("ID upload failed");
         return;
       }
 
-      console.log(response?.data?.output);
-
-      return response;
+      return res;
     } catch (error) {
       console.log(error);
       toast.error("Failed to process ID file");
@@ -320,8 +310,6 @@ const CheckIn = () => {
   // Step 2 : Add Member
   const addMember = async () => {
     if (addingMember) return;
-
-    console.log(checkinId);
 
     if (!checkinId) {
       toast.error("Create check-in first");
@@ -366,14 +354,14 @@ const CheckIn = () => {
 
       // STEP 1 — Upload ID FIRST
       const uploadRes = await uploadMemberID();
-      if (!uploadRes || Number(uploadRes?.data?.output) !== 200) {
+
+      if (!uploadRes || uploadRes?.status !== 200) {
         toast.error("ID upload failed");
         return;
       }
 
       // STEP 2 — Only create member if upload succeeded
-      const { data } = await axios.post("/api/v1/Hotel/HotelCheckInMembers", {
-        accesstoken: user?.AccessToken,
+      const res = await axios.post("/api/v1/Hotel/HotelCheckInMembers", {
         Chkid: checkinId,
         Name: addMemberForm.fullName,
         Age: Number(addMemberForm.age),
@@ -383,7 +371,7 @@ const CheckIn = () => {
         idname: uniqueFileName,
       });
 
-      if (String(data[0]?.result) !== "0") {
+      if (res.status === 200) {
         toast.success("Member added");
 
         addMemberForm.idFiles.forEach((file) => {
@@ -417,11 +405,10 @@ const CheckIn = () => {
     if (finishingCheckin) return;
     try {
       setFinishingCheckin(true);
-      const { data } = await axios.post("/api/v1/Hotel/Hotelfinalchkin", {
-        AccessToken: user?.AccessToken,
+      const res = await axios.post("/api/v1/Hotel/Hotelfinalchkin", {
         Chkid: checkinId,
       });
-      if (String(data[0]?.result) !== "0") {
+      if (res.status === 200) {
         setShowSuccess(true);
         // reset form
         setCheckinForm({
@@ -497,13 +484,13 @@ const CheckIn = () => {
                     Check-In Details
                   </p>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-gray-100/70 shadow-md p-4 justify-center rounded-xl flex flex-col">
+                <div className="grid grid-cols-2 gap-3">
+                  {/* <div className="bg-gray-100/70 shadow-md p-4 justify-center rounded-xl flex flex-col">
                     <p className="text-xs text-gray-600 font-semibold">Name</p>
                     <p className="font-semibold text-gray-900 text-sm">
-                      {checkinForm.fullName}
+                      {checkinForm.email}
                     </p>
-                  </div>
+                  </div> */}
                   <div className="bg-gray-100/70 shadow-md p-4 justify-center rounded-xl flex flex-col">
                     <p className="text-xs text-gray-600 font-semibold">
                       Number of Members
@@ -564,7 +551,7 @@ const CheckIn = () => {
             {members.length > 0 && (
               <div className="p-5 mt-3">
                 <h3 className="font-bold text-lg mb-3">Added Members</h3>
-                <div className="bg-gray-200/40 shadow-lg p-4 rounded-xl grid gap-3 grid-cols-2 md:grid-cols-3">
+                <div className="bg-gray-200/40 shadow-lg p-4 rounded-xl grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {members.map((m, i) => (
                     <div
                       key={i}

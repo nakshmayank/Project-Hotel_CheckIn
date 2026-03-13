@@ -3,11 +3,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-// axios.defaults.withCredentials = true; //to send cookies in api request
+axios.defaults.withCredentials = true; //to send cookies in api request
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL; //to set backend url as default base url for any api call made through this axios package
 
 const AppContext = createContext();
-
+//
 export const AppContextProvider = ({ children }) => {
   const [state, setState] = useState("login");
   const [showLogin, setShowLogin] = useState(false);
@@ -23,27 +23,22 @@ export const AppContextProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const storage = localStorage.getItem("accessToken")
+      const storage = localStorage.getItem("userProfile")
         ? localStorage
         : sessionStorage;
 
-      const storedUser = storage.getItem("authUser");
-      const storedToken = storage.getItem("accessToken");
+      const storedUser = storage.getItem("userProfile");
 
-      if (!storedUser || !storedToken) {
+      if (!storedUser) {
         setAuthLoading(false);
         return;
       }
 
       // Validate token with backend
-      const { data } = await axios.post("/api/v1/Hotel/Hotelchkaccesstoken", {
-        accesstoken: storedToken,
-      });
+      const res = await axios.get("/api/v1/Hotel/Hotelchkaccesstoken");
 
-      if (String(data[0]?.result) === "1") {
+      if (res?.status === 200) {
         setUser(JSON.parse(storedUser));
-        axios.defaults.headers.common["Authorization"] =
-          `Bearer ${storedToken}`;
       } else {
         forceLogout();
       }
@@ -60,14 +55,12 @@ export const AppContextProvider = ({ children }) => {
     try {
       if (user === null) return;
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelGetDetails", {
-        AccessToken: user?.AccessToken,
-      });
+      const res = await axios.get("/api/v1/Hotel/HotelGetDetails");
 
-      if (Number(data[0]?.Status) === 1) {
-        setUserData(data[0]);
+      if (res?.status === 200) {
+        setUserData(res?.data.output[0]);
       } else {
-        console.log("UserData not received");
+        toast.error("UserData not received");
       }
     } catch (error) {
       console.log(error);
@@ -77,41 +70,26 @@ export const AppContextProvider = ({ children }) => {
   const fetchDashCount = async () => {
     try {
       if (user === null) return;
-      const { data } = await axios.post(
-        "/api/v1/Hotel/HotelGetDashboardcount",
-        { accesstoken: user?.AccessToken },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      const res = await axios.get("/api/v1/Hotel/HotelGetDashboardcount");
 
-      if (data[0]) {
-        setDashCount(data[0]);
+      if (res.status === 200) {
+        setDashCount(res?.data.output.value[0]);
       } else {
-        console.log("Failed to fetch dashboard data");
+        toast.error("Failed to fetch dashboard data");
       }
     } catch (error) {
-      console.log(error.response?.data || error);
+      console.log(error);
     }
   };
 
   const logout = async () => {
     try {
       setGlobalLoader(true);
-      const { data } = await axios.post("/api/v1/Hotel/HotelLogout", {
-        AccessToken: user?.AccessToken,
-      });
+      const res = await axios.post("/api/v1/Hotel/HotelLogout");
 
-      if (String(data[0]?.result) === "1") {
-        localStorage.removeItem("authUser");
-        localStorage.removeItem("accessToken");
-
-        sessionStorage.removeItem("authUser");
-        sessionStorage.removeItem("accessToken");
-
-        delete axios.defaults.headers.common["Authorization"];
+      if (res.status === 200) {
+        localStorage.removeItem("userProfile");
+        sessionStorage.removeItem("userProfile");
 
         setUser(null);
         setUserData(null);
@@ -130,13 +108,8 @@ export const AppContextProvider = ({ children }) => {
   const forceLogout = () => {
     try {
       setAuthLoading(true);
-      localStorage.removeItem("authUser");
-      localStorage.removeItem("accessToken");
-
-      sessionStorage.removeItem("authUser");
-      sessionStorage.removeItem("accessToken");
-
-      delete axios.defaults.headers.common["Authorization"];
+      localStorage.removeItem("userProfile");
+      sessionStorage.removeItem("userProfile");
 
       setUser(null);
       setUserData(null);
@@ -144,7 +117,7 @@ export const AppContextProvider = ({ children }) => {
       navigate("/");
       toast.error("Session expired. Please login again.");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setAuthLoading(false);
     }
@@ -187,8 +160,6 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      console.log("Access Token:", user?.AccessToken);
-      console.log("Profile:", user?.pimg);
       fetchUserData();
       fetchDashCount();
     }
@@ -219,7 +190,7 @@ export const AppContextProvider = ({ children }) => {
     setDashCount,
     fetchDashCount,
     globalLoader,
-    setGlobalLoader
+    setGlobalLoader,
   };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

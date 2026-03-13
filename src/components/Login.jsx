@@ -8,6 +8,7 @@ const Login = () => {
   const [hName, sethName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [identifier, setIdentifier] = useState("");
@@ -19,6 +20,12 @@ const Login = () => {
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(null);
   const [showPasswordInfo, setShowPasswordInfo] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [resetToken, setResetToken] = useState("");
+  const [otpTimer, setOtpTimer] = useState(30);
+  const [canResendOtp, setCanResendOtp] = useState(false);
+  const [resendOtpLoading, setResendOtpLoading] = useState(false);
 
   const checkPasswordStrength = (password) => {
     const rules = {
@@ -41,22 +48,17 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelLogin", {
+      const res = await axios.post("/api/v1/Hotel/HotelLogin", {
         email: identifier,
         password,
       });
 
-      const userId = data[0];
-
-      if (userId?.Status === 1) {
+      if (res.status === 200) {
         const storage = rememberMe ? localStorage : sessionStorage;
 
-        storage.setItem("authUser", JSON.stringify(userId));
-        storage.setItem("accessToken", userId.AccessToken);
+        storage.setItem("userProfile", JSON.stringify(res.data?.output[0]));
 
-        setUser(userId);
-        axios.defaults.headers.common["Authorization"] =
-          `Bearer ${userId.AccessToken}`;
+        setUser(res.data?.output[0]);
 
         toast.success("Welcome back!");
         navigate("/dashboard");
@@ -65,8 +67,7 @@ const Login = () => {
         toast.error("Invalid credentials");
       }
     } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error.message);
+      toast.error(error.response.data["message"]);
     } finally {
       setLoading(false);
     }
@@ -90,30 +91,128 @@ const Login = () => {
         return;
       }
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelRegistration", {
+      const res = await axios.post("/api/v1/Hotel/HotelRegistration", {
         hName,
         mobile,
         email,
         password,
       });
 
-      console.log(data);
-      const userId = data[0];
-
-      if (userId?.Status === 1) {
-        sessionStorage.setItem("authUser", JSON.stringify(userId));
-        sessionStorage.setItem("accessToken", userId.AccessToken);
-        setUser(userId);
+      if (res.status === 200) {
+        sessionStorage.setItem(
+          "userProfile",
+          JSON.stringify(res.data?.output[0]),
+        );
+        setUser(res.data?.output[0]);
         toast.success("Account created");
         navigate("/dashboard");
         setShowLogin(false);
-      } else if (userId?.Status === 2) {
-        toast.error("Mobile number already in use");
       } else {
-        toast.error("Account already exists");
+        toast.error("Failed to create account");
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error.response.data["message"]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOtpChange = (value, index) => {
+    if (!/^[0-9]?$/.test(value)) return;
+
+    // to prevent skipping fields
+    if (index > 0 && !otp[index - 1]) {
+      document.getElementById(`otp-${index - 1}`).focus();
+      return;
+    }
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // move to next box
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`).focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`).focus();
+    }
+  };
+
+  const sendOtpHandler = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    try {
+      setLoading(true);
+
+      const res = await axios.post("/api/v1/Hotel/HotelResetPassword", {
+        EmailId: email,
+      });
+      if (res.status === 200) {
+        toast.success("Otp has been sent to your email");
+        setIsOtpSent(true);
+        setOtpTimer(30);
+        setCanResendOtp(false);
+      } else {
+        toast.error("Failed to send otp.. Try again!!");
+      }
+    } catch (error) {
+      toast.error(error.data.message);
+      console.log(error);
+      setShowLogin(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendOtpHandler = async () => {
+    if (!canResendOtp || loading) return;
+
+    try {
+      setResendOtpLoading(true);
+
+      const res = await axios.post("/api/v1/Hotel/HotelResetPassword", {
+        EmailId: email,
+      });
+
+      if (res.status === 200) {
+        toast.success("OTP resent successfully");
+
+        setOtpTimer(30);
+        setCanResendOtp(false);
+      } else {
+        toast.error("Failed to resend OTP");
+      }
+    } catch (error) {
+      toast.error(error.data?.message || "Something went wrong");
+    } finally {
+      setResendOtpLoading(false);
+    }
+  };
+
+  const otpVerifyHandler = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+    try {
+      setLoading(true);
+
+      const otpValue = otp.join("");
+
+      const res = await axios.post("/api/v1/Hotel/Hotelotpverify", {
+        AccessToken: otpValue,
+      });
+
+      if (res.status === 200) {
+        toast.success("Otp verified..");
+        setResetToken(res.data.output);
+        setIsOtpVerified(true);
+      }
+    } catch (error) {
+      toast.error(error.data.message);
     } finally {
       setLoading(false);
     }
@@ -126,22 +225,94 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelResetPassword", {
-        EmailId: email,
+      if (passwordStrength?.score < 4) {
+        toast.error("Please use a strong password");
+        setLoading(false);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        toast.error("Password mismatch");
+        return;
+      }
+
+      console.log(resetToken);
+
+      const res = await axios.post("/api/v1/Hotel/HotelResetPasswordUpdate", {
+        AccessToken: resetToken,
+        CurrentPassword: "R",
+        password: password,
       });
-      toast.success("Reset link has been sent to your email");
-      setShowLogin(false);
+
+      if (res.status === 200) {
+        toast.success("Password reset successful. You can login now..");
+        setShowLogin(false);
+        setIsOtpSent(false);
+        setIsOtpVerified(false);
+      } else {
+        toast.error("Failed to reset password.. Try again!!");
+      }
     } catch (error) {
-      toast.error("Failed to send reset link");
+      toast.error(error.data.message);
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleOtpPaste = (e) => {
+    const paste = e.clipboardData.getData("text").slice(0, 6);
+
+    if (!/^\d+$/.test(paste)) return;
+
+    const newOtp = paste.split("");
+    while (newOtp.length < 6) newOtp.push("");
+
+    setOtp(newOtp);
+  };
+
+  const handleOtpClick = (index) => {
+    // find first empty box
+    const firstEmptyIndex = otp.findIndex((d) => d === "");
+
+    if (firstEmptyIndex !== -1 && index > firstEmptyIndex) {
+      document.getElementById(`otp-${firstEmptyIndex}`).focus();
+    }
+  };
+
+  useEffect(() => {
+    if (isOtpSent) {
+      setTimeout(() => {
+        document.getElementById("otp-0")?.focus();
+      }, 100);
+    }
+  }, [isOtpSent]);
+
+  useEffect(() => {
+    let timer;
+
+    if (isOtpSent && !canResendOtp && otpTimer > 0) {
+      timer = setInterval(() => {
+        setOtpTimer((prev) => prev - 1);
+      }, 1000);
+    }
+
+    if (otpTimer === 0) {
+      setCanResendOtp(true);
+      clearInterval(timer);
+    }
+
+    return () => clearInterval(timer);
+  }, [otpTimer, isOtpSent, canResendOtp]);
+
   useEffect(() => {
     setShowPassword(false);
     setShowConfirmPassword(false);
+
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtpTimer(30);
+    setCanResendOtp(false);
 
     // Text fields
     sethName("");
@@ -195,7 +366,11 @@ const Login = () => {
                 ? registrationHandler
                 : state === "login"
                   ? loginHandler
-                  : passwordResetHandler
+                  : !isOtpSent
+                    ? sendOtpHandler
+                    : !isOtpVerified
+                      ? otpVerifyHandler
+                      : passwordResetHandler
             }
           >
             <button
@@ -217,7 +392,9 @@ const Login = () => {
             <p className="test-xs text-center text-gray-800/80 font-medium mb-7">
               {state === "register"
                 ? "Sign up to get started"
-                : "Sign in to your account"}
+                : state === "login"
+                  ? "Sign in to your account"
+                  : "Recover access to your account"}
             </p>
 
             {/* Register */}
@@ -483,9 +660,7 @@ const Login = () => {
                     }
                     onBlur={(e) => (e.target.placeholder = "Confirm Password")}
                     type={showConfirmPassword ? "text" : "password"}
-                    className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none 
-               placeholder:text-primary-500 focus:placeholder:text-gray-400 
-               focus:shadow-lg focus:border-primary-500"
+                    className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     required
                   />
 
@@ -493,8 +668,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 
-               text-sm font-medium text-gray-600 hover:text-primary-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-primary-500"
                   >
                     {showConfirmPassword ? (
                       <img
@@ -619,24 +793,272 @@ const Login = () => {
               </div>
             )}
 
-            {state === "reset" && (
-              <div>
-                {/* Email */}
-                <p className="text-sm font-medium mb-1 text-gray-800">
-                  Email Address
-                </p>
-                <input
-                  name="email"
-                  autoComplete="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your registered email"
-                  className="w-full border-2 shadow-md p-2 rounded-lg mb-4 outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
-                  required
-                />
-              </div>
-            )}
+            {state === "reset" ? (
+              !isOtpSent ? (
+                <div>
+                  <p className="text-sm font-medium mb-1 text-gray-800">
+                    Email Address
+                  </p>
+                  <input
+                    name="email"
+                    autoComplete="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your registered email"
+                    className="w-full border-2 shadow-md p-2 rounded-lg mb-4 outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
+                    required
+                  />
+                </div>
+              ) : !isOtpVerified ? (
+                <div className="mb-4">
+                  {/* OTP */}
+                  <div className="mb-1">
+                    <p className="text-sm font-medium mb-1 text-gray-800">
+                      One Time Password
+                    </p>
+                    <div
+                      className="flex justify-between gap-2"
+                      onPaste={handleOtpPaste}
+                    >
+                      {otp.map((digit, index) => (
+                        <input
+                          key={index}
+                          id={`otp-${index}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onClick={() => handleOtpClick(index)}
+                          onChange={(e) =>
+                            handleOtpChange(e.target.value, index)
+                          }
+                          onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                          className="w-full h-12 text-center text-lg font-semibold border-2 rounded-lg shadow-md outline-none focus:border-primary-500"
+                          required
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex gap-1 justify-end items-center px-1 text-sm">
+                    <p className="text-primary-500">Didn't receive code?</p>
+                    {!canResendOtp ? (
+                      <span className="text-gray-600">
+                        Resend in{" "}
+                        <span className="font-medium">{otpTimer}s</span>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={resendOtpHandler}
+                        className="text-sm text-gray-700 hover:underline"
+                      >
+                        {resendOtpLoading ? (
+                          <span className="flex items-center gap-2">
+                            <span>Resending..</span>
+                            <span className="w-3 h-3 border-2 border-gray-700 border-t-transparent rounded-full animate-spin"></span>
+                          </span>
+                        ) : (
+                          "Resend OTP"
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-4">
+                  {/* Password */}
+                  <div className="relative mb-2">
+                    <p className="text-sm font-medium mb-1 text-gray-800">
+                      New Password
+                    </p>
+                    <div className="relative">
+                      <input
+                        name="password"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPassword(val);
+                          setPasswordStrength(checkPasswordStrength(val));
+                        }}
+                        value={password}
+                        placeholder="Enter new password"
+                        onFocus={(e) => {
+                          // setShowPasswordHints(true);
+                          // setShowPasswordInfo(true);
+                          e.target.placeholder = "Enter password";
+                        }}
+                        onBlur={(e) => {
+                          if (!e.target.value)
+                            e.target.placeholder = "Password";
+                        }}
+                        type={showPassword ? "text" : "password"}
+                        className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
+                        required
+                      />
+
+                      {/* Show / Hide button */}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-primary-500"
+                      >
+                        {showPassword ? (
+                          <img
+                            className="w-4 h-4"
+                            src="/show.png"
+                            alt="show_icon"
+                          ></img>
+                        ) : (
+                          <img
+                            className="w-4 h-4"
+                            src="/hide.png"
+                            alt="hide_icon"
+                          ></img>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Password Strength Warning */}
+                    {password && passwordStrength && (
+                      <div className="flex justify-end gap-2 items-center mt-1 px-1 mr-2">
+                        <p className="text-sm font-medium">
+                          {passwordStrength.score <= 2 && (
+                            <span className="text-red-500/70">
+                              Weak password
+                            </span>
+                          )}
+                          {passwordStrength.score === 3 && (
+                            <span className="text-yellow-500/70">
+                              Moderate password
+                            </span>
+                          )}
+                          {passwordStrength.score >= 4 && (
+                            <span className="text-green-600/70">
+                              Strong password
+                            </span>
+                          )}
+                        </p>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPasswordInfo((v) => !v);
+                          }}
+                        >
+                          <img className="w-3 h-3" src="/info.svg" alt="info" />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Password Strength Info */}
+                    {password && showPasswordInfo && passwordStrength && (
+                      <div
+                        className={`absolute right-0 top-full bg-gray-50/60 backdrop-blur border-2 rounded-xl shadow-xl p-3 text-xs z-50 mr-2 hover:border-primary-500 transition-all duration-200 ease-out  ${
+                          showPasswordInfo
+                            ? "opacity-100 scale-100 pointer-events-auto"
+                            : "opacity-0 scale-95 pointer-events-none"
+                        }`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <p
+                          className={
+                            passwordStrength.rules.length
+                              ? "text-green-600"
+                              : "text-red-500"
+                          }
+                        >
+                          • At least 8 characters
+                        </p>
+                        <p
+                          className={
+                            passwordStrength.rules.uppercase
+                              ? "text-green-600"
+                              : "text-red-500"
+                          }
+                        >
+                          • One uppercase letter (A–Z)
+                        </p>
+                        <p
+                          className={
+                            passwordStrength.rules.lowercase
+                              ? "text-green-600"
+                              : "text-red-500"
+                          }
+                        >
+                          • One lowercase letter (a–z)
+                        </p>
+                        <p
+                          className={
+                            passwordStrength.rules.number
+                              ? "text-green-600"
+                              : "text-red-500"
+                          }
+                        >
+                          • One number (0–9)
+                        </p>
+                        <p
+                          className={
+                            passwordStrength.rules.special
+                              ? "text-green-600"
+                              : "text-red-500"
+                          }
+                        >
+                          • One special character (!@#$%)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="mb-2">
+                    <p className="text-sm font-medium mb-1 text-gray-800">
+                      Confirm Password
+                    </p>
+                    <div className="relative">
+                      <input
+                        name="confirmPassword"
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        value={confirmPassword}
+                        placeholder="Confirm new password"
+                        onFocus={(e) =>
+                          (e.target.placeholder = "Enter password again")
+                        }
+                        onBlur={(e) =>
+                          (e.target.placeholder = "Confirm Password")
+                        }
+                        type={showConfirmPassword ? "text" : "password"}
+                        className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
+                        required
+                      />
+
+                      {/* Show / Hide button */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-primary-500"
+                      >
+                        {showConfirmPassword ? (
+                          <img
+                            className="w-4 h-4"
+                            src="/show.png"
+                            alt="show_icon"
+                          ></img>
+                        ) : (
+                          <img
+                            className="w-4 h-4"
+                            src="/hide.png"
+                            alt="hide_icon"
+                          ></img>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )
+            ) : null}
 
             <button
               type="submit"
@@ -654,7 +1076,11 @@ const Login = () => {
                     ? "Creating Account..."
                     : state === "login"
                       ? "Authenticating..."
-                      : "Sending link..."}
+                      : !isOtpSent
+                        ? "Sending OTP.."
+                        : !isOtpVerified
+                          ? "Verifying OTP.."
+                          : "Resetting.."}
                 </span>
               ) : (
                 <span>
@@ -662,7 +1088,11 @@ const Login = () => {
                     ? "Sign Up"
                     : state === "login"
                       ? "Sign In"
-                      : "Send Reset Link"}
+                      : !isOtpSent
+                        ? "Send OTP"
+                        : !isOtpVerified
+                          ? "Verify OTP"
+                          : "Confirm Reset"}
                 </span>
               )}
             </button>

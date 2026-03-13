@@ -15,22 +15,18 @@ const ChangePassword = () => {
     e.preventDefault();
 
     try {
-      const accessToken = user?.AccessToken;
-
-      if (!accessToken) return;
 
       if (newPassword !== confirmPassword)
         return toast.error("Passwords mismatch");
 
       setProcessing(true);
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelChangePassword", {
-        UserId: accessToken,
+      const res = await axios.post("/api/v1/Hotel/HotelChangePassword", {
         CurrentPassword: oldPassword,
         password: newPassword,
       });
 
-      if (data[0]?.Status === 1) {
+      if (res.status === 200) {
         toast.success("Password changed");
         // sessionStorage.removeItem("remindMeLater");
       } else {

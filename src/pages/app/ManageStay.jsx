@@ -43,15 +43,16 @@ const ManageStay = () => {
   };
 
   // Active Stay Data
-  const fetchStayData = async () => {
+  const fetchActiveStayData = async () => {
     try {
       setShowLoading(true);
-      const res = await axios.post("/api/v1/Hotel/HotelGetActiveStayList", {
-        accesstoken: user?.AccessToken,
-      });
-      // console.log(res?.data[0]);
-      setActiveStays(res?.data || []);
+      const res = await axios.get("/api/v1/Hotel/HotelGetActiveStayList");
 
+      if(res.status === 200) {
+        setActiveStays(res?.data.output || []);
+      } else {
+        toast.error("Failed to fetch active stays..");
+      }
       // To ensure skeleton visibility
       // await new Promise((r) => setTimeout(r, 300));
     } catch (error) {
@@ -65,12 +66,14 @@ const ManageStay = () => {
   const fetchCompletedStayData = async () => {
     try {
       setShowLoading(true);
-      const res = await axios.post("/api/v1/Hotel/HotelGetArchivedStayList", {
-        accesstoken: user?.AccessToken,
-      });
-      // console.log(res?.data[0]);
-      setCompletedStays(res?.data || []);
+      const res = await axios.get("/api/v1/Hotel/HotelGetArchivedStayList");
 
+      if(res.status === 200) {
+        setCompletedStays(res?.data.output || []);
+      } else {
+        toast.error("Failed to fetch completed stays..");
+      }
+      
       // To ensure skeleton visibility
       // await new Promise((r) => setTimeout(r, 300));
     } catch (error) {
@@ -160,16 +163,13 @@ const ManageStay = () => {
     if (checkingOutId === checkId) return;
     try {
       setCheckingOutId(checkId);
-      const { data } = await axios.post("/api/v1/Hotel/HotelCheckout", {
-        accesstoken: user?.AccessToken,
+      const res = await axios.post("/api/v1/Hotel/HotelCheckout", {
         chkid: checkId,
       });
 
-      // console.log(checkId);
-      if (data[0]?.chkid === checkId) {
-        // console.log(data[0]);
+      if (res.status === 200) {
         // setActiveStays(prev => prev.filter(s => s.chkid !== checkId));
-        await fetchStayData();
+        await fetchActiveStayData();
         toast.success("CheckOut Successful");
       } else {
         toast.error("CheckOut failed");
@@ -198,17 +198,19 @@ const ManageStay = () => {
     try {
       setLoadingMembers((prev) => ({ ...prev, [chkid]: true }));
 
-      const res = await axios.post("/api/v1/Hotel/HotelGetMembersDetails", {
-        accesstoken: user.AccessToken,
-        chkid,
-      });
+      const res = await axios.get(`/api/v1/Hotel/HotelGetMembersDetails/${chkid}`);
 
       // setMembers((prev) => ({
       //   ...prev,
       //   [chkid]: res.data || [],
       // }));
-      // console.log(res?.data);
-      setMembers(res?.data);
+
+      if(res.status === 200) {
+        setMembers(res?.data.output);
+      } else {
+        toast.error("Failed to fetch members..");
+      }
+      
     } finally {
       setLoadingMembers((prev) => ({ ...prev, [chkid]: false }));
     }
@@ -254,7 +256,7 @@ const ManageStay = () => {
   useEffect(() => {
     
     if(activeTab === "ACTIVE") {
-      fetchStayData();
+      fetchActiveStayData();
     } else {
       fetchCompletedStayData();
     }
@@ -466,7 +468,7 @@ const ManageStay = () => {
 
                       <div className="flex gap-4 mt-6 justify-end">
                         <button
-                          onClick={() => navigate("/checkin")}
+                          onClick={() => navigate("/dashboard/checkin")}
                           className="px-4 p-2 rounded-lg font-semibold shadow-md bg-primary-500 text-white hover:bg-primary-500"
                         >
                           Check-In
@@ -562,7 +564,7 @@ const ManageStay = () => {
             setShowAssignRoom(false);
             setSelectedStay(null);
           }}
-          onSuccess={fetchStayData}
+          onSuccess={fetchActiveStayData}
         />
       )}
 

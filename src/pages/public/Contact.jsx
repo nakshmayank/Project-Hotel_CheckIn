@@ -39,12 +39,12 @@ const Contact = () => {
 
               <div className="flex items-center gap-3 text-gray-800">
                 <Phone className="w-4 h-4 text-primary-500" />
-                <span>+91 8800214384</span>
+                <span>+91 8800214384, +91 7903021814</span>
               </div>
 
-              <div className="flex items-center gap-3 text-gray-600">
-                <Clock className="w-4 h-4" />
-                <span>Support Hours: 9:00 AM – 9:00 PM</span>
+              <div className="flex items-center gap-3 text-gray-800">
+                <Clock className="w-4 h-4 text-primary-500" />
+                <span>24*7 Hours Support</span>
               </div>
             </div>
           </div>

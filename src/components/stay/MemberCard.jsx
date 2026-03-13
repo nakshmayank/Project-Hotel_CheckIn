@@ -19,12 +19,11 @@ const MemberCard = ({ member }) => {
   const { axios } = useAppContext();
 
   const viewId = async () => {
+
     try {
       const { data } = await axios.get(`/api/v1/Hotel/mf/${member.IDFilename}`, {
         responseType: "blob",
       });
-
-      console.log(data)
 
       const blob = new Blob([data], { type: "application/pdf" });
 

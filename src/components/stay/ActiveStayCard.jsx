@@ -34,7 +34,7 @@ const ActiveStayCard = ({
           <b>Address:</b> {stay.Address}
         </p>
         <p>
-          <b>Stay Duration:</b> {stay.Noofstay}
+          <b>Stay Duration:</b> {stay.Noofstay}{" nights"}
         </p>
         <p>
           <b>Room Numbers:</b>{" "}
@@ -60,13 +60,13 @@ const ActiveStayCard = ({
 
         {expandedChkId === stay.chkid &&
           (loadingMembers[stay.chkid] ? (
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <MemberSkeleton key={i} />
               ))}
             </div>
           ) : members && members.length > 0 ? (
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {members.map((m, i) => (
                 <MemberCard key={i} member={m} />
               ))}

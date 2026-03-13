@@ -36,13 +36,13 @@ const ResetPassword = () => {
     try {
       setLoading(true);
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelChangePassword", {
-        UserId: token,
+      const res = await axios.post("/api/v1/Hotel/HotelResetPasswordUpdate", {
+        AccessToken: token,
         CurrentPassword: "R",
         password: password,
       });
 
-      if (data[0]?.Status === 1) {
+      if (res.status === 200) {
         setShowSuccess(true);
       } else {
         toast.error("Password reset failed");

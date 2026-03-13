@@ -26,10 +26,9 @@ const AddRoom = () => {
   const getRoomTypes = async () => {
     try {
       setRoomTypeLoading(true);
-      const { data } = await axios.post("/api/v1/Hotel/HotelGetRoomType", {
-        accesstoken: user?.AccessToken,
-      });
-      if (data) setRoomTypeList(data);
+      const res = await axios.get("/api/v1/Hotel/HotelGetRoomType");
+      if (res.status === 200) setRoomTypeList(res.data.output);
+      else toast.error("No room type added..");
     } catch (error) {
       console.log(error);
     } finally {
@@ -50,8 +49,7 @@ const AddRoom = () => {
       const roomNoFrom = addMode === "S" ? roomNo : startRoomNo;
       const roomNoTo = addMode === "S" ? "" : endRoomNo;
 
-      const { data } = await axios.post("api/v1/Hotel/HotelAddRooms", {
-        accesstoken: user?.AccessToken,
+      const res = await axios.post("api/v1/Hotel/HotelAddRooms", {
         RoomNoFrom: roomNoFrom,
         RoomNoTo: roomNoTo,
         RoomTypeId: Number(roomType),
@@ -59,8 +57,7 @@ const AddRoom = () => {
         entrytype: addMode,
       });
 
-      console.log(data);
-      if (data[0]?.TypeId > 0) {
+      if (res.status === 200) {
         toast.success("Room added");
       } else {
         toast.error("Failed to add room");
@@ -83,18 +80,15 @@ const AddRoom = () => {
         return;
       }
 
-      console.log(newRoomType);
-      console.log(user?.AccessToken);
-      const { data } = await axios.post("/api/v1/Hotel/HotelAddRoomType", {
+      const res = await axios.post("/api/v1/Hotel/HotelAddRoomType", {
         // roomNo,
         // capacity: Number(capacity),
-        accesstoken: user?.AccessToken,
         RoomType: newRoomType,
       });
 
-      console.log(data);
-      if (data[0]?.TypeId > 0) {
+      if (res.status === 200) {
         toast.success("Room type added");
+        
         // setShowAddRoom(false);
       } else {
         toast.error("Failed to add room type");

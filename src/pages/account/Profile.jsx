@@ -72,25 +72,23 @@ const Profile = () => {
 
       const formData = new FormData();
       formData.append("file", form.photo);
-      console.log(formData)
 
-      const { data } = await axios.post("/api/v1/Hotel/UploadLogo", formData, {
+      const res = await axios.post("/api/v1/Hotel/UploadLogo", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      if (String(data?.output.value[0].result) === "1") {
-        const ext = form.photo.type.split("/")[1];
-        const newPimg = `${user.AccessToken}.${ext}`;
+      if (res.status === 200) {
+        const newPimg = res.data.output;
 
         const updatedUser = { ...user, pimg: newPimg };
 
-        const storage = localStorage.getItem("authUser")
+        const storage = localStorage.getItem("userProfile")
           ? localStorage
           : sessionStorage;
 
-        storage.setItem("authUser", JSON.stringify(updatedUser));
+        storage.setItem("userProfile", JSON.stringify(updatedUser));
 
         setForm((prev) => ({
           ...prev,
@@ -104,7 +102,7 @@ const Profile = () => {
           photo: null,
         }));
 
-        toast.success("Logo Uploaded");
+        toast.success("Logo Updated");
       } else {
         toast.error("File error");
       }
@@ -117,16 +115,13 @@ const Profile = () => {
     }
   };
 
-  // console.log(user?.AccessToken);
-
   const updateUserData = async () => {
     try {
       if (user === null) return;
 
       setLoading(true);
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelUpdateDetails", {
-        AccessToken: user?.AccessToken,
+      const res = await axios.post("/api/v1/Hotel/HotelUpdateDetails", {
         Name: form.name,
         address: form.address,
         email: form.email,
@@ -135,16 +130,16 @@ const Profile = () => {
         tinno: form.tinno,
         licenseno: form.licenseno,
       });
-      if (data[0].result === "1") {
+      if (res.status === 200) {
         const updatedUser = { ...user, FullName: form.name };
 
-        const storage = localStorage.getItem("authUser")
+        const storage = localStorage.getItem("userProfile")
           ? localStorage
           : sessionStorage;
 
-        storage.setItem("authUser", JSON.stringify(updatedUser));
+        storage.setItem("userProfile", JSON.stringify(updatedUser));
         setUser(updatedUser);
-        fetchUserData();
+        await fetchUserData();
         toast.success("Profile updated..");
       } else {
         toast.error("Profile update failed");

@@ -1,4 +1,4 @@
-import { ShieldCheck, HelpCircle, BookOpen, AlertTriangle, UserCog, Mail } from "lucide-react";
+import { ShieldCheck, HelpCircle, BookOpen, AlertTriangle, UserCog, Mail, Phone } from "lucide-react";
 
 const Support = () => {
   const cards = [
@@ -84,7 +84,8 @@ const Support = () => {
               <Mail className="w-4 h-4" />
               <span>support@inndez.com</span>
             </div>
-            <div className="text-gray-600">🕒 9:00 AM – 9:00 PM</div>
+            <div className="text-gray-800">🕒 24*7 Hours Support</div>
+            <div className="flex items-center gap-2 text-gray-800"><Phone className="w-4 h-4"></Phone><span>+91 8800214384, +91 7903021814</span></div>
           </div>
         </div>
 

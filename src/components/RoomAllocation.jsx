@@ -36,37 +36,33 @@ const RoomAllocation = ({ value, onChange }) => {
   const getRoomTypes = async () => {
     try {
       setRoomTypesLoading(true);
-      const { data } = await axios.post("/api/v1/Hotel/HotelGetRoomType", {
-        accesstoken: user?.AccessToken,
-      });
-      // console.log(data[1].TypeId)
-      if (data?.length) {
-        setRoomTypes(data);
+      const res = await axios.get("/api/v1/Hotel/HotelGetRoomType");
+
+      console.log(res)
+
+      if (res.status === 200) {
+        setRoomTypes(res.data.output);
       } else {
-        setNoRoomType(true);
-        toast.error("No room type found");
+        toast.error("Please add a room type first..");
       }
     } catch (error) {
       console.log(error);
-      toast.error("Failed to fetch room types");
+      toast.error("Please add a room type first..");
     } finally {
       setRoomTypesLoading(false);
     }
   };
 
   const getRooms = async (typeId) => {
+
     try {
       setRoomsLoadingByType((prev) => ({ ...prev, [typeId]: true }));
 
-      const { data } = await axios.post("/api/v1/Hotel/HotelGetRooms", {
-        accesstoken: user?.AccessToken,
-        TypeId: typeId,
-      });
-      // console.log(typeId,data[1].RId)
-      if (data?.length) {
+      const res = await axios.get(`/api/v1/Hotel/HotelGetRooms/${typeId}`);
+      if (res.status === 200) {
         setRoomsByType((prev) => ({
           ...prev,
-          [typeId]: data.map((r) => ({
+          [typeId]: res.data.output.map((r) => ({
             roomNo: Number(r.RoomNo),
             floor: r.floorType?.toLowerCase().includes("second") ? 2 : 1, // adapt if API changes
           })),
@@ -78,13 +74,11 @@ const RoomAllocation = ({ value, onChange }) => {
     } catch (error) {
       console.log(error);
       closePanel();
-      toast.error("Failed to fetch rooms");
+      toast.error("No room found");
     } finally {
       setRoomsLoadingByType((prev) => ({ ...prev, [typeId]: false }));
     }
   };
-
-  // console.log(roomType)
 
   const assignedRoomsSet = useMemo(() => {
     const set = new Set();
@@ -242,7 +236,7 @@ const RoomAllocation = ({ value, onChange }) => {
               className="h-9 w-28 rounded-lg bg-gray-300/70 animate-pulse"
             />
           ))
-        ) : noRoomType ? (
+        ) : roomTypes.length === 0 ? (
           <div className="w-full text-center">
             <span className="text-sm text-gray-500 italic">no room type found</span>
           </div>
@@ -269,7 +263,7 @@ const RoomAllocation = ({ value, onChange }) => {
                       : "bg-gray-100 hover:border-primary-500"
                 }`}
               >
-                + {typeObj.RoomType}
+                {typeObj.RoomType}
               </button>
 
               {/* SELECTION PANEL */}

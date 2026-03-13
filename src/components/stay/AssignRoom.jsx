@@ -16,8 +16,7 @@ const AssignRoom = ({ stay, onClose, onSuccess }) => {
       alert("Please select at least one room for each room type");
       return;
     }
-
-    console.log("FINAL ROOM ALLOCATIONS:", roomAllocations);
+    
     onSuccess?.(roomAllocations);
   };
 
