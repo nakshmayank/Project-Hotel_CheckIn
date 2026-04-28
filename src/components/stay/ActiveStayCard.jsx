@@ -16,17 +16,17 @@ const ActiveStayCard = ({
       {/* Stay details */}
       <div className="mb-2">
         <p>
-          <b>Check-In ID:</b> {stay.chkid}
+          <b>Stay ID:</b> {stay.chkid}
         </p>
         <p>
           <b>Check-In:</b> {stay.chkindate.toLocaleString()}
         </p>
-        {/* <p>
+        <p>
           <b>Name:</b> {stay.name}
         </p>
         <p>
           <b>Mobile:</b> {stay.mobile}
-        </p> */}
+        </p>
         <p>
           <b>Email:</b> {stay.email}
         </p>
@@ -78,12 +78,12 @@ const ActiveStayCard = ({
 
       {/* Actions */}
       <div className="border-t border-gray-500/30 pt-5 flex justify-end gap-3 mt-3">
-        {/* <button
+        <button
           onClick={() => onAssignRoom(stay)}
           className="px-4 py-2 rounded-lg border-2 border-primary-500 text-primary-500 shadow-lg hover:bg-primary-100/50 transition"
         >
           Modify Stay
-        </button> */}
+        </button>
 
         <button
           onClick={() => onCheckout(stay.chkid)}

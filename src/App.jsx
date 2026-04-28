@@ -24,9 +24,11 @@ import Terms from "./pages/public/Terms";
 import Login from "./components/Login";
 import { useEffect } from "react";
 import Loader from "./components/Loader";
+import Subscription from "./components/Subscription";
+import Billing from "./pages/app/Billing";
 
 const App = () => {
-  const { user, showAddRoom, showChangePassword, showLogin, globalLoader } = useAppContext();
+  const { user, showAddRoom, showChangePassword, showLogin, globalLoader, showSubscription } = useAppContext();
 
   const location = useLocation();
 
@@ -44,6 +46,7 @@ const App = () => {
       {showAddRoom && <AddRoom />}
       {showChangePassword && <ChangePassword />}
       {globalLoader && <Loader/>}
+      {showSubscription && <Subscription/>}
 
       <div className={showLogin ? "pointer-events-none" : ""}>
 
@@ -74,6 +77,7 @@ const App = () => {
             <Route path="manage-stay" element={<ManageStay />} />
             <Route path="profile" element={<Profile />} />
             <Route path="checkin" element={<CheckIn />} />
+            <Route path="billing" element={<Billing />} />
           </Route>
           <Route path="/chgpass" element={<ResetPassword />} />
           <Route path="/support" element={<Support />} />

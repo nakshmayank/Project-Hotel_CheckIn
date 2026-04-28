@@ -8,6 +8,29 @@
   font-family: "Outfit", sans-serif;
 }
 
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print\:block,
+  .print\:block * {
+    visibility: visible;
+  }
+
+  .print\:block {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}
+
 @keyframes fadeIn {
   to {
     opacity: 1;

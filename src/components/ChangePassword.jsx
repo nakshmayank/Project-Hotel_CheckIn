@@ -56,7 +56,7 @@ const ChangePassword = () => {
       onClick={() => setShowChangePassword(false)}
     >
       <div onClick={(e) => e.stopPropagation()}>
-        <div className="bg-gray-100/30 p-4 sm:p-5 md:p-6 rounded-2xl shadow-lg w-[85vw] max-w-sm relative">
+        <div className="bg-gray-100/35 p-4 sm:p-5 md:p-6 rounded-2xl shadow-lg w-[85vw] max-w-sm relative">
           <form onSubmit={changePassword} className="p-4">
             <h2 className="text-2xl font-semibold text-gray-900 text-center mb-8">
               Change Password

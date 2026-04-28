@@ -83,6 +83,22 @@ const MainBanner = () => {
               </button>
             </div>
 
+            {/* Stats */}
+              <div className="grid grid-cols-3 gap-5 pt-4">
+                <div className="bg-gray-200/10 text-center rounded-2xl p-4 w-full">
+                  <p className="text-3xl font-bold text-white">500+</p>
+                  <p className="text-sm text-primary-500 mt-1">Hotels Trust Us</p>
+                </div>
+                <div className="bg-gray-200/10 text-center rounded-2xl p-4 w-full">
+                  <p className="text-3xl font-bold text-white">2M+</p>
+                  <p className="text-sm text-primary-500 mt-1">Guests Processed</p>
+                </div>
+                <div className="bg-gray-200/10 text-center rounded-2xl p-4 w-full">
+                  <p className="text-3xl font-bold text-white">99.9%</p>
+                  <p className="text-sm text-primary-500 mt-1">Uptime</p>
+                </div>
+              </div>
+
           </div>
         </div>
       </div>

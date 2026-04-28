@@ -121,7 +121,7 @@ const AddRoom = () => {
           e.stopPropagation();
           setShowRoomTypeList(false);
         }}
-        className="bg-gray-100/40 rounded-xl p-6 w-[85vw] max-w-sm shadow-lg"
+        className="bg-gray-100/35 rounded-2xl p-6 w-[85vw] max-w-sm shadow-lg"
       >
         <form onSubmit={isRoomType ? addRoomType : addRoom} className="p-5">
           <h2 className="text-2xl text-center font-semibold mb-6">

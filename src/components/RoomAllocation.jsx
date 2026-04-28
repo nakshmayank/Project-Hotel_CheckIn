@@ -259,7 +259,7 @@ const RoomAllocation = ({ value, onChange }) => {
                   activeAllocation?.typeId === typeObj.TypeId
                     ? "bg-primary-500 text-white border-primary-500"
                     : selectedTypeIds.has(typeObj.TypeId)
-                      ? "bg-primary-100 text-primary-500 border-primary-400"
+                      ? "bg-white text-primary-500 font-medium border-primary-500"
                       : "bg-gray-100 hover:border-primary-500"
                 }`}
               >
@@ -440,10 +440,10 @@ const RoomAllocation = ({ value, onChange }) => {
                     return (
                       <div
                         key={r.roomNo}
-                        className="relative shadow-md bg-gray-50 mb-1 border-2 border-primary-500 p-2.5 w-fit rounded-xl text-sm"
+                        className="relative flex justify-center items-center shadow-md bg-gray-50 mb-1 border-2 border-primary-500 p-2 px-2.5 w-[44px] rounded-xl text-sm"
                       >
                         <span className="font-medium text-gray-800">
-                          Room {r.roomNo}
+                          {r.roomNo}
                           {/* • Floor {room?.floor ?? "-"}  */}
                         </span>
                         <div className="absolute -right-2 -top-2">

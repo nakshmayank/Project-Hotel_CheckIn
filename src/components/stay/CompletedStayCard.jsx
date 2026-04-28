@@ -13,20 +13,20 @@ const CompletedStayCard = ({
       {/* Stay Details */}
       <div className="mb-2">
         <p>
+          <b>Stay ID:</b> {stay.chkid}
+        </p>
+        <p>
           <b>Check-In:</b> {stay.chkindate.toLocaleString()}
         </p>
         <p>
           <b>Check-Out:</b> {stay.chkoutdate.toLocaleString()}
         </p>
         <p>
-          <b>Check-In ID:</b> {stay.chkid}
-        </p>
-        {/* <p>
           <b>Name:</b> {stay.name}
         </p>
         <p>
           <b>Mobile:</b> {stay.mobile}
-        </p> */}
+        </p>
         <p>
           <b>Email:</b> {stay.email}
         </p>

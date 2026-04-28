@@ -7,16 +7,40 @@ import { PDFDocument } from "pdf-lib";
 import StayDetails from "../../components/checkin/StayDetails";
 import AddMember from "../../components/checkin/AddMember";
 import Success from "../../components/checkin/Success";
+import { useLocation } from "react-router-dom";
 
 const CheckIn = () => {
   const { axios, user, navigate } = useAppContext();
+
+  const location = useLocation();
+  const preselectedRooms = location.state?.selectedRooms || [];
 
   const [checkinId, setCheckinId] = useState(null);
   const [isStayCreated, setIsStayCreated] = useState(false);
   const [members, setMembers] = useState([]);
   const [showIdTypeList, setShowIdTypeList] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [roomAllocations, setRoomAllocations] = useState([]);
+  const [withoutMember, setWithoutMember] = useState(true);
+  const [roomAllocations, setRoomAllocations] = useState(() => {
+    const groupedRooms = preselectedRooms.reduce((acc, room) => {
+      const existing = acc.find((g) => g.roomType === room.roomType);
+
+      if (existing) {
+        existing.rooms.push({
+          roomNo: room.roomNo,
+        });
+      } else {
+        acc.push({
+          roomType: room.roomType,
+          rooms: [{ roomNo: room.roomNo }],
+        });
+      }
+
+      return acc;
+    }, []);
+
+    return groupedRooms;
+  });
   const [addingStay, setAddingStay] = useState(false);
   const [addingMember, setAddingMember] = useState(false);
   const [finishingCheckin, setFinishingCheckin] = useState(false);
@@ -38,9 +62,9 @@ const CheckIn = () => {
   );
 
   const [checkinForm, setCheckinForm] = useState({
-    // fullName: "",
+    fullName: "",
     email: "",
-    // mobile: "",
+    mobile: "",
     address: "",
     roomNo: "",
     roomType: "",
@@ -135,11 +159,65 @@ const CheckIn = () => {
         .map((r) => r.roomNo) // extract numbers
         .join(","); // convert to "101,201,202"
 
+      if (withoutMember) {
+      // NEW API CALL
+      const res = await axios.post(
+        "/api/v1/Hotel/HotelCheckInwithoutmember",
+        {
+          address: checkinForm.address,
+          email: checkinForm.email,
+          Noofstay: Number(checkinForm.stayDuration),
+          RoomNo: allRoomNumbers,
+          noofmembers: Number(checkinForm.noOfMember),
+          name: checkinForm.fullName,
+          mobileno: checkinForm.mobile,
+        }
+      );
+
+      if (res.status === 200) {
+        const id = Number(res?.data?.output);
+        setCheckinId(id);
+
+        // 🚀 DIRECTLY FINISH CHECKIN
+        await axios.post("/api/v1/Hotel/Hotelfinalchkin", {
+          Chkid: id,
+        });
+
+        setShowSuccess(true);
+
+        // reset everything (same as your finishCheckin)
+        setCheckinForm({
+          fullName: "",
+          email: "",
+          mobile: "",
+          roomNo: "",
+          roomType: "",
+          noOfMember: "",
+          stayDuration: "",
+          address: "",
+        });
+
+        setCheckinId(null);
+        setIsStayCreated(false);
+        setRoomAllocations([]);
+        setMembers([]);
+
+        toast.success("Check-In completed successfully");
+      } else {
+        toast.error("Failed to check-in");
+      }
+
+      return; // ❗ IMPORTANT (skip normal flow)
+    }
+
       const res = await axios.post("/api/v1/Hotel/HotelCheckIn_stydtl", {
+        name : checkinForm.fullName,
+        mobileno: checkinForm.mobile,
         email: checkinForm.email,
         address: checkinForm.address,
         Noofstay: Number(checkinForm.stayDuration),
         RoomNo: allRoomNumbers,
+        noofmembers: Number(checkinForm.noOfMember)
       });
 
       if (res.status === 200) {
@@ -261,7 +339,6 @@ const CheckIn = () => {
     let finalPdfBlob;
 
     try {
-
       // CASE 1 → IMAGES (1 or 2)
       if (imageFiles.length > 0 && pdfFiles.length === 0) {
         finalPdfBlob = await imagesToPdf(imageFiles);
@@ -290,10 +367,7 @@ const CheckIn = () => {
       formData.append("Chkid", checkinId);
       formData.append("file", finalPdfBlob, uniqueFileName);
 
-      const res = await axios.post(
-        "/api/v1/Hotel/UploadMemberID",
-        formData,
-      );
+      const res = await axios.post("/api/v1/Hotel/UploadMemberID", formData);
 
       if (res.status !== 200) {
         toast.error("ID upload failed");
@@ -528,6 +602,8 @@ const CheckIn = () => {
                 setRoomAllocations={setRoomAllocations}
                 addingStay={addingStay}
                 members={members}
+                withoutMember={withoutMember}
+                setWithoutMember={setWithoutMember}
               />
             ) : (
               // Member Form

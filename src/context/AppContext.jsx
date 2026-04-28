@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -20,6 +20,9 @@ export const AppContextProvider = ({ children }) => {
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [dashCount, setDashCount] = useState({});
   const [globalLoader, setGlobalLoader] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
+
+  const isForceLoggingOutRef = useRef(false);
 
   const fetchUser = async () => {
     try {
@@ -106,15 +109,21 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const forceLogout = () => {
+
     try {
+
+      if (isForceLoggingOutRef.current) return;
+
+  isForceLoggingOutRef.current = true;
+
       setAuthLoading(true);
+
       localStorage.removeItem("userProfile");
       sessionStorage.removeItem("userProfile");
 
       setUser(null);
       setUserData(null);
 
-      navigate("/");
       toast.error("Session expired. Please login again.");
     } catch (error) {
       console.log(error);
@@ -124,19 +133,18 @@ export const AppContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const protectedRoutes = [
-      "HotelGetDetails",
-      "HotelGetDashboardcount",
-      "HotelLogout",
-    ];
+  if (isForceLoggingOutRef.current && user === null) {
+    navigate("/", { replace: true });
+  }
+}, [user, navigate]);
+
+  useEffect(() => {
 
     const interceptor = axios.interceptors.response.use(
       (response) => {
-        // backend returning Status:0 instead of 401
+        
         if (
-          Array.isArray(response.data) &&
-          response.data[0]?.Status === 0 &&
-          protectedRoutes.some((route) => response.config.url.includes(route))
+          response.status === 401
         ) {
           forceLogout();
         }
@@ -157,6 +165,8 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     fetchUser();
   }, []);
+
+  
 
   useEffect(() => {
     if (user) {
@@ -191,6 +201,8 @@ export const AppContextProvider = ({ children }) => {
     fetchDashCount,
     globalLoader,
     setGlobalLoader,
+    showSubscription,
+    setShowSubscription
   };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

@@ -86,18 +86,18 @@ const Footer = () => {
               </h3>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <a href="https://www.instagram.com/inndez" className="hover:text-white">
                     Instagram
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <a href="https://www.facebook.com/share/18ToyVgRcc/" className="hover:text-white">
                     Facebook
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-white">
-                    X (Twitter)
+                    LinkedIn
                   </a>
                 </li>
               </ul>

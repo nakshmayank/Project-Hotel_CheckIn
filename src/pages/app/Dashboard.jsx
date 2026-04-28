@@ -1,21 +1,61 @@
 import { useAppContext } from "../../context/AppContext";
 import CountUp from "react-countup";
 import { useEffect, useState } from "react";
+import { BedSingle, CheckCircle2 } from "lucide-react";
 
 const Dashboard = () => {
-  const {
-    user,
-    navigate,
-    dashCount,
-    userData,
-    fetchDashCount
-  } = useAppContext();
+  const { user, navigate, dashCount, userData, fetchDashCount, axios, setShowAddRoom } =
+    useAppContext();
+
+  const [roomData, setRoomData] = useState({});
+  const [selectedRooms, setSelectedRooms] = useState([]);
+  const [roomLoading, setRoomLoading] = useState(true);
+
+  const fetchRooms = async () => {
+    try {
+      setRoomLoading(true);
+
+      const { data } = await axios.get("/api/v1/Hotel/HotelGetAllRooms");
+
+      setRoomData(data?.roomList || {});
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRoomLoading(false);
+    }
+  };
+
+  const toggleRoomSelection = (room, roomType) => {
+    if (room.status !== "A") return;
+
+    setSelectedRooms((prev) => {
+      const alreadySelected = prev.some((r) => r.roomNo === room.roomNo);
+
+      if (alreadySelected) {
+        return prev.filter((r) => r.roomNo !== room.roomNo);
+      }
+
+      return [
+        ...prev,
+        {
+          roomNo: room.roomNo,
+          roomType,
+        },
+      ];
+    });
+  };
+
+  const roomSkeletonLayout = [
+    { typeWidth: "w-24", roomCount: 4 },
+    { typeWidth: "w-20", roomCount: 7 },
+    { typeWidth: "w-28", roomCount: 3 },
+    { typeWidth: "w-16", roomCount: 6 },
+  ];
 
   useEffect(() => {
-  if (user?.AccessToken) {
     fetchDashCount();
-  }
-}, [user]);
+    fetchRooms();
+  }, []);
 
   return (
     <div className="py-12 px-5">
@@ -34,10 +74,12 @@ const Dashboard = () => {
 
           {/* Quick Stats */}
           <div>
-
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Active Stays */}
-              <div className="bg-gray-100/40 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow cursor-pointer" onClick={()=>navigate("/dashboard/manage-stay")}>
+              <div
+                className="bg-gray-100/40 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate("/dashboard/manage-stay")}
+              >
                 <p className="text-sm font-semibold text-primary-500">
                   Active Stays
                 </p>
@@ -47,7 +89,10 @@ const Dashboard = () => {
               </div>
 
               {/* Check-ins */}
-              <div className="bg-gray-100/40 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow cursor-pointer" onClick={()=>navigate("/dashboard/manage-stay")}>
+              <div
+                className="bg-gray-100/40 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate("/dashboard/manage-stay")}
+              >
                 <p className="text-sm font-semibold text-green-600">
                   Today’s Check-Ins
                 </p>
@@ -57,7 +102,10 @@ const Dashboard = () => {
               </div>
 
               {/* Check-outs */}
-              <div className="bg-gray-100/40 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow cursor-pointer" onClick={()=>navigate("/dashboard/manage-stay")}>
+              <div
+                className="bg-gray-100/40 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate("/dashboard/manage-stay")}
+              >
                 <p className="text-sm font-semibold text-red-600">
                   Today’s Check-Outs
                 </p>
@@ -65,6 +113,130 @@ const Dashboard = () => {
                   <CountUp end={dashCount?.todaychkout || 0} duration={0.8} />
                 </h2>
               </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-100/40 p-6 rounded-2xl shadow-lg">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-lg font-bold text-gray-900">
+                Room Availability
+              </h2>
+
+              <div className="flex gap-4 text-sm font-medium">
+                <span className="text-primary-600">● Available</span>
+                <span className="text-gray-600">● Occupied</span>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {roomLoading ? (
+                <div>
+                  {roomSkeletonLayout.map((section, index) => (
+                    <div key={index} className="mb-6 last:mb-0">
+                      {/* Variable room type heading */}
+                      <div
+                        className={`h-5 ${section.typeWidth} bg-gray-300/80 rounded-md animate-pulse mb-3`}
+                      ></div>
+
+                      {/* Variable room count */}
+                      <div className="flex flex-wrap gap-3">
+                        {Array.from({ length: section.roomCount }).map(
+                          (_, roomIndex) => (
+                            <div
+                              key={roomIndex}
+                              className="w-[48px] h-[36px] rounded-xl bg-gray-300/80 animate-pulse"
+                            />
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : Object.keys(roomData).length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-5 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center shadow-sm mb-4">
+                    <BedSingle className="w-8 h-8 text-primary-500" />
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    No rooms added yet
+                  </h3>
+
+                  <p className="text-sm text-gray-600 max-w-md mb-5">
+                    Start by creating your first room type and adding rooms to
+                    manage check-ins and stay allocation seamlessly.
+                  </p>
+
+                  <button
+                    onClick={()=>setShowAddRoom(true)}
+                    className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold shadow-md hover:scale-105 transition-all duration-300"
+                  >
+                    Add Room Type & Rooms
+                  </button>
+                </div>
+              ) : (
+                Object.entries(roomData).map(([type, rooms]) => {
+                  const sortedRooms = [...rooms].sort(
+                    (a, b) => a.roomNo - b.roomNo,
+                  );
+
+                  return (
+                    <div key={type}>
+                      <h3 className="font-semibold text-gray-900 mb-3 text-md">
+                        {type}
+                      </h3>
+
+                      <div className="flex flex-wrap gap-3">
+                        {sortedRooms.map((room) => {
+                          const isAvailable = room.status === "A";
+                          const isSelected = selectedRooms.some(
+                            (r) => r.roomNo === room.roomNo,
+                          );
+
+                          return (
+                            <div
+                              key={room.roomNo}
+                              onClick={() => toggleRoomSelection(room, type)}
+                              className={`relative group w-[48px] p-1.5 rounded-xl shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${
+                                isAvailable
+                                  ? isSelected
+                                    ? "bg-primary-500 text-white scale-105 cursor-pointer"
+                                    : "bg-white text-gray-800 border-2 border-primary-500 hover:scale-105 cursor-pointer"
+                                  : "bg-gray-400/60 text-white cursor-not-allowed"
+                              }`}
+                            >
+                              {/* <BedSingle size={22} /> */}
+                              <span className="text-sm font-bold">
+                                {room.roomNo}
+                              </span>
+
+                              {/* Tooltip */}
+                              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20">
+                                {isAvailable ? "Available" : "Occupied"}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              {selectedRooms.length > 0 && (
+                <button
+                  onClick={() =>
+                    navigate("/dashboard/checkin", {
+                      state: { selectedRooms },
+                    })
+                  }
+                  className="mt-6 p-2 px-5 bg-primary-500 hover:scale-105 transition-all duration-300 text-white font-bold rounded-xl shadow-lg"
+                >
+                  <span>Proceed to Check-In</span>
+                </button>
+              )}
             </div>
           </div>
 

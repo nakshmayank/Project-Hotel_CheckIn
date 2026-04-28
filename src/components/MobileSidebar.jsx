@@ -9,6 +9,7 @@ const MobileSidebar = ({ open, setOpen }) => {
     logout,
     setShowAddRoom,
     setShowChangePassword,
+    setShowSubscription
   } = useAppContext();
 
   const location = useLocation();
@@ -130,6 +131,30 @@ const MobileSidebar = ({ open, setOpen }) => {
             >
               <img src="/add_room.svg" className="w-5 h-5 shrink-0" alt="" />
               Add Room
+            </button>
+
+            {/* Billing */}
+            <button
+              onClick={() => {
+                setShowSubscription(true);
+                close();
+              }}
+              className="relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100/30 transition-all"
+            >
+              <img src="/bill.png" className="w-5 h-5 shrink-0" alt="" />
+              Billing
+            </button>
+
+            {/* Reports */}
+            <button
+              onClick={() => {
+                setShowSubscription(true);
+                close();
+              }}
+              className="relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100/30 transition-all"
+            >
+              <img src="/report.png" className="w-5 h-5 shrink-0" alt="" />
+              Reports
             </button>
 
             {/* Services */}

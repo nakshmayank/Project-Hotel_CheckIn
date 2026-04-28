@@ -63,7 +63,7 @@ const BottomBanner = () => {
             <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-white text-sm font-medium">
               <div className="flex items-center gap-2">
                 <img className="w-4 h-4" src="/check.png" alt="check" />
-                Free 14-day trial
+                Free 30-day trial
               </div>
               <div className="hidden sm:block w-1 h-1 bg-white/40 rounded-full"></div>
               <div className="flex items-center gap-2">

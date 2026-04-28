@@ -8,6 +8,8 @@ const StayDetails = ({
   setRoomAllocations,
   addingStay,
   members,
+  withoutMember,
+  setWithoutMember,
 }) => {
   return (
     <form
@@ -21,6 +23,50 @@ const StayDetails = ({
         <h3 className="font-medium text-gray-900 mb-2">Basic Information</h3>
 
         <div className="grid px-1 grid-cols-1 gap-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <p className="text-sm mb-0.5 font-medium text-gray-700">
+                Full Name
+              </p>
+              <input
+                className="input"
+                placeholder="Enter full name"
+                value={checkinForm.fullName}
+                type="text"
+                // onFocus={(e) =>
+                //   (e.target.placeholder = "Enter email address")
+                // }
+                // onBlur={(e) =>
+                //   (e.target.placeholder = "Email Address")
+                // }
+                onChange={(e) => handleCheckin("fullName", e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <p className="text-sm mb-0.5 font-medium text-gray-700">
+                Mobile Number
+              </p>
+              <input
+                className="input"
+                placeholder="Enter 10-digit mobile number"
+                value={checkinForm.mobile}
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                maxLength={10}
+                // onFocus={(e) =>
+                //   (e.target.placeholder = "Enter email address")
+                // }
+                // onBlur={(e) =>
+                //   (e.target.placeholder = "Email Address")
+                // }
+                onChange={(e) => handleCheckin("mobile", e.target.value)}
+                required
+              />
+            </div>
+          </div>
 
           <div>
             <p className="text-sm mb-0.5 font-medium text-gray-700">
@@ -61,6 +107,7 @@ const StayDetails = ({
             />
           </div>
         </div>
+
         {/* ================= Stay Details ================= */}
         <div>
           <h3 className="font-medium text-gray-900 mb-2">Stay Details</h3>
@@ -123,16 +170,26 @@ const StayDetails = ({
             />
           </div>
         </div>
+
+        <label className="flex justify-end pt-3 items-center gap-1 text-sm text-gray-900 cursor-pointer">
+          <input
+            type="checkbox"
+            className="accent-primary-500 cursor-pointer"
+            checked={withoutMember}
+            onChange={(e) => setWithoutMember(e.target.checked)}
+          />
+          Check-In without Member Details
+        </label>
       </div>
       <div className="flex justify-end">
-        <button
-          className={`px-5 py-3 font-semibold rounded-xl bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer`}
-        >
+        <button className="px-5 py-3 font-semibold rounded-xl bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer">
           {addingStay ? (
             <div className="flex justify-center items-center gap-2">
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Adding...</span>
+              <span>{withoutMember ? "Finishing..." : "Adding..."}</span>
             </div>
+          ) : withoutMember ? (
+            "Finish Check-In"
           ) : (
             "Add Stay Details"
           )}

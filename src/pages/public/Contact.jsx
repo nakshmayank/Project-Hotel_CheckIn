@@ -4,6 +4,7 @@ import {
   Clock,
   ShieldCheck,
   AlertCircle,
+  MapPin,
 } from "lucide-react";
 
 const Contact = () => {
@@ -39,12 +40,17 @@ const Contact = () => {
 
               <div className="flex items-center gap-3 text-gray-800">
                 <Phone className="w-4 h-4 text-primary-500" />
-                <span>+91 8800214384, +91 7903021814</span>
+                <span>+91 7982634341, +91 8800214384</span>
               </div>
 
               <div className="flex items-center gap-3 text-gray-800">
                 <Clock className="w-4 h-4 text-primary-500" />
                 <span>24*7 Hours Support</span>
+              </div>
+
+              <div className="flex items-start gap-3 text-gray-800">
+                <MapPin className="w-4 h-4 text-primary-500 mt-0.5" />
+                <span>L1-125, Mohan Garden, Uttam Nagar, New Delhi-59</span>
               </div>
             </div>
           </div>
@@ -65,9 +71,9 @@ const Contact = () => {
           <div>
             <p className="font-medium">Secure Communication</p>
             <p className="text-sm text-gray-300 mt-1">
-              All communication regarding guest data and system access is handled
-              securely. Sensitive information should only be shared through
-              official support channels.
+              All communication regarding guest data and system access is
+              handled securely. Sensitive information should only be shared
+              through official support channels.
             </p>
           </div>
         </div>

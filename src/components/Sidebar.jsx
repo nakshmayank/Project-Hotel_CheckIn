@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 
 const Sidebar = () => {
-  const { user, navigate, setShowAddRoom, setShowChangePassword, logout } =
+  const { user, navigate, setShowAddRoom, setShowChangePassword, logout, setShowSubscription } =
     useAppContext();
 
   const location = useLocation();
@@ -135,6 +135,35 @@ const Sidebar = () => {
 
           <div className="rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
             <p className="text-gray-800 font-medium text-left">Add New Room</p>
+          </div>
+        </button>
+
+        {/* Billing */}
+        <button
+          // onClick={() => setShowSubscription(true)}
+          onClick={()=>navigate("/dashboard/billing")}
+          className="my-1 flex items-center gap-1.5"
+        >
+          <div className="bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out">
+            <img className="w-4 h-4" src="/bill.png" alt="billing" />
+          </div>
+
+          <div className="rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
+            <p className="text-gray-800 font-medium text-left">Billing</p>
+          </div>
+        </button>
+
+        {/* Reports */}
+        <button
+          onClick={() => setShowSubscription(true)}
+          className="my-1 flex items-center gap-1.5"
+        >
+          <div className="bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out">
+            <img className="w-4 h-4" src="/report.png" alt="reports" />
+          </div>
+
+          <div className="rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
+            <p className="text-gray-800 font-medium text-left">Reports</p>
           </div>
         </button>
 

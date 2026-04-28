@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
-import AssignRoom from "../../components/stay/AssignRoom";
 import ActiveStayCard from "../../components/stay/ActiveStayCard";
 import CompletedStayCard from "../../components/stay/CompletedStayCard";
+import ModifyStay from "../../components/stay/ModifyStay";
 
 const ManageStay = () => {
   const { axios, user, navigate } = useAppContext();
@@ -22,11 +22,18 @@ const ManageStay = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showCheckoutConfirm, setShowCheckoutConfirm] = useState(false);
   const [selectedCheckoutId, setSelectedCheckoutId] = useState(null);
-  const [members, setMembers] = useState([]);
+  const [members, setMembers] = useState({});
   const [loadingMembers, setLoadingMembers] = useState({});
   const [expandedChkId, setExpandedChkId] = useState(null);
   const [showAssignRoom, setShowAssignRoom] = useState(false);
   const [selectedStay, setSelectedStay] = useState(null);
+  const [showFilterCard, setShowFilterCard] = useState(false);
+  const [dateFilter, setDateFilter] = useState("ALL");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const [draftDateFilter, setDraftDateFilter] = useState("ALL");
+  const [draftCustomFrom, setDraftCustomFrom] = useState("");
+  const [draftCustomTo, setDraftCustomTo] = useState("");
 
   const SORT_OPTIONS = [
     { label: "Newest first", value: "DATE_DESC" },
@@ -42,13 +49,15 @@ const ManageStay = () => {
     NAME_DESC: "Name Z–A",
   };
 
+  const todayDate = new Date().toISOString().split("T")[0];
+
   // Active Stay Data
   const fetchActiveStayData = async () => {
     try {
       setShowLoading(true);
       const res = await axios.get("/api/v1/Hotel/HotelGetActiveStayList");
 
-      if(res.status === 200) {
+      if (res.status === 200) {
         setActiveStays(res?.data.output || []);
       } else {
         toast.error("Failed to fetch active stays..");
@@ -68,12 +77,12 @@ const ManageStay = () => {
       setShowLoading(true);
       const res = await axios.get("/api/v1/Hotel/HotelGetArchivedStayList");
 
-      if(res.status === 200) {
+      if (res.status === 200) {
         setCompletedStays(res?.data.output || []);
       } else {
         toast.error("Failed to fetch completed stays..");
       }
-      
+
       // To ensure skeleton visibility
       // await new Promise((r) => setTimeout(r, 300));
     } catch (error) {
@@ -83,61 +92,117 @@ const ManageStay = () => {
     }
   };
 
-  // Search & Sort ActiveStay
-  const filteredAndSortedActiveStays = activeStays
-    .filter((s) => {
-      if (!debouncedSearch) return true;
-      const q = debouncedSearch.toLowerCase();
-      return (
-        s.name?.toLowerCase().includes(q) ||
-        s.mobile?.toLowerCase().includes(q) ||
-        s.RoomType?.toLowerCase().includes(q)
-      );
-    })
-    .sort((a, b) => {
+  // Sort Stays
+  const sortStays = (stays) => {
+    return [...stays].sort((a, b) => {
       switch (sortBy) {
         case "DATE_ASC":
           return new Date(a.chkindate) - new Date(b.chkindate);
 
+        case "DATE_DESC":
+          return new Date(b.chkindate) - new Date(a.chkindate);
+
         case "NAME_ASC":
-          return a.name.localeCompare(b.name);
+          return (a.name || "").localeCompare(b.name || "");
 
         case "NAME_DESC":
-          return b.name.localeCompare(a.name);
+          return (b.name || "").localeCompare(a.name || "");
 
-        case "DATE_DESC":
         default:
-          return new Date(b.chkindate) - new Date(a.chkindate);
+          return 0;
       }
     });
+  };
+
+  // Search & Sort ActiveStay
+  const filteredActiveStays = activeStays.filter((s) => {
+    const q = debouncedSearch.toLowerCase();
+
+    const matchesSearch =
+      !debouncedSearch ||
+      s.name?.toLowerCase().includes(q) ||
+      s.mobile?.toLowerCase().includes(q) ||
+      s.RoomType?.toLowerCase().includes(q);
+
+    const stayDate = new Date(s.chkindate);
+    const today = new Date();
+
+    let matchesDate = true;
+
+    if (dateFilter === "TODAY") {
+      matchesDate = stayDate.toDateString() === today.toDateString();
+    }
+
+    if (dateFilter === "LAST_7_DAYS") {
+      const last7 = new Date();
+      last7.setDate(today.getDate() - 7);
+      matchesDate = stayDate >= last7;
+    }
+
+    if (dateFilter === "THIS_MONTH") {
+      matchesDate =
+        stayDate.getMonth() === today.getMonth() &&
+        stayDate.getFullYear() === today.getFullYear();
+    }
+
+    if (dateFilter === "CUSTOM") {
+      const fromDate = customFrom ? new Date(customFrom + "T00:00:00") : null;
+
+      const toDate = customTo ? new Date(customTo + "T23:59:59.999") : null;
+
+      matchesDate =
+        (!fromDate || stayDate >= fromDate) && (!toDate || stayDate <= toDate);
+    }
+
+    return matchesSearch && matchesDate;
+  });
+
+  const filteredAndSortedActiveStays = sortStays(filteredActiveStays);
 
   // Search & Sort CompletedStay
-  const filteredAndSortedCompletedStays = completedStays
-    .filter((s) => {
-      if (!debouncedSearch) return true;
-      const q = debouncedSearch.toLowerCase();
-      return (
-        s.name?.toLowerCase().includes(q) ||
-        s.mobile?.toLowerCase().includes(q) ||
-        s.RoomType?.toLowerCase().includes(q)
-      );
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "DATE_ASC":
-          return new Date(a.chkindate) - new Date(b.chkindate);
+  const filteredCompletedStays = completedStays.filter((s) => {
+    const q = debouncedSearch.toLowerCase();
 
-        case "NAME_ASC":
-          return a.name.localeCompare(b.name);
+    const matchesSearch =
+      !debouncedSearch ||
+      s.name?.toLowerCase().includes(q) ||
+      s.mobile?.toLowerCase().includes(q) ||
+      s.RoomType?.toLowerCase().includes(q);
 
-        case "NAME_DESC":
-          return b.name.localeCompare(a.name);
+    const stayDate = new Date(s.chkindate);
+    const today = new Date();
 
-        case "DATE_DESC":
-        default:
-          // return new Date(b.chkindate) - new Date(a.chkindate);
-      }
-    });
+    let matchesDate = true;
+
+    if (dateFilter === "TODAY") {
+      matchesDate = stayDate.toDateString() === today.toDateString();
+    }
+
+    if (dateFilter === "LAST_7_DAYS") {
+      const last7 = new Date();
+      last7.setDate(today.getDate() - 7);
+      matchesDate = stayDate >= last7;
+    }
+
+    if (dateFilter === "THIS_MONTH") {
+      matchesDate =
+        stayDate.getMonth() === today.getMonth() &&
+        stayDate.getFullYear() === today.getFullYear();
+    }
+
+    if (dateFilter === "CUSTOM") {
+      const fromDate = customFrom ? new Date(customFrom + "T00:00:00") : null;
+
+      const toDate = customTo ? new Date(customTo + "T23:59:59.999") : null;
+
+      matchesDate =
+        (!fromDate || stayDate >= fromDate) && (!toDate || stayDate <= toDate);
+    }
+
+    return matchesSearch && matchesDate;
+  });
+
+  const filteredAndSortedCompletedStays = sortStays(filteredCompletedStays);
 
   // const downloadInvoice = async (stayId) => {
   //   try {
@@ -198,21 +263,42 @@ const ManageStay = () => {
     try {
       setLoadingMembers((prev) => ({ ...prev, [chkid]: true }));
 
-      const res = await axios.get(`/api/v1/Hotel/HotelGetMembersDetails/${chkid}`);
+      const res = await axios.get(
+        `/api/v1/Hotel/HotelGetMembersDetails/${chkid}`,
+      );
 
       // setMembers((prev) => ({
       //   ...prev,
       //   [chkid]: res.data || [],
       // }));
 
-      if(res.status === 200) {
-        setMembers(res?.data.output);
+      if (res.status === 200) {
+        setMembers((prev) => ({
+          ...prev,
+          [chkid]: res?.data.output || [],
+        }));
       } else {
         toast.error("Failed to fetch members..");
       }
-      
     } finally {
       setLoadingMembers((prev) => ({ ...prev, [chkid]: false }));
+    }
+  };
+
+  // Modify Stay
+  const handleModifyStay = async (payload) => {
+    try {
+      await axios.post("/api/v1/Hotel/HotelModifystay", payload);
+
+      toast.success("Stay updated successfully");
+
+      await fetchActiveStayData();
+
+      setShowAssignRoom(false);
+      setSelectedStay(null);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to update stay");
     }
   };
 
@@ -254,8 +340,7 @@ const ManageStay = () => {
   }, [sortBy, debouncedSearch, activeTab]);
 
   useEffect(() => {
-    
-    if(activeTab === "ACTIVE") {
+    if (activeTab === "ACTIVE") {
       fetchActiveStayData();
     } else {
       fetchCompletedStayData();
@@ -275,6 +360,7 @@ const ManageStay = () => {
   useEffect(() => {
     const closeAll = () => {
       setShowSortList(false);
+      setShowFilterCard(false);
     };
 
     window.addEventListener("click", closeAll);
@@ -343,21 +429,196 @@ const ManageStay = () => {
                   <div className="relative z-10 opacity-0 animate-[fadeIn_0.3s_ease-out_forwards]">
                     {/* search + sort */}
                     <div className="flex flex-col mx-1 gap-6 lg:gap-3 lg:flex-row lg:justify-between mb-2 lg:mb-4">
-                      {/* Search */}
-                      <div className="flex items-center justify-center w-full lg:max-w-sm">
-                        <div className="flex items-center justify-between gap-1 px-5 w-full bg-gray-50/90 rounded-full border-2 shadow-md border-gray-500/40 focus-within:border-primary-500 transition">
-                          <input
-                            type="text"
-                            placeholder="Search by name, mobile or room number"
-                            value={searchInput}
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            className="bg-transparent w-full py-2 placeholder:text-primary-500 focus:placeholder:text-gray-500/90 outline-none text-sm"
-                          />
-                          <img
-                            src="/search_icon.svg"
-                            alt="search"
-                            className="w-4 h-4 cursor-pointer"
-                          />
+                      {/* Left section */}
+                      <div className="flex flex-col sm:flex-row gap-3 flex-1">
+                        <div className="flex gap-2 w-full items-center">
+                          {/* Search */}
+                          <div className="flex-1 items-center justify-center w-full lg:max-w-sm">
+                            <div className="flex items-center justify-between gap-1 px-5 w-full bg-gray-50/90 rounded-full border-2 shadow-md border-gray-500/40 focus-within:border-primary-500 transition">
+                              <input
+                                type="text"
+                                placeholder="Search by name, mobile or room number"
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                className="bg-transparent w-full py-2 placeholder:text-primary-500 focus:placeholder:text-gray-500/90 outline-none text-sm"
+                              />
+                              <img
+                                src="/search_icon.svg"
+                                alt="search"
+                                className="w-4 h-4 cursor-pointer"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Filter Button */}
+                          <div
+                            className="relative"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              onClick={() => {
+                                if (!showFilterCard) {
+                                  setDraftDateFilter(dateFilter);
+                                  setDraftCustomFrom(customFrom);
+                                  setDraftCustomTo(customTo);
+                                }
+                                setShowFilterCard((prev) => !prev);
+                              }}
+                              className="p-2.5 rounded-full bg-gray-50/90 border-2 border-gray-300 shadow-md hover:border-primary-500 transition flex items-center gap-2"
+                            >
+                              {/* <span className="text-sm">Filter</span> */}
+                              <img
+                                src="/filter.png"
+                                alt="filter"
+                                className="w-4"
+                              />
+
+                              {dateFilter !== "ALL" && (
+                                <span className="absolute right-0.5 top-0.5 w-2 h-2 rounded-full bg-primary-500"></span>
+                              )}
+                            </button>
+
+                            {/* Floating Filter Card */}
+                            {showFilterCard && (
+                              <div className="absolute top-11 right-0 w-72 bg-gray-100 rounded-2xl shadow-2xl border-2 border-gray-200 p-5 z-50 animate-[fadeIn_0.25s_ease-out_forwards]">
+                                <h3 className="font-semibold text-gray-800 mb-3">
+                                  Filter Stays
+                                </h3>
+
+                                {/* Quick filters */}
+                                <div className="grid grid-cols-2 gap-2 mb-4">
+                                  {[
+                                    { label: "All", value: "ALL" },
+                                    { label: "Today", value: "TODAY" },
+                                    { label: "7 Days", value: "LAST_7_DAYS" },
+                                    {
+                                      label: "This Month",
+                                      value: "THIS_MONTH",
+                                    },
+                                  ].map((item) => (
+                                    <button
+                                      key={item.value}
+                                      onClick={() =>
+                                        setDraftDateFilter(item.value)
+                                      }
+                                      className={`px-3 py-2 rounded-xl text-xs font-medium border-2 transition ${
+                                        draftDateFilter === item.value
+                                          ? "bg-primary-500 text-white border-primary-500"
+                                          : "bg-white border-gray-300 hover:border-primary-500"
+                                      }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+
+                                {/* Custom date */}
+                                {/* Custom date range */}
+                                <div className="mt-4 space-y-3">
+                                  <div className="flex gap-2 items-center">
+                                    <label className="text-sm font-medium text-gray-700">
+                                      From :
+                                    </label>
+
+                                    <div className="relative">
+                                      <input
+                                        type="date"
+                                        value={draftCustomFrom}
+                                        max={todayDate}
+                                        onChange={(e) => {
+                                          setDraftDateFilter("CUSTOM");
+                                          setDraftCustomFrom(e.target.value);
+                                        }}
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                      />
+
+                                      <div className="px-3 py-2 pr-10 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700">
+                                        {draftCustomFrom
+                                          ? new Date(
+                                              draftCustomFrom,
+                                            ).toLocaleDateString("en-IN")
+                                          : "dd-mm-yyyy"}
+                                      </div>
+
+                                      <img
+                                        src="/calendar.png"
+                                        alt="calendar"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="flex gap-2 items-center">
+                                    <label className="text-sm font-medium text-gray-700">
+                                      To :
+                                    </label>
+
+                                    <div className="relative">
+                                      <input
+                                        type="date"
+                                        value={draftCustomTo}
+                                        min={draftCustomFrom || undefined}
+                                        max={todayDate}
+                                        onChange={(e) => {
+                                          setDraftDateFilter("CUSTOM");
+                                          setDraftCustomTo(e.target.value);
+                                        }}
+                                        className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
+                                      />
+
+                                      <div className="w-full px-3 py-2 pr-10 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700">
+                                        {draftCustomTo
+                                          ? new Date(
+                                              draftCustomTo,
+                                            ).toLocaleDateString("en-IN")
+                                          : "dd-mm-yyyy"}
+                                      </div>
+
+                                      <img
+                                        src="/calendar.png"
+                                        alt="calendar"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex justify-end gap-4 mt-4">
+                                  <button
+                                    onClick={() => {
+                                      // reset draft values
+                                      setDraftDateFilter("ALL");
+                                      setDraftCustomFrom("");
+                                      setDraftCustomTo("");
+
+                                      // reset applied values
+                                      setDateFilter("ALL");
+                                      setCustomFrom("");
+                                      setCustomTo("");
+
+                                      setShowFilterCard(false);
+                                    }}
+                                    className="text-gray-700 hover:underline"
+                                  >
+                                    Clear
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      setDateFilter(draftDateFilter);
+                                      setCustomFrom(draftCustomFrom);
+                                      setCustomTo(draftCustomTo);
+                                      setShowFilterCard(false);
+                                    }}
+                                    className="px-5 py-2 rounded-xl bg-primary-500 text-white"
+                                  >
+                                    Apply
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -371,10 +632,13 @@ const ManageStay = () => {
                           className="relative"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          {/* Input-like box */}
                           <div
                             onClick={() => setShowSortList((prev) => !prev)}
-                            className={`px-2 py-1 rounded-lg border-2 bg-gray-50/90 cursor-pointer flex items-center justify-between min-w-[110px] shadow-md ${showSortList ? "border-primary-500" : "border-gray-300"}`}
+                            className={`px-2 py-1 rounded-lg border-2 bg-gray-50/90 cursor-pointer flex items-center justify-between min-w-[110px] shadow-md ${
+                              showSortList
+                                ? "border-primary-500"
+                                : "border-gray-300"
+                            }`}
                           >
                             <span className="text-sm text-gray-800">
                               {SORT_LABEL_BY_VALUE[sortBy]}
@@ -389,9 +653,8 @@ const ManageStay = () => {
                             />
                           </div>
 
-                          {/* Dropdown list */}
                           {showSortList && (
-                            <div className="absolute right-0 py-1.5 mt-0.5 w-full bg-gray-100 border-2 hover:border-primary-500 rounded-lg shadow-lg overflow-hidden">
+                            <div className="absolute right-0 py-1.5 mt-0.5 w-full z-40 bg-gray-100 border-2 hover:border-primary-500 rounded-lg shadow-lg overflow-hidden">
                               {SORT_OPTIONS.map((opt) => (
                                 <div
                                   key={opt.value}
@@ -399,7 +662,11 @@ const ManageStay = () => {
                                     setSortBy(opt.value);
                                     setShowSortList(false);
                                   }}
-                                  className={`px-3 py-1 text-sm cursor-pointer hover:bg-primary-400/20 ${sortBy === opt.value ? "text-primary-500" : ""}`}
+                                  className={`px-3 py-1 text-sm cursor-pointer hover:bg-primary-400/20 ${
+                                    sortBy === opt.value
+                                      ? "text-primary-500"
+                                      : ""
+                                  }`}
                                 >
                                   {opt.label}
                                 </div>
@@ -432,14 +699,14 @@ const ManageStay = () => {
                             <ActiveStayCard
                               key={stay.chkid}
                               stay={stay}
-                              members={members}
+                              members={members[stay.chkid] || []}
                               expandedChkId={expandedChkId}
                               loadingMembers={loadingMembers}
                               checkingOutId={checkingOutId}
                               onViewMembers={handleViewMembers}
                               onAssignRoom={() => {
-                                // setSelectedStay(stay);
-                                // setShowAssignRoom(true);
+                                setSelectedStay(stay);
+                                setShowAssignRoom(true);
                               }}
                               onCheckout={() => {
                                 setSelectedCheckoutId(stay.chkid);
@@ -452,7 +719,7 @@ const ManageStay = () => {
                       <div className="flex justify-center bg-gray-200/40 shadow-md rounded-2xl">
                         <div className="my-16 p-5">
                           <p className="text-lg font-medium text-gray-700">
-                            No result found
+                            No stay found
                           </p>
                         </div>
                       </div>
@@ -512,7 +779,7 @@ const ManageStay = () => {
                             <CompletedStayCard
                               key={stay.chkid}
                               stay={stay}
-                              members={members}
+                              members={members[stay.chkid] || []}
                               expandedChkId={expandedChkId}
                               loadingMembers={loadingMembers}
                               onViewMembers={handleViewMembers}
@@ -558,13 +825,14 @@ const ManageStay = () => {
       </div>
 
       {showAssignRoom && selectedStay && (
-        <AssignRoom
+        <ModifyStay
           stay={selectedStay}
+          members={members}
           onClose={() => {
             setShowAssignRoom(false);
             setSelectedStay(null);
           }}
-          onSuccess={fetchActiveStayData}
+          onSuccess={handleModifyStay}
         />
       )}
 

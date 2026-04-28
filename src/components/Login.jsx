@@ -402,17 +402,17 @@ const Login = () => {
               <div>
                 {/* name */}
                 <div className="w-full">
-                  {/* <p className="text-sm mb-1 font-medium text-gray-800">
+                  <p className="text-sm mb-1 font-medium text-gray-800">
                     Hotel Name
-                  </p> */}
+                  </p>
                   <input
                     name="hName"
                     autoComplete="hName"
                     onChange={(e) => sethName(e.target.value)}
                     value={hName}
-                    placeholder="Hotel Name"
-                    onFocus={(e) => (e.target.placeholder = "Enter hotel name")}
-                    onBlur={(e) => (e.target.placeholder = "Hotel Name")}
+                    placeholder="Enter hotel name"
+                    // onFocus={(e) => (e.target.placeholder = "Enter hotel name")}
+                    // onBlur={(e) => (e.target.placeholder = "Hotel Name")}
                     className="w-full border-2 shadow-md p-2 rounded-lg mb-2 outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     type="text"
                     required
@@ -421,19 +421,19 @@ const Login = () => {
 
                 {/* Email */}
                 <div className="w-full mb-2">
-                  {/* <p className="text-sm mb-1 font-medium text-gray-800">
+                  <p className="text-sm mb-1 font-medium text-gray-800">
                     Email Address
-                  </p> */}
+                  </p>
                   <input
                     name="email"
                     autoComplete="email"
                     onChange={(e) => setEmail(e.target.value)}
                     value={email}
-                    placeholder="Email Address"
-                    onFocus={(e) =>
-                      (e.target.placeholder = "Enter email address")
-                    }
-                    onBlur={(e) => (e.target.placeholder = "Email Address")}
+                    placeholder="Enter email address"
+                    // onFocus={(e) =>
+                    //   (e.target.placeholder = "Enter email address")
+                    // }
+                    // onBlur={(e) => (e.target.placeholder = "Email Address")}
                     className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     type="email"
                     required
@@ -441,9 +441,9 @@ const Login = () => {
                 </div>
 
                 {/* Mobile */}
-                {/* <p className="text-sm mb-1 font-medium text-gray-800">
+                <p className="text-sm mb-1 font-medium text-gray-800">
                   Mobile Number
-                </p> */}
+                </p>
                 <div className="w-full flex justify-between gap-1 mb-2">
                   <div className="relative w-[22%] md:w-[20%]">
                     {/* Selected value (input-like box) */}
@@ -499,11 +499,11 @@ const Login = () => {
                       inputMode="numeric"
                       pattern="[0-9]{10}"
                       maxLength={10}
-                      placeholder="Mobile Number"
-                      onFocus={(e) =>
-                        (e.target.placeholder = "Enter 10-digit mobile number")
-                      }
-                      onBlur={(e) => (e.target.placeholder = "Mobile Number")}
+                      placeholder="Enter 10-digit mobile number"
+                      // onFocus={(e) =>
+                      //   (e.target.placeholder = "Enter 10-digit mobile number")
+                      // }
+                      // onBlur={(e) => (e.target.placeholder = "Mobile Number")}
                       className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       type="tel"
                       required
@@ -512,6 +512,9 @@ const Login = () => {
                 </div>
 
                 {/* Password */}
+                <p className="text-sm mb-1 font-medium text-gray-800">
+                  Password
+                </p>
                 <div className="relative mb-2">
                   <div className="relative">
                     <input
@@ -522,15 +525,15 @@ const Login = () => {
                         setPasswordStrength(checkPasswordStrength(val));
                       }}
                       value={password}
-                      placeholder="Password"
-                      onFocus={(e) => {
-                        // setShowPasswordHints(true);
-                        // setShowPasswordInfo(true);
-                        e.target.placeholder = "Enter password";
-                      }}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.placeholder = "Password";
-                      }}
+                      placeholder="Enter password"
+                      // onFocus={(e) => {
+                      //   // setShowPasswordHints(true);
+                      //   // setShowPasswordInfo(true);
+                      //   e.target.placeholder = "Enter password";
+                      // }}
+                      // onBlur={(e) => {
+                      //   if (!e.target.value) e.target.placeholder = "Password";
+                      // }}
                       type={showPassword ? "text" : "password"}
                       className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                       required
@@ -649,16 +652,19 @@ const Login = () => {
                 </div>
 
                 {/* Confirm Password */}
+                <p className="text-sm mb-1 font-medium text-gray-800">
+                  Confirm Password
+                </p>
                 <div className="relative mb-2">
                   <input
                     name="confirmPassword"
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     value={confirmPassword}
-                    placeholder="Confirm Password"
-                    onFocus={(e) =>
-                      (e.target.placeholder = "Enter password again")
-                    }
-                    onBlur={(e) => (e.target.placeholder = "Confirm Password")}
+                    placeholder="Enter password again"
+                    // onFocus={(e) =>
+                    //   (e.target.placeholder = "Enter password again")
+                    // }
+                    // onBlur={(e) => (e.target.placeholder = "Confirm Password")}
                     type={showConfirmPassword ? "text" : "password"}
                     className="w-full border-2 shadow-md p-2 pr-10 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
                     required
