@@ -65,6 +65,10 @@ const ManageStay = () => {
       // To ensure skeleton visibility
       // await new Promise((r) => setTimeout(r, 300));
     } catch (error) {
+      // console.log(error)
+      if(error?.response?.data?.message === "No Active Stay found.") {
+        setActiveStays([])
+      }
       console.log(error);
     } finally {
       setShowLoading(false);
@@ -711,6 +715,7 @@ const ManageStay = () => {
                               onCheckout={() => {
                                 setSelectedCheckoutId(stay.chkid);
                                 setShowCheckoutConfirm(true);
+                                // fetchActiveStayData();
                               }}
                             />
                           ))}
@@ -838,14 +843,18 @@ const ManageStay = () => {
 
       {showCheckoutConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-gray-200/70 rounded-2xl shadow-xl w-[90%] max-w-md p-8 animate-[fadeIn_0.25s_ease-out_forwards]">
+          <div className="bg-gray-200/70 relative rounded-2xl shadow-xl w-[90%] h-[35%] max-w-xl p-8 animate-[fadeIn_0.25s_ease-out_forwards]">
+
+          <button className="absolute right-4 top-2">
+            x
+          </button>
             {/* Title */}
             <h2 className="text-xl font-bold text-gray-800 mb-2">
               Confirm Check-Out
             </h2>
 
             {/* Message */}
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-gray-600 mb-14">
               Are you sure you want to check out this stay? This action cannot
               be undone.
             </p>
@@ -853,25 +862,28 @@ const ManageStay = () => {
             {/* Actions */}
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => {
+                onClick={async () => {
                   setShowCheckoutConfirm(false);
+                  await checkOut(selectedCheckoutId);
+                  await fetchCompletedStayData();
                   setSelectedCheckoutId(null);
+                  setActiveTab("COMPLETED");
                 }}
                 className="px-4 py-2 rounded-lg border-2 shadow-md bg-gray-100  hover:border-primary-500 text-gray-700 transition"
               >
-                Cancel
+                Yes, Check Out without Billing
               </button>
 
               <button
                 onClick={async () => {
                   setShowCheckoutConfirm(false);
                   await checkOut(selectedCheckoutId);
-                  await fetchCompletedStayData();
+                  navigate(`/dashboard/billing/${selectedCheckoutId}`);
                   setSelectedCheckoutId(null);
                 }}
                 className="px-4 py-2 rounded-lg bg-primary-500 text-white shadow-md hover:bg-primary-500 hover:scale-105 transition"
               >
-                Yes, Check Out
+                Yes, Check Out with Billing
               </button>
             </div>
           </div>

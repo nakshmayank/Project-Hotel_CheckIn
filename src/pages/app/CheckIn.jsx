@@ -70,6 +70,7 @@ const CheckIn = () => {
     roomType: "",
     noOfMember: "",
     stayDuration: "",
+    advancepay: "",
     // amount: "",
     // tax: "",
     // grandTotal: "",
@@ -160,64 +161,67 @@ const CheckIn = () => {
         .join(","); // convert to "101,201,202"
 
       if (withoutMember) {
-      // NEW API CALL
-      const res = await axios.post(
-        "/api/v1/Hotel/HotelCheckInwithoutmember",
-        {
-          address: checkinForm.address,
-          email: checkinForm.email,
-          Noofstay: Number(checkinForm.stayDuration),
-          RoomNo: allRoomNumbers,
-          noofmembers: Number(checkinForm.noOfMember),
-          name: checkinForm.fullName,
-          mobileno: checkinForm.mobile,
+        // NEW API CALL
+        const res = await axios.post(
+          "/api/v1/Hotel/HotelCheckInwithoutmember",
+          {
+            address: checkinForm.address,
+            email: checkinForm.email,
+            Noofstay: Number(checkinForm.stayDuration),
+            RoomNo: allRoomNumbers,
+            noofmembers: Number(checkinForm.noOfMember),
+            name: checkinForm.fullName,
+            mobileno: checkinForm.mobile,
+            advancepay: Number(checkinForm.advancepay || 0),
+          },
+        );
+
+        if (res.status === 200) {
+          const id = Number(res?.data?.output);
+          setCheckinId(id);
+
+          // 🚀 DIRECTLY FINISH CHECKIN
+          await axios.post("/api/v1/Hotel/Hotelfinalchkin", {
+            Chkid: id,
+          });
+
+          setShowSuccess(true);
+
+          // reset everything (same as your finishCheckin)
+          setCheckinForm({
+            fullName: "",
+            email: "",
+            mobile: "",
+            roomNo: "",
+            roomType: "",
+            noOfMember: "",
+            stayDuration: "",
+            address: "",
+            advancepay: "",
+          });
+
+          setCheckinId(null);
+          setIsStayCreated(false);
+          setRoomAllocations([]);
+          setMembers([]);
+
+          // toast.success("Check-In completed successfully");
+        } else {
+          toast.error("Failed to check-in");
         }
-      );
 
-      if (res.status === 200) {
-        const id = Number(res?.data?.output);
-        setCheckinId(id);
-
-        // 🚀 DIRECTLY FINISH CHECKIN
-        await axios.post("/api/v1/Hotel/Hotelfinalchkin", {
-          Chkid: id,
-        });
-
-        setShowSuccess(true);
-
-        // reset everything (same as your finishCheckin)
-        setCheckinForm({
-          fullName: "",
-          email: "",
-          mobile: "",
-          roomNo: "",
-          roomType: "",
-          noOfMember: "",
-          stayDuration: "",
-          address: "",
-        });
-
-        setCheckinId(null);
-        setIsStayCreated(false);
-        setRoomAllocations([]);
-        setMembers([]);
-
-        toast.success("Check-In completed successfully");
-      } else {
-        toast.error("Failed to check-in");
+        return; // ❗ IMPORTANT (skip normal flow)
       }
 
-      return; // ❗ IMPORTANT (skip normal flow)
-    }
-
       const res = await axios.post("/api/v1/Hotel/HotelCheckIn_stydtl", {
-        name : checkinForm.fullName,
+        name: checkinForm.fullName,
         mobileno: checkinForm.mobile,
         email: checkinForm.email,
         address: checkinForm.address,
         Noofstay: Number(checkinForm.stayDuration),
         RoomNo: allRoomNumbers,
-        noofmembers: Number(checkinForm.noOfMember)
+        noofmembers: Number(checkinForm.noOfMember),
+        advancepay: Number(checkinForm.advancepay || 0),
       });
 
       if (res.status === 200) {

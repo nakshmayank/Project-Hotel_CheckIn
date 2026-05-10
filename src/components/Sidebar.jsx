@@ -2,8 +2,14 @@ import { useLocation } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 
 const Sidebar = () => {
-  const { user, navigate, setShowAddRoom, setShowChangePassword, logout, setShowSubscription } =
-    useAppContext();
+  const {
+    user,
+    navigate,
+    setShowAddRoom,
+    setShowChangePassword,
+    logout,
+    setShowSubscription,
+  } = useAppContext();
 
   const location = useLocation();
 
@@ -140,30 +146,74 @@ const Sidebar = () => {
 
         {/* Billing */}
         <button
-          // onClick={() => setShowSubscription(true)}
-          onClick={()=>navigate("/dashboard/billing")}
-          className="my-1 flex items-center gap-1.5"
+          onClick={() => navigate("/dashboard/billing-list")}
+          className={`my-1 flex items-center gap-1.5 rounded-full ${
+            isActive("/dashboard/billing-list") && "pl-1 bg-primary-500"
+          }`}
         >
-          <div className="bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out">
+          <div
+            className={`${
+              isActive("/dashboard/billing-list")
+                ? "slide-in-right"
+                : "transition-transform hover:scale-110 duration-300 ease-in-out"
+            } bg-white/70 rounded-full p-2 shadow-lg`}
+          >
             <img className="w-4 h-4" src="/bill.png" alt="billing" />
           </div>
 
-          <div className="rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
-            <p className="text-gray-800 font-medium text-left">Billing</p>
+          <div
+            className={`${
+              isActive("/dashboard/billing-list")
+                ? "transform-none hover:transform-none fade-in"
+                : "transition-transform duration-300 ease-in-out hover:scale-105"
+            } rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}
+          >
+            <p
+              className={`${
+                isActive("/dashboard/billing-list")
+                  ? "text-primary-500"
+                  : "text-gray-800"
+              } font-medium text-left`}
+            >
+              Billing
+            </p>
           </div>
         </button>
 
         {/* Reports */}
         <button
+          // onClick={() => navigate("/dashboard/reports")}
           onClick={() => setShowSubscription(true)}
-          className="my-1 flex items-center gap-1.5"
+          className={`my-1 flex items-center gap-1.5 rounded-full ${
+            isActive("/dashboard/reports") && "pl-1 bg-primary-500"
+          }`}
         >
-          <div className="bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out">
+          <div
+            className={`${
+              isActive("/dashboard/reports")
+                ? "slide-in-right"
+                : "transition-transform hover:scale-110 duration-300 ease-in-out"
+            } bg-white/70 rounded-full p-2 shadow-lg`}
+          >
             <img className="w-4 h-4" src="/report.png" alt="reports" />
           </div>
 
-          <div className="rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
-            <p className="text-gray-800 font-medium text-left">Reports</p>
+          <div
+            className={`${
+              isActive("/dashboard/reports")
+                ? "transform-none hover:transform-none fade-in"
+                : "transition-transform duration-300 ease-in-out hover:scale-105"
+            } rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}
+          >
+            <p
+              className={`${
+                isActive("/dashboard/reports")
+                  ? "text-primary-500"
+                  : "text-gray-800"
+              } font-medium text-left`}
+            >
+              Reports
+            </p>
           </div>
         </button>
 

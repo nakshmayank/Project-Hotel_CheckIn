@@ -26,6 +26,7 @@ import { useEffect } from "react";
 import Loader from "./components/Loader";
 import Subscription from "./components/Subscription";
 import Billing from "./pages/app/Billing";
+import BillingList from "./pages/app/BillingList";
 
 const App = () => {
   const { user, showAddRoom, showChangePassword, showLogin, globalLoader, showSubscription } = useAppContext();
@@ -77,7 +78,8 @@ const App = () => {
             <Route path="manage-stay" element={<ManageStay />} />
             <Route path="profile" element={<Profile />} />
             <Route path="checkin" element={<CheckIn />} />
-            <Route path="billing" element={<Billing />} />
+            <Route path="billing-list" element={<BillingList />} />
+            <Route path="billing/:chkid" element={<Billing />} />
           </Route>
           <Route path="/chgpass" element={<ResetPassword />} />
           <Route path="/support" element={<Support />} />

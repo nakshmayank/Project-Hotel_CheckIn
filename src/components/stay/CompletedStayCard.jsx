@@ -1,3 +1,6 @@
+import toast from "react-hot-toast";
+import { useAppContext } from "../../context/AppContext";
+import { downloadInvoice } from "../../utils/downloadInvoice";
 import MemberCard from "./MemberCard";
 import MemberSkeleton from "./MemberSkeleton";
 
@@ -8,6 +11,18 @@ const CompletedStayCard = ({
   loadingMembers,
   onViewMembers,
 }) => {
+
+  const {navigate, axios} = useAppContext();
+
+  const handlePrint = async (chkid, invoiceno) => {
+  try {
+    await downloadInvoice(chkid, axios, invoiceno);
+    toast.success("Invoice downloaded");
+  } catch (err) {
+    toast.error("Download failed");
+  }
+};
+  
   return (
     <div className="bg-gray-200/40 p-5 lg:p-7 rounded-3xl mb-6 relative shadow-md hover:shadow-lg hover:scale-105 duration-300 ease-in-out transition-all opacity-0 animate-[fadeIn_0.4s_ease-out_forwards]">
       {/* Stay Details */}
@@ -34,10 +49,14 @@ const CompletedStayCard = ({
           <b>Address:</b> {stay.Address}
         </p>
         <p>
-          <b>Stay Duration:</b> {stay.Noofstay}{" nights"}
+          <b>Stay Duration:</b> {stay.Noofstay}
+          {" nights"}
         </p>
         <p>
-          <b>Room Number:</b> {(stay.RoomType).split(",").map(item => item.trim()).join(", ")}
+          <b>Room Number:</b>{" "}
+          {stay.RoomType.split(",")
+            .map((item) => item.trim())
+            .join(", ")}
         </p>
         {/* <p>
           <b>Grand Total:</b> {stay.Gtotal}
@@ -54,9 +73,7 @@ const CompletedStayCard = ({
             onClick={() => onViewMembers(stay.chkid)}
             className="text-sm font-medium text-primary-500 hover:underline"
           >
-            {expandedChkId !== stay.chkid
-              ? `View members`
-              : "Hide members"}
+            {expandedChkId !== stay.chkid ? `View members` : "Hide members"}
           </button>
         </div>
 
@@ -76,6 +93,24 @@ const CompletedStayCard = ({
           ) : (
             <p className="text-sm italic text-gray-600">No visitors found</p>
           ))}
+      </div>
+
+      <div className="border-t pt-4 flex justify-end gap-3 mt-3">
+        {stay.isBilled ? (
+          <button
+            onClick={() => handlePrint(stay.chkid, stay.invoiceno)}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg"
+          >
+            Print Invoice
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate(`/dashboard/billing/${stay.chkid}`)}
+            className="px-4 py-2 bg-primary-500 text-white rounded-lg"
+          >
+            Generate Bill
+          </button>
+        )}
       </div>
     </div>
   );

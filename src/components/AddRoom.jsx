@@ -9,6 +9,7 @@ const AddRoom = () => {
   const [startRoomNo, setStartRoomNo] = useState("");
   const [endRoomNo, setEndRoomNo] = useState("");
   const [newRoomType, setNewRoomType] = useState("");
+  const [rent, setRent] = useState("");
   const [roomType, setRoomType] = useState("");
   const [roomTypeName, setRoomTypeName] = useState("");
   // const [floorNo, setFloorNo] = useState("");
@@ -49,6 +50,8 @@ const AddRoom = () => {
       const roomNoFrom = addMode === "S" ? roomNo : startRoomNo;
       const roomNoTo = addMode === "S" ? "" : endRoomNo;
 
+      console.log(roomType);
+
       const res = await axios.post("api/v1/Hotel/HotelAddRooms", {
         RoomNoFrom: roomNoFrom,
         RoomNoTo: roomNoTo,
@@ -84,6 +87,7 @@ const AddRoom = () => {
         // roomNo,
         // capacity: Number(capacity),
         RoomType: newRoomType,
+        baseprice: Number(rent)
       });
 
       if (res.status === 200) {
@@ -130,6 +134,7 @@ const AddRoom = () => {
 
           {isRoomType ? (
             <div className="space-y-3">
+            {/* Room Type */}
               <div>
                 <label className="text-md font-medium text-gray-800">
                   Room Type
@@ -141,6 +146,21 @@ const AddRoom = () => {
                   required
                   className="w-full mt-1 p-2 border-2 rounded-lg shadow-sm outline-none focus:border-primary-500"
                   placeholder="e.g. Suite"
+                />
+              </div>
+
+              {/* Room Rent */}
+              <div>
+                <label className="text-md font-medium text-gray-800">
+                  Base Price
+                </label>
+                <input
+                  type="text"
+                  value={rent}
+                  onChange={(e) => setRent(e.target.value)}
+                  required
+                  className="w-full mt-1 p-2 border-2 rounded-lg shadow-sm outline-none focus:border-primary-500"
+                  placeholder="e.g. 1500"
                 />
               </div>
 

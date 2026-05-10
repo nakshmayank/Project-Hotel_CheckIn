@@ -1,30 +1,25 @@
-import { useMemo, useRef, useState, useEffect } from "react";
-import {
-  Receipt,
-  BedDouble,
-  Users,
-  CalendarDays,
-  IndianRupee,
-  Download,
-  CreditCard,
-  Percent,
-} from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { Receipt } from "lucide-react";
 import toast from "react-hot-toast";
-import InvoicePrint from "../../template/InvoicePrint";
-import html2pdf from "html2pdf.js";
 import { useAppContext } from "../../context/AppContext";
+import { useParams } from "react-router-dom";
+import { downloadInvoice } from "../../utils/downloadInvoice.js";
+import BillingSuccess from "../../components/BillingSuccess.jsx";
 
 const Billing = () => {
-  const printRef = useRef();
-
-  const { axios } = useAppContext();
+  const { axios, navigate } = useAppContext();
 
   const [generatedInvoice, setGeneratedInvoice] = useState(null);
-  const [billStatus, setBillStatus] = useState("draft");
-  const [isPaid, setIsPaid] = useState(false);
+  // const [billStatus, setBillStatus] = useState("draft");
+  // const [isPaid, setIsPaid] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isBilled, setIsBilled] = useState(false);
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [discountInput, setDiscountInput] = useState("");
+  const [discountPercentInput, setDiscountPercentInput] = useState("");
 
-  const chkid = 2123; // dynamic later
+  const { chkid } = useParams();
 
   const [billingData, setBillingData] = useState({
     chkid: null,
@@ -41,8 +36,10 @@ const Billing = () => {
   });
 
   useEffect(() => {
-    fetchBillingData();
-  }, []);
+    if (chkid) {
+      fetchBillingData();
+    }
+  }, [chkid]);
 
   const fetchBillingData = async () => {
     try {
@@ -51,29 +48,39 @@ const Billing = () => {
         axios.get(`/api/v1/Hotel/HotelGetBillingroomdetails/${chkid}`),
       ]);
 
-      const count = countRes.data.output.value[0];
-      const rooms = roomRes.data.output.value;
+      const count = countRes?.data?.output?.value?.[0] || {};
+      const rooms = roomRes?.data?.output?.value || [];
+
+      const stayPeriodRaw = count?.stayperiod || "";
+      const [start, end] = stayPeriodRaw.split("-");
 
       setBillingData({
         chkid,
         stayId: `STY-${chkid}`,
         primaryGuest: "Guest",
-        checkIn: count.stayperiod.split("-")[0],
-        checkOut: count.stayperiod.split("-")[1],
-        nights: count.Noofstay,
-        stayPeriod: count.stayperiod.split("-").join(" - "),
+        checkIn: start || "",
+        checkOut: end || "",
+        nights: count.Noofstay || 0,
+        stayPeriod: start && end ? `${start} - ${end}` : "",
         rooms: rooms.map((r) => ({
+          rcid: r.rcid,
           roomNo: r.roomno,
           type: r.roomtype,
           rate: r.rent,
+          days: r.days,
+          checkOutDate: r.checkoutdate,
+          totalCost: r.totalcost,
           foodCharges: 0,
           laundry: 0,
           extras: 0,
         })),
         discount: 0,
-        advancePaid: 0,
+        advancePaid: count.advancepay,
         gstPercent: 18,
       });
+
+      setDiscountInput("0");
+      setDiscountPercentInput("");
     } catch (err) {
       console.error(err);
       toast.error("Failed to load billing data");
@@ -108,9 +115,12 @@ const Billing = () => {
       0,
     );
 
-    const subtotal = roomRentTotal + extrasTotal;
-    const tax = (subtotal * billingData.gstPercent) / 100;
-    const grandTotal = subtotal + tax - billingData.discount;
+    const rentExtra = roomRentTotal + extrasTotal;
+
+    const tax = (rentExtra * billingData.gstPercent) / 100;
+
+    const subtotal = roomRentTotal + extrasTotal + tax;
+    const grandTotal = subtotal - billingData.discount;
     const due = grandTotal - billingData.advancePaid;
 
     return {
@@ -123,6 +133,60 @@ const Billing = () => {
     };
   }, [billingData]);
 
+  const baseAmount = calculations.subtotal;
+
+  const handleDiscountPercentChange = (value) => {
+    setDiscountPercentInput(value);
+
+    if (value === "") {
+      setDiscountPercent("");
+      setBillingData((prev) => ({ ...prev, discount: "" }));
+      setDiscountInput("");
+      return;
+    }
+
+    const percent = Math.max(0, Number(value));
+    const roundedPercent = Number(percent.toFixed(2));
+
+    setDiscountPercent(roundedPercent);
+
+    const discountValue = Number(
+      ((baseAmount * roundedPercent) / 100).toFixed(2),
+    );
+
+    setBillingData((prev) => ({
+      ...prev,
+      discount: discountValue,
+    }));
+
+    setDiscountInput(discountValue.toFixed(2));
+  };
+
+  const handleDiscountValueChange = (value) => {
+    setDiscountInput(value);
+
+    if (value === "") {
+      setBillingData((prev) => ({ ...prev, discount: "" }));
+      setDiscountPercentInput("");
+      return;
+    }
+
+    const amount = Math.max(0, Number(value));
+
+    setBillingData((prev) => ({
+      ...prev,
+      discount: amount,
+    }));
+
+    if (baseAmount === 0) return;
+
+    const percent = (amount / baseAmount) * 100;
+    const roundedPercent = Number(percent.toFixed(2));
+
+    setDiscountPercent(roundedPercent);
+    setDiscountPercentInput(roundedPercent.toString());
+  };
+
   const handleGenerateBill = async () => {
     try {
       const payload = {
@@ -132,26 +196,33 @@ const Billing = () => {
         discount: billingData.discount,
         gst: calculations.tax,
         advpay: billingData.advancePaid,
-        ftotal: calculations.grandTotal,
+        ftotal: Math.round(calculations.due),
+        _roomwisedetails: billingData.rooms.map((r) => ({
+          rcid: r.rcid,
+          rent: r.rate,
+          extracost: r.foodCharges + r.laundry + r.extras,
+          stotal:
+            r.rate * billingData.nights + r.foodCharges + r.laundry + r.extras,
+        })),
       };
 
       const res = await axios.post(`/api/v1/Hotel/HotelCreateBill`, payload);
 
       const data = res.data.output.value[0];
 
-      const invoiceData = {
-        ...billingData,
-        ...calculations,
-        invoiceNo: data.invoiceno,
-        email: data.email,
-        date: new Date().toLocaleDateString("en-IN"),
-        paid: false,
-      };
+      if (data) {
+        setGeneratedInvoice({
+          invoiceNo: data.invoiceno,
+        });
+        // setBillStatus("generated");
+        // navigate("/dashboard/billing-list");
 
-      setGeneratedInvoice(invoiceData);
-      setBillStatus("generated");
-
-      toast.success("Bill generated successfully");
+        toast.success("Bill generated successfully");
+      } else {
+        toast.error("Bill already generated");
+      }
+      setShowSuccess(true);
+      setIsBilled(true);
     } catch (err) {
       console.error(err);
       toast.error("Failed to create bill");
@@ -159,27 +230,33 @@ const Billing = () => {
   };
 
   const handleDownloadPdf = async () => {
-    if (!generatedInvoice) {
-      toast.error("Please generate the bill first.");
+    if (!isBilled && !generatedInvoice) {
+      toast.error("Please generate the bill first");
       return;
     }
 
     try {
       setIsGeneratingPdf(true);
 
-      const element = printRef.current;
+      // const element = printRef.current;
 
-      await html2pdf()
-        .set({
-          margin: 0.4,
-          filename: `${generatedInvoice.invoiceNo}.pdf`,
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        })
-        .from(element)
-        .save();
+      // await html2pdf()
+      //   .set({
+      //     margin: 0.4,
+      //     filename: `${generatedInvoice.invoiceNo}.pdf`,
+      //     html2canvas: { scale: 2, useCORS: true },
+      //     jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      //   })
+      //   .from(element)
+      //   .save();
 
-      toast.success("Invoice downloaded successfully");
+      await downloadInvoice(
+        billingData.chkid,
+        axios,
+        generatedInvoice?.invoiceNo,
+      );
+
+      toast.success("Invoice downloaded");
     } catch {
       toast.error("Failed to download invoice");
     } finally {
@@ -187,22 +264,29 @@ const Billing = () => {
     }
   };
 
-  const handleMarkAsPaid = () => {
-    if (!generatedInvoice) return toast.error("Generate bill first");
+  // const handleMarkAsPaid = () => {
+  //   if (!generatedInvoice) return toast.error("Generate bill first");
 
-    setIsPaid(true);
-    setGeneratedInvoice((prev) => ({
-      ...prev,
-      paid: true,
-      paymentDate: new Date().toLocaleDateString("en-IN"),
-    }));
+  //   setIsPaid(true);
+  //   setGeneratedInvoice((prev) => ({
+  //     ...prev,
+  //     paid: true,
+  //     paymentDate: new Date().toLocaleDateString("en-IN"),
+  //   }));
 
-    toast.success("Payment marked as paid");
-  };
+  //   toast.success("Payment marked as paid");
+  // };
 
   return (
     <div className="py-12 px-5">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
+        <button
+          onClick={() => navigate("/dashboard/billing-list")}
+          className=" text-primary-500 flex text-sm"
+        >
+          ← Back to Billing List
+        </button>
+
         {/* Header */}
         <div className="bg-gray-100/40 p-6 rounded-2xl shadow-lg">
           <div className="flex items-center gap-4 mb-6">
@@ -272,8 +356,9 @@ const Billing = () => {
                     <div className="flex justify-between mb-4">
                       <div>
                         <h3 className="font-bold">
-                          Room {room.roomNo} • {room.type}
+                          Room {room.roomNo} • {room.type} • {room.checkOutDate}
                         </h3>
+                        <p className="text-sm text-gray-500"></p>
 
                         <p className="text-sm text-gray-500 flex items-center gap-1">
                           ₹
@@ -394,44 +479,92 @@ const Billing = () => {
             <div className="space-y-4 text-sm">
               <div className="flex justify-between">
                 <span>Room Rent Total</span>
-                <span>₹ {calculations.roomRentTotal}</span>
+                <span>₹ {calculations.roomRentTotal.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
                 <span>Additional Charges</span>
-                <span>₹ {calculations.extrasTotal}</span>
+                <span>₹ {calculations.extrasTotal.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
-                <span>Discount</span>
-                <input
-                  type="number"
-                  value={billingData.discount}
-                  min="0"
-                  onFocus={(e) => {
-                    if (e.target.value === "0") e.target.value = "";
-                  }}
-                  onBlur={(e) => {
-                    if (e.target.value === "") {
-                      setBillingData((prev) => ({ ...prev, discount: 0 }));
-                    }
-                  }}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setBillingData((prev) => ({
-                      ...prev,
-                      discount: value === "" ? "" : Math.max(0, Number(value)),
-                    }));
-                  }}
-                  className="w-24 text-right bg-transparent outline-none"
-                />
+                <span>GST ({billingData.gstPercent}%)</span>
+                <span>₹ {calculations.tax.toFixed(2)}</span>
+              </div>
+
+              <hr />
+
+              <div className="flex justify-between">
+                <p>Subtotal</p>
+                <p>₹ {calculations.subtotal.toFixed(2)}</p>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="flex gap-1 items-center">
+                  <span>Discount</span>
+
+                  {/* % input */}
+                  <div>
+                    <input
+                      type="number"
+                      value={discountPercentInput}
+                      min="0"
+                      placeholder="0"
+                      onChange={(e) =>
+                        handleDiscountPercentChange(e.target.value)
+                      }
+                      className="text-center border-2 rounded-lg bg-white placeholder:text-primary-500 focus:placeholder:text-gray-600 focus:border-primary-500 outline-none"
+                      style={{
+                        width: `${Math.max(discountPercentInput.length, 3)}ch`,
+                        minWidth: "2ch",
+                      }}
+                    />
+
+                    <span>%</span>
+                  </div>
+                </div>
+
+                {/* ₹ input */}
+                <div className="flex items-center gap-1">
+                  - ₹
+                  <input
+                    type="number"
+                    value={discountInput}
+                    min="0"
+                    placeholder="0.00"
+                    onFocus={(e) => {
+                      if (e.target.value === "0") e.target.value = "";
+                    }}
+                    onBlur={() => {
+                      if (discountInput === "") {
+                        handleDiscountValueChange(0);
+                      } else {
+                        // setDiscountInput(Number(discountInput).toFixed(2));
+                        const formatted = Number(discountInput).toFixed(2);
+
+                        setDiscountInput(formatted);
+
+                        setBillingData((prev) => ({
+                          ...prev,
+                          discount: Number(formatted),
+                        }));
+                      }
+                    }}
+                    onChange={(e) => handleDiscountValueChange(e.target.value)}
+                    className="text-right border-2 pr-1 rounded-lg bg-white text-primary-500 focus:text-gray-600 focus:border-primary-500 outline-none"
+                    style={{
+                      width: `${Math.max(discountInput.length, 3)}ch`,
+                      minWidth: "5ch",
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="flex justify-between">
                 <span>Advance Paid</span>
-                <input
+                {/* <input
                   type="number"
-                  value={billingData.advancePaid}
+                  value={billingData.advancePaid.toFixed(2)}
                   min="0"
                   onFocus={(e) => {
                     if (e.target.value === "0") e.target.value = "";
@@ -453,52 +586,55 @@ const Billing = () => {
                     }));
                   }}
                   className="w-24 text-right bg-transparent outline-none"
-                />
+                /> */}
+                <span>- ₹ {billingData.advancePaid.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between">
-                <span>GST ({billingData.gstPercent}%)</span>
-                <span>₹ {calculations.tax}</span>
-              </div>
-
-              <hr />
+              <div className="bg-gray-500 h-px"></div>
 
               <div className="flex justify-between text-lg font-bold text-primary-500">
                 <span>Amount Due</span>
-                <span>₹ {calculations.due}</span>
+                <span>₹ {Math.round(calculations.due).toFixed(2)}</span>
               </div>
             </div>
 
             <div className="mt-6 flex flex-col gap-3">
-              <button
-                onClick={handleGenerateBill}
-                className="w-full bg-primary-500 text-white py-3 rounded-2xl font-bold"
-              >
-                Generate Bill
-              </button>
+              {isBilled || generatedInvoice ? (
+                <button
+                  onClick={handleDownloadPdf}
+                  disabled={isGeneratingPdf}
+                  className="w-full bg-gray-800 text-white py-3 rounded-2xl font-bold"
+                >
+                  {isGeneratingPdf ? "Downloading..." : "Download Invoice"}
+                </button>
+              ) : (
+                <button
+                  onClick={handleGenerateBill}
+                  className="w-full bg-primary-500 text-white py-3 rounded-2xl font-bold"
+                >
+                  Generate Bill
+                </button>
+              )}
 
-              <button
+              {/* <button
                 onClick={handleMarkAsPaid}
                 disabled={isPaid}
                 className="w-full py-3 rounded-2xl font-bold bg-green-500 text-white"
               >
                 Mark as Paid
-              </button>
-
-              <button
-                onClick={handleDownloadPdf}
-                className="w-full bg-gray-800 text-white py-3 rounded-2xl font-bold"
-              >
-                Download Invoice PDF
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
       </div>
 
-      {generatedInvoice && (
-        <div className="fixed -left-[9999px] top-0">
-          <InvoicePrint ref={printRef} invoiceData={generatedInvoice} />
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <BillingSuccess
+            setShowSuccess={setShowSuccess}
+            invoiceNo={generatedInvoice?.invoiceNo}
+            onDownload={handleDownloadPdf}
+          />
         </div>
       )}
     </div>

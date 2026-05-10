@@ -70,7 +70,7 @@ const StayDetails = ({
 
           <div>
             <p className="text-sm mb-0.5 font-medium text-gray-700">
-              Email Address
+              Email Address (Optional)
             </p>
             <input
               className="input"
@@ -156,6 +156,31 @@ const StayDetails = ({
                 onChange={(e) => handleCheckin("stayDuration", e.target.value)}
                 required
               />
+            </div>
+          </div>
+        </div>
+
+        {/* ================= Payment Details ================= */}
+        <div>
+          <h3 className="font-medium text-gray-900 mb-2">Payment Details</h3>
+
+          <div className="grid pl-1 grid-cols-1 gap-2">
+            <div>
+              <p className="text-sm m-0.5 font-medium text-gray-700">
+                Advance Pay (₹)
+              </p>
+              <input
+                type="number"
+                min={0}
+                // step="0.01"
+                className="input"
+                placeholder="Enter amount"
+                value={checkinForm.advancepay || ""}
+                onChange={(e) => handleCheckin("advancepay", e.target.value)}
+              />
+              {/* <p className="text-xs text-gray-500 mt-1">
+                This amount will be deducted from the final bill
+              </p> */}
             </div>
           </div>
         </div>
