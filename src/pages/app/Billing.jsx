@@ -1,9 +1,9 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Receipt } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { useParams } from "react-router-dom";
-import { downloadInvoice } from "../../utils/downloadInvoice.js";
+import { printInvoice } from "../../utils/printInvoice.js";
 import BillingSuccess from "../../components/BillingSuccess.jsx";
 
 const Billing = () => {
@@ -18,6 +18,10 @@ const Billing = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [discountInput, setDiscountInput] = useState("");
   const [discountPercentInput, setDiscountPercentInput] = useState("");
+  const [isGeneratingBill, setIsGeneratingBill] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const firstRoomRentRef = useRef(null);
 
   const { chkid } = useParams();
 
@@ -43,13 +47,15 @@ const Billing = () => {
 
   const fetchBillingData = async () => {
     try {
+      setLoading(true);
+
       const [countRes, roomRes] = await Promise.all([
         axios.get(`/api/v1/Hotel/HotelGetBillingCount/${chkid}`),
         axios.get(`/api/v1/Hotel/HotelGetBillingroomdetails/${chkid}`),
       ]);
 
-      const count = countRes?.data?.output?.value?.[0] || {};
-      const rooms = roomRes?.data?.output?.value || [];
+      const count = countRes?.data?.output?.[0] || {};
+      const rooms = roomRes?.data?.output || [];
 
       const stayPeriodRaw = count?.stayperiod || "";
       const [start, end] = stayPeriodRaw.split("-");
@@ -84,6 +90,8 @@ const Billing = () => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to load billing data");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -188,6 +196,7 @@ const Billing = () => {
   };
 
   const handleGenerateBill = async () => {
+    setIsGeneratingBill(true);
     try {
       const payload = {
         chkid: billingData.chkid,
@@ -208,7 +217,7 @@ const Billing = () => {
 
       const res = await axios.post(`/api/v1/Hotel/HotelCreateBill`, payload);
 
-      const data = res.data.output.value[0];
+      const data = res.data.output[0];
 
       if (data) {
         setGeneratedInvoice({
@@ -226,6 +235,8 @@ const Billing = () => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to create bill");
+    } finally {
+      setIsGeneratingBill(false);
     }
   };
 
@@ -250,7 +261,7 @@ const Billing = () => {
       //   .from(element)
       //   .save();
 
-      await downloadInvoice(
+      await printInvoice(
         billingData.chkid,
         axios,
         generatedInvoice?.invoiceNo,
@@ -277,14 +288,63 @@ const Billing = () => {
   //   toast.success("Payment marked as paid");
   // };
 
+  const hasFocused = useRef(false);
+
+  useEffect(() => {
+    if (billingData.rooms.length > 0 && !hasFocused.current) {
+      firstRoomRentRef.current?.focus();
+      hasFocused.current = true;
+    }
+  }, [billingData.rooms]);
+
+  const RoomBreakdownSkeleton = () => {
+    return (
+      <div className="bg-gray-100/60 p-5 rounded-2xl shadow-md animate-pulse">
+        {/* top */}
+        <div className="flex justify-between mb-4">
+          <div className="space-y-2">
+            <div className="h-5 w-40 bg-gray-300/50 rounded"></div>
+            <div className="h-3 w-28 bg-gray-200/60 rounded"></div>
+            <div className="h-8 w-24 bg-gray-300/40 rounded-lg"></div>
+          </div>
+
+          <div className="space-y-2 flex flex-col items-end">
+            <div className="h-4 w-12 bg-gray-200/60 rounded"></div>
+            <div className="h-5 w-24 bg-gray-300/50 rounded"></div>
+          </div>
+        </div>
+
+        {/* bottom cards */}
+        <div className="grid sm:grid-cols-4 gap-3">
+          {[1, 2, 3, 4].map((item) => (
+            <div
+              key={item}
+              className="bg-white p-3 rounded-xl shadow-sm border border-gray-200"
+            >
+              <div className="space-y-2">
+                <div className="h-3 w-16 bg-gray-200/60 rounded"></div>
+                <div className="h-5 w-full bg-gray-300/50 rounded"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="py-12 px-5">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
         <button
           onClick={() => navigate("/dashboard/billing-list")}
-          className=" text-primary-500 flex text-sm"
+          className=" text-primary-500 flex gap-1 items-center text-sm"
         >
-          ← Back to Billing List
+          <img
+            className="w-4 hover:-translate-x-1 transition-all duration-300"
+            src="/back2.png"
+            alt="back"
+          />
+          <span className="hover:font-medium">Back to Billing List</span>
         </button>
 
         {/* Header */}
@@ -341,134 +401,161 @@ const Billing = () => {
             </h2>
 
             <div className="space-y-4">
-              {billingData.rooms.map((room) => {
-                const roomTotal =
-                  room.rate * billingData.nights +
-                  room.foodCharges +
-                  room.laundry +
-                  room.extras;
+              {loading
+                ? [...Array(3)].map((_, i) => <RoomBreakdownSkeleton key={i} />)
+                : billingData.rooms
+                    .sort((a, b) => a.roomNo - b.roomNo)
+                    .map((room, index) => {
+                      const roomTotal =
+                        room.rate * billingData.nights +
+                        room.foodCharges +
+                        room.laundry +
+                        room.extras;
 
-                return (
-                  <div
-                    key={room.roomNo}
-                    className="bg-gray-100/60 p-5 rounded-2xl shadow-md"
-                  >
-                    <div className="flex justify-between mb-4">
-                      <div>
-                        <h3 className="font-bold">
-                          Room {room.roomNo} • {room.type} • {room.checkOutDate}
-                        </h3>
-                        <p className="text-sm text-gray-500"></p>
+                      return (
+                        <div
+                          key={index}
+                          className="bg-gray-100/60 p-5 rounded-2xl shadow-md"
+                        >
+                          <div className="flex justify-between mb-4">
+                            <div>
+                              <h3 className="font-bold">
+                                Room {room.roomNo} • {room.type}
+                              </h3>
+                              <p className="text-xs text-gray-500 mb-2">
+                                Checked out on {room.checkOutDate}
+                              </p>
 
-                        <p className="text-sm text-gray-500 flex items-center gap-1">
-                          ₹
-                          <input
-                            type="number"
-                            value={room.rate}
-                            min="0"
-                            onFocus={(e) => {
-                              if (e.target.value === "0") e.target.value = "";
-                            }}
-                            onBlur={(e) => {
-                              if (e.target.value === "") {
-                                updateRoom(room.roomNo, "rate", 0);
-                              }
-                            }}
-                            onChange={(e) =>
-                              updateRoom(room.roomNo, "rate", e.target.value)
-                            }
-                            className="w-14 text-primary-500 focus:text-gray-500 rounded-lg text-center border-2 focus:border-primary-500 bg-white outline-none"
-                          />
-                          / night
-                        </p>
-                      </div>
+                              <p className="text-sm text-gray-500 flex items-center gap-1">
+                                ₹
+                                <input
+                                  type="number"
+                                  ref={index === 0 ? firstRoomRentRef : null}
+                                  value={room.rate}
+                                  min="0"
+                                  tabIndex={index * 4 + 1}
+                                  onFocus={(e) => {
+                                    if (e.target.value === "0")
+                                      e.target.value = "";
+                                  }}
+                                  onBlur={(e) => {
+                                    if (e.target.value === "") {
+                                      updateRoom(room.roomNo, "rate", 0);
+                                    }
+                                  }}
+                                  onChange={(e) =>
+                                    updateRoom(
+                                      room.roomNo,
+                                      "rate",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-14 text-primary-500 focus:text-gray-500 rounded-lg text-center border-2 focus:border-primary-500 bg-white outline-none"
+                                />
+                                / night
+                              </p>
+                            </div>
 
-                      <div className="text-right">
-                        <p>Total</p>
-                        <p className="font-bold text-primary-500">
-                          ₹ {roomTotal}
-                        </p>
-                      </div>
-                    </div>
+                            <div className="text-right">
+                              <p>Total</p>
+                              <p className="font-bold text-primary-500">
+                                ₹ {roomTotal}
+                              </p>
+                            </div>
+                          </div>
 
-                    <div className="grid sm:grid-cols-4 gap-3">
-                      <div className="bg-white p-3 rounded-xl shadow-sm">
-                        <p className="text-xs text-gray-500">Room Rent</p>
-                        <p className="font-semibold">
-                          ₹ {room.rate * billingData.nights}
-                        </p>
-                      </div>
+                          <div className="grid sm:grid-cols-4 gap-3">
+                            <div className="bg-white p-3 rounded-xl border-2 hover:border-primary-500 text-primary-500 hover:text-gray-500 shadow-sm">
+                              <p className="text-xs">Room Rent</p>
+                              <p className="font-semibold text-black">
+                                ₹ {room.rate * billingData.nights}
+                              </p>
+                            </div>
 
-                      <div className="bg-white p-3 rounded-xl shadow-sm">
-                        <p className="text-xs text-gray-500">Food</p>
-                        <input
-                          type="number"
-                          value={room.foodCharges}
-                          min="0"
-                          onFocus={(e) => {
-                            if (e.target.value === "0") e.target.value = "";
-                          }}
-                          onBlur={(e) => {
-                            if (e.target.value === "") {
-                              updateRoom(room.roomNo, "foodCharges", 0);
-                            }
-                          }}
-                          onChange={(e) =>
-                            updateRoom(
-                              room.roomNo,
-                              "foodCharges",
-                              e.target.value,
-                            )
-                          }
-                          className="font-semibold w-full bg-transparent outline-none"
-                        />
-                      </div>
+                            <div className="bg-white border-2 hover:border-primary-500 text-primary-500 hover:text-gray-500 p-3 rounded-xl shadow-sm">
+                              <p className="text-xs">Food</p>
+                              <input
+                                type="number"
+                                value={room.foodCharges}
+                                min="0"
+                                tabIndex={index * 4 + 2}
+                                onFocus={(e) => {
+                                  if (e.target.value === "0")
+                                    e.target.value = "";
+                                }}
+                                onBlur={(e) => {
+                                  if (e.target.value === "") {
+                                    updateRoom(room.roomNo, "foodCharges", 0);
+                                  }
+                                }}
+                                onChange={(e) =>
+                                  updateRoom(
+                                    room.roomNo,
+                                    "foodCharges",
+                                    e.target.value,
+                                  )
+                                }
+                                className="font-semibold w-full text-black bg-transparent outline-none"
+                              />
+                            </div>
 
-                      <div className="bg-white p-3 rounded-xl shadow-sm">
-                        <p className="text-xs text-gray-500">Laundry</p>
-                        <input
-                          type="number"
-                          value={room.laundry}
-                          min="0"
-                          onFocus={(e) => {
-                            if (e.target.value === "0") e.target.value = "";
-                          }}
-                          onBlur={(e) => {
-                            if (e.target.value === "") {
-                              updateRoom(room.roomNo, "laundry", 0);
-                            }
-                          }}
-                          onChange={(e) =>
-                            updateRoom(room.roomNo, "laundry", e.target.value)
-                          }
-                          className="font-semibold w-full bg-transparent outline-none"
-                        />
-                      </div>
+                            <div className="bg-white border-2 hover:border-primary-500 text-primary-500 hover:text-gray-500 p-3 rounded-xl shadow-sm">
+                              <p className="text-xs">Laundry</p>
+                              <input
+                                type="number"
+                                value={room.laundry}
+                                min="0"
+                                tabIndex={index * 4 + 3}
+                                onFocus={(e) => {
+                                  if (e.target.value === "0")
+                                    e.target.value = "";
+                                }}
+                                onBlur={(e) => {
+                                  if (e.target.value === "") {
+                                    updateRoom(room.roomNo, "laundry", 0);
+                                  }
+                                }}
+                                onChange={(e) =>
+                                  updateRoom(
+                                    room.roomNo,
+                                    "laundry",
+                                    e.target.value,
+                                  )
+                                }
+                                className="font-semibold w-full text-black bg-transparent outline-none"
+                              />
+                            </div>
 
-                      <div className="bg-white p-3 rounded-xl shadow-sm">
-                        <p className="text-xs text-gray-500">Extras</p>
-                        <input
-                          type="number"
-                          value={room.extras}
-                          min="0"
-                          onFocus={(e) => {
-                            if (e.target.value === "0") e.target.value = "";
-                          }}
-                          onBlur={(e) => {
-                            if (e.target.value === "") {
-                              updateRoom(room.roomNo, "extras", 0);
-                            }
-                          }}
-                          onChange={(e) =>
-                            updateRoom(room.roomNo, "extras", e.target.value)
-                          }
-                          className="font-semibold w-full bg-transparent outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                            <div className="bg-white border-2 hover:border-primary-500 text-primary-500 hover:text-gray-500 p-3 rounded-xl shadow-sm">
+                              <p className="text-xs">Extras</p>
+                              <input
+                                type="number"
+                                value={room.extras}
+                                min="0"
+                                tabIndex={index * 4 + 4}
+                                onFocus={(e) => {
+                                  if (e.target.value === "0")
+                                    e.target.value = "";
+                                }}
+                                onBlur={(e) => {
+                                  if (e.target.value === "") {
+                                    updateRoom(room.roomNo, "extras", 0);
+                                  }
+                                }}
+                                onChange={(e) =>
+                                  updateRoom(
+                                    room.roomNo,
+                                    "extras",
+                                    e.target.value,
+                                  )
+                                }
+                                className="font-semibold text-black w-full bg-transparent outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
             </div>
           </div>
 
@@ -492,7 +579,7 @@ const Billing = () => {
                 <span>₹ {calculations.tax.toFixed(2)}</span>
               </div>
 
-              <hr />
+              <div className="border-t border-dashed border-gray-400"></div>
 
               <div className="flex justify-between">
                 <p>Subtotal</p>
@@ -520,7 +607,7 @@ const Billing = () => {
                       }}
                     />
 
-                    <span>%</span>
+                    <span className="ml-1">%</span>
                   </div>
                 </div>
 
@@ -590,7 +677,7 @@ const Billing = () => {
                 <span>- ₹ {billingData.advancePaid.toFixed(2)}</span>
               </div>
 
-              <div className="bg-gray-500 h-px"></div>
+              <div className="bg-gray-400 h-px"></div>
 
               <div className="flex justify-between text-lg font-bold text-primary-500">
                 <span>Amount Due</span>
@@ -603,16 +690,30 @@ const Billing = () => {
                 <button
                   onClick={handleDownloadPdf}
                   disabled={isGeneratingPdf}
-                  className="w-full bg-gray-800 text-white py-3 rounded-2xl font-bold"
+                  className="w-full bg-gray-800 text-white py-3 flex justify-center rounded-full font-bold"
                 >
-                  {isGeneratingPdf ? "Downloading..." : "Download Invoice"}
+                  {isGeneratingPdf ? (
+                    <div className="flex gap-2 items-center">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Downloading..</span>
+                    </div>
+                  ) : (
+                    "Download Invoice"
+                  )}
                 </button>
               ) : (
                 <button
                   onClick={handleGenerateBill}
-                  className="w-full bg-primary-500 text-white py-3 rounded-2xl font-bold"
+                  className="w-full bg-primary-500 text-white py-3 flex justify-center rounded-full font-bold"
                 >
-                  Generate Bill
+                  {isGeneratingBill ? (
+                    <div className="flex gap-2 items-center">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Generating..</span>
+                    </div>
+                  ) : (
+                    "Generate Bill"
+                  )}
                 </button>
               )}
 
@@ -634,6 +735,7 @@ const Billing = () => {
             setShowSuccess={setShowSuccess}
             invoiceNo={generatedInvoice?.invoiceNo}
             onDownload={handleDownloadPdf}
+            isGeneratingPdf={isGeneratingPdf}
           />
         </div>
       )}

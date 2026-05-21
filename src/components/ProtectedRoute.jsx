@@ -5,9 +5,9 @@ import Loader from "../components/Loader"
 const ProtectedRoute = ({ children }) => {
   const { user, authLoading } = useAppContext();
 
-  if (authLoading) {
-    return <Loader />;
-  }
+  // if (authLoading) {
+  //   return <Loader />;
+  // }
 
   if (!user) {
     return <Navigate to="/" replace />;

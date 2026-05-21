@@ -43,7 +43,7 @@ const Navbar = () => {
     };
   }, []);
 
-  if (authLoading) return <Loader />;
+  // if (authLoading) return <Loader />;
 
   return (
     <div className="fixed top-0 w-full z-30">
@@ -145,7 +145,7 @@ const Navbar = () => {
                     </div>
                   </button> */}
                     {showProfileMenu && (
-                      <div className="absolute w-64 top-10 -right-0 shadow-md border p-5 rounded-xl z-40 text-sm bg-gray-100/80 transition-all backdrop-blur-xl border-b border-gray-100/10 opacity-0 fade-in-fast">
+                      <div className="absolute w-64 top-10 -right-0 shadow-md border p-5 rounded-xl z-40 text-sm bg-white/60 transition-all backdrop-blur-xl border-b border-gray-100/10 opacity-0 fade-in-fast">
                         <ul className="flex flex-col w-50">
                           <li className="p-1.5 pl-3">
                             <p className="text-lg font-semibold text-primary-500">

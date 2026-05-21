@@ -38,8 +38,6 @@ const RoomAllocation = ({ value, onChange }) => {
       setRoomTypesLoading(true);
       const res = await axios.get("/api/v1/Hotel/HotelGetRoomType");
 
-      console.log(res)
-
       if (res.status === 200) {
         setRoomTypes(res.data.output);
       } else {
@@ -69,12 +67,12 @@ const RoomAllocation = ({ value, onChange }) => {
         }));
       } else {
         closePanel();
-        toast.error("No room found");
+        toast.error("No room(s) available..");
       }
     } catch (error) {
       console.log(error);
       closePanel();
-      toast.error("No room found");
+      toast.error("No room(s) available..");
     } finally {
       setRoomsLoadingByType((prev) => ({ ...prev, [typeId]: false }));
     }
@@ -255,7 +253,7 @@ const RoomAllocation = ({ value, onChange }) => {
                 }}
                 type="button"
                 onClick={() => openPanel(typeObj)}
-                className={`px-3 py-1.5 rounded-lg shadow-md text-sm border-2 transition ${
+                className={`px-3 py-1.5 rounded-xl shadow-md text-sm border-2 transition ${
                   activeAllocation?.typeId === typeObj.TypeId
                     ? "bg-primary-500 text-white border-primary-500"
                     : selectedTypeIds.has(typeObj.TypeId)
@@ -276,7 +274,7 @@ const RoomAllocation = ({ value, onChange }) => {
                     top: y ?? 0,
                     left: x ?? 0,
                   }}
-                  className={`z-50 fade-in w-[280px] bg-gray-50 border rounded-xl shadow-xl p-4
+                  className={`z-50 fade-in w-[280px] bg-gray-50 border-2 rounded-2xl shadow-xl p-4
                   
                 `}
                   // style={{ left: "50%", transform: "translateX(-50%)" }}
@@ -305,7 +303,7 @@ const RoomAllocation = ({ value, onChange }) => {
                     onChange={(e) =>
                       setSearch((p) => ({ ...p, [panelKey]: e.target.value }))
                     }
-                    className="w-full mb-3 px-3 py-2 border-2 rounded-lg text-sm"
+                    className="w-full mb-3 px-3 py-2 border-2 placeholder:text-primary-500 focus:border-primary-500 focus:placeholder:text-gray-400 outline-none rounded-xl text-sm"
                   />
 
                   {/* FLOOR FILTER */}
@@ -371,7 +369,7 @@ const RoomAllocation = ({ value, onChange }) => {
                                   ? "opacity-40 cursor-not-allowed hover:bg-gray-200"
                                   : selected
                                     ? "bg-primary-200/50"
-                                    : "cursor-pointer hover:bg-primary-100/40"
+                                    : "cursor-pointer hover:bg-primary-200/30"
                               }`}
                             >
                               <div className="flex gap-1 items-center">

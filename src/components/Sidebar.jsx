@@ -128,19 +128,39 @@ const Sidebar = () => {
           </div>
         </button>
 
-        {/* Add Rooms */}
+        {/* Manage Room */}
         <button
-          onClick={() => setShowAddRoom(true)}
-          className="my-1 flex items-center gap-1.5"
+          onClick={() => navigate("/dashboard/manage-room")}
+          className={`my-1 flex items-center gap-1.5 rounded-full ${
+            isActive("/dashboard/manage-room") && "pl-1 bg-primary-500"
+          }`}
         >
           <div
-            className={`bg-white/70 rounded-full p-2 shadow-lg transition-transform hover:scale-110 duration-300 ease-in-out`}
+            className={`${
+              isActive("/dashboard/manage-room")
+                ? "slide-in-right"
+                : "transition-transform hover:scale-110 duration-300 ease-in-out"
+            } bg-white/70 rounded-full p-2 shadow-lg`}
           >
-            <img className="w-4 h-4" src="/add_room.svg" alt="add_room" />
+            <img className="w-4 h-4" src="/add_room.svg" alt="manage_room" />
           </div>
 
-          <div className="rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg transition-transform hover:scale-105 duration-300 ease-in-out">
-            <p className="text-gray-800 font-medium text-left">Add New Room</p>
+          <div
+            className={`${
+              isActive("/dashboard/manage-room")
+                ? "transform-none hover:transform-none fade-in"
+                : "transition-transform duration-300 ease-in-out hover:scale-105"
+            } rounded-full flex-1 bg-white/70 px-4 py-2 shadow-lg`}
+          >
+            <p
+              className={`${
+                isActive("/dashboard/manage-room")
+                  ? "text-primary-500"
+                  : "text-gray-800"
+              } font-medium text-left`}
+            >
+              Manage Room
+            </p>
           </div>
         </button>
 

@@ -359,7 +359,7 @@ const Subscription = () => {
             {/* CTA */}
             <button
               onClick={handleContactSupport}
-              className="w-full mt-3 bg-primary-500 text-white py-2.5 rounded-lg font-medium hover:scale-[1.02] transition"
+              className="w-full mt-3 bg-primary-500 text-white py-2.5 rounded-full font-medium hover:scale-[1.02] transition"
             >
               {selectedPlan === "starter"
                 ? "Continue with Free"

@@ -144,7 +144,7 @@ const AddRoom = () => {
                   value={newRoomType}
                   onChange={(e) => setNewRoomType(e.target.value)}
                   required
-                  className="w-full mt-1 p-2 border-2 rounded-lg shadow-sm outline-none focus:border-primary-500"
+                  className="w-full mt-1 p-2 border-2 rounded-lg placeholder:text-primary-500 focus:placeholder:text-gray-500/90 shadow-sm outline-none focus:border-primary-500"
                   placeholder="e.g. Suite"
                 />
               </div>
@@ -159,7 +159,7 @@ const AddRoom = () => {
                   value={rent}
                   onChange={(e) => setRent(e.target.value)}
                   required
-                  className="w-full mt-1 p-2 border-2 rounded-lg shadow-sm outline-none focus:border-primary-500"
+                  className="w-full mt-1 p-2 border-2 rounded-lg placeholder:text-primary-500 focus:placeholder:text-gray-500/90 shadow-sm outline-none focus:border-primary-500"
                   placeholder="e.g. 1500"
                 />
               </div>
@@ -172,10 +172,9 @@ const AddRoom = () => {
                 >
                   Cancel
                 </button>
-
                 <button
                   disabled={loading}
-                  className="px-5 py-2.5 bg-primary-500 text-white rounded-lg shadow-md hover:bg-primary-500 disabled:bg-gray-300"
+                  className="px-6 py-2 bg-primary-500 text-white rounded-full shadow-md hover:scale-105 transition duration-300 ease-in-out disabled:bg-gray-300"
                 >
                   {loading ? (
                     <div className="flex gap-2 items-center">
@@ -367,7 +366,7 @@ const AddRoom = () => {
                 <button
                   type="submit"
                   disabled={roomLoading}
-                  className="px-5 bg-primary-500 text-white rounded-lg shadow-md hover:bg-primary-500 disabled:bg-gray-300"
+                  className="px-6 py-2 bg-primary-500 text-white rounded-full shadow-md hover:scale-105 transition duration-300 ease-in-out disabled:bg-gray-300"
                 >
                   {roomLoading ? (
                     <div className="flex gap-2 items-center">

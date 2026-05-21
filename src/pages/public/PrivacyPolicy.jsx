@@ -15,7 +15,7 @@ const PrivacyPolicy = () => {
         </header>
 
         {/* Intro */}
-        <section className="space-y-4">
+        <section className="space-y-2">
           <p>
             This Privacy Policy explains the company’s commitment towards
             managing Your personal information and sets out how and when
@@ -46,7 +46,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Scope */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">Scope of this Policy</h2>
           <p>
             This Privacy Policy applies to current and former users of the
@@ -63,7 +63,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Who we are */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">Who are we?</h2>
           <p>
             inndez is a talent platform operating an online employment
@@ -77,7 +77,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Personal Information */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">
             What Personal Information do we collect?
           </h2>
@@ -103,7 +103,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Sensitive Information */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">
             Do we collect Sensitive Information?
           </h2>
@@ -115,7 +115,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Express Consent */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">Express Consent</h2>
           <p>
             By using the platform, you expressly consent to the collection,
@@ -130,7 +130,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Cookies */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">
             Cookies & Online Advertising
           </h2>
@@ -153,7 +153,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Security */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">
             How do we keep your information secure?
           </h2>
@@ -168,7 +168,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Retention */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">
             Retention and Storage of PII
           </h2>
@@ -183,7 +183,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Withdrawal */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">
             Withdrawal of Consent (Opt-out)
           </h2>
@@ -199,7 +199,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Legal */}
-        <section className="mt-10 space-y-4">
+        <section className="mt-5 space-y-2">
           <h2 className="text-xl font-semibold">
             Legal & Contact Information
           </h2>
@@ -217,7 +217,7 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Footer */}
-        <footer className="mt-16 border-t pt-6 text-sm text-gray-500">
+        <footer className="mt-5 border-t pt-6 text-sm text-gray-500">
           <p>
             By continuing to use our platform, you acknowledge that you have
             read, understood, and agreed to this Privacy Policy.

@@ -27,15 +27,18 @@ import Loader from "./components/Loader";
 import Subscription from "./components/Subscription";
 import Billing from "./pages/app/Billing";
 import BillingList from "./pages/app/BillingList";
+import ManageRoom from "./pages/app/ManageRoom";
 
 const App = () => {
-  const { user, showAddRoom, showChangePassword, showLogin, globalLoader, showSubscription } = useAppContext();
+  const { user, showAddRoom, showChangePassword, showLogin, globalLoader, showSubscription, authLoading } = useAppContext();
 
   const location = useLocation();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
+
+  if (authLoading) return <Loader />;
 
   return (
     <div className="md:bg-gray-300/40">
@@ -80,6 +83,7 @@ const App = () => {
             <Route path="checkin" element={<CheckIn />} />
             <Route path="billing-list" element={<BillingList />} />
             <Route path="billing/:chkid" element={<Billing />} />
+            <Route path="manage-room" element={<ManageRoom />} />
           </Route>
           <Route path="/chgpass" element={<ResetPassword />} />
           <Route path="/support" element={<Support />} />

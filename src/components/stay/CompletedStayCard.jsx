@@ -3,6 +3,7 @@ import { useAppContext } from "../../context/AppContext";
 import { downloadInvoice } from "../../utils/downloadInvoice";
 import MemberCard from "./MemberCard";
 import MemberSkeleton from "./MemberSkeleton";
+import { useState } from "react";
 
 const CompletedStayCard = ({
   stay,
@@ -13,18 +14,22 @@ const CompletedStayCard = ({
 }) => {
 
   const {navigate, axios} = useAppContext();
+  const [loading, setLoading] = useState(null);
 
-  const handlePrint = async (chkid, invoiceno) => {
+  const handleDownload = async (chkid, invoiceno) => {
   try {
-    await downloadInvoice(chkid, axios, invoiceno);
+    setLoading(chkid);
+    await downloadInvoice(axios, invoiceno);
     toast.success("Invoice downloaded");
   } catch (err) {
     toast.error("Download failed");
+  } finally {
+    setLoading(null);
   }
 };
   
   return (
-    <div className="bg-gray-200/40 p-5 lg:p-7 rounded-3xl mb-6 relative shadow-md hover:shadow-lg hover:scale-105 duration-300 ease-in-out transition-all opacity-0 animate-[fadeIn_0.4s_ease-out_forwards]">
+    <div className="bg-gray-200/40 p-5 lg:p-7 rounded-3xl mb-6 relative shadow-md overflow-hidden hover:shadow-lg hover:scale-105 duration-300 ease-in-out transition-all opacity-0 animate-[fadeIn_0.4s_ease-out_forwards]">
       {/* Stay Details */}
       <div className="mb-2">
         <p>
@@ -45,7 +50,7 @@ const CompletedStayCard = ({
         <p>
           <b>Email:</b> {stay.email}
         </p>
-        <p>
+        <p className="break-all">
           <b>Address:</b> {stay.Address}
         </p>
         <p>
@@ -98,15 +103,23 @@ const CompletedStayCard = ({
       <div className="border-t pt-4 flex justify-end gap-3 mt-3">
         {stay.isBilled ? (
           <button
-            onClick={() => handlePrint(stay.chkid, stay.invoiceno)}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg"
+            onClick={() => handleDownload(stay.chkid, stay.invoiceno)}
+            disabled={loading === stay.chkid}
+            className="px-4 py-2 border-2 border-primary-500 text-primary-500 rounded-full shadow-lg hover:bg-primary-100/50"
           >
-            Print Invoice
+            {loading === stay.chkid ? (
+              <div className="flex gap-2 items-center">
+                <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></span>
+                <span>Downloading...</span>
+              </div>
+            ) : (
+              "Download Invoice"
+            )}
           </button>
         ) : (
           <button
             onClick={() => navigate(`/dashboard/billing/${stay.chkid}`)}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg"
+            className="px-4 py-2 bg-primary-500 shadow-lg text-white rounded-full hover:scale-105 transition-all duration-300"
           >
             Generate Bill
           </button>

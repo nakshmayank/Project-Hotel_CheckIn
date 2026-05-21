@@ -1,8 +1,8 @@
-export const downloadInvoice = async (chkid, axios, invoiceNo = null) => {
+export const downloadInvoice = async (axios, invoiceNo) => {
 
   try {
     const res = await axios.get(
-      `/api/v1/Hotel/HotelPrintInvoice/${chkid}`,
+      `/api/v1/Hotel/HotelDownloadInvoice/${invoiceNo}`,
       {
         responseType: "blob",
       }
@@ -14,9 +14,7 @@ export const downloadInvoice = async (chkid, axios, invoiceNo = null) => {
     const link = document.createElement("a");
     link.href = url;
 
-    link.download = invoiceNo
-      ? `invoice_${invoiceNo}.pdf`
-      : `invoice_${chkid}.pdf`;
+    link.download = `invoice_${invoiceNo}.pdf`;
 
     document.body.appendChild(link);
     link.click();

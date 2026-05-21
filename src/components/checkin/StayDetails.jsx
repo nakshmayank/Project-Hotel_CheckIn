@@ -33,6 +33,7 @@ const StayDetails = ({
                 placeholder="Enter full name"
                 value={checkinForm.fullName}
                 type="text"
+                tabIndex={1}
                 // onFocus={(e) =>
                 //   (e.target.placeholder = "Enter email address")
                 // }
@@ -56,6 +57,7 @@ const StayDetails = ({
                 inputMode="numeric"
                 pattern="[0-9]{10}"
                 maxLength={10}
+                tabIndex={2}
                 // onFocus={(e) =>
                 //   (e.target.placeholder = "Enter email address")
                 // }
@@ -77,6 +79,7 @@ const StayDetails = ({
               placeholder="Enter email address"
               value={checkinForm.email}
               type="email"
+              tabIndex={3}
               // onFocus={(e) =>
               //   (e.target.placeholder = "Enter email address")
               // }
@@ -96,6 +99,7 @@ const StayDetails = ({
               className="input resize-none"
               placeholder="Enter residential address"
               value={checkinForm.address}
+              tabIndex={4}
               // onFocus={(e) =>
               //   (e.target.placeholder = "Enter residential address")
               // }
@@ -125,6 +129,7 @@ const StayDetails = ({
                 placeholder="Enter number of members"
                 value={checkinForm.noOfMember}
                 disabled={members.length > 0}
+                tabIndex={5}
                 // onFocus={(e) =>
                 //   (e.target.placeholder = "Enter number of members")
                 // }
@@ -147,6 +152,7 @@ const StayDetails = ({
                 className="input"
                 placeholder="Enter stay duration"
                 value={checkinForm.stayDuration}
+                tabIndex={6}
                 // onFocus={(e) =>
                 //   (e.target.placeholder = "Enter stay duration")
                 // }
@@ -175,6 +181,7 @@ const StayDetails = ({
                 // step="0.01"
                 className="input"
                 placeholder="Enter amount"
+                tabIndex={7}
                 value={checkinForm.advancepay || ""}
                 onChange={(e) => handleCheckin("advancepay", e.target.value)}
               />
@@ -207,7 +214,7 @@ const StayDetails = ({
         </label>
       </div>
       <div className="flex justify-end">
-        <button className="px-5 py-3 font-semibold rounded-xl bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer">
+        <button className="px-5 py-2.5 font-semibold rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer">
           {addingStay ? (
             <div className="flex justify-center items-center gap-2">
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

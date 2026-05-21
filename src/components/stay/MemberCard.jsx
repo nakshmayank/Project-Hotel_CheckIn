@@ -1,5 +1,6 @@
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
+import { useState } from "react";
 
 const Gender = {
   M: "Male",
@@ -18,13 +19,18 @@ const ID_TYPE = {
 const MemberCard = ({ member }) => {
   const { axios } = useAppContext();
 
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const viewId = async () => {
-
+    setIsDownloading(true);
     try {
-      const { data } = await axios.get(`/api/v1/Hotel/mf/${member.IDFilename}`, {
-        responseType: "blob",
-      });
-
+      // console.log(member.IDFilename);
+      const { data } = await axios.get(
+        `/api/v1/Hotel/mf/${member.IDFilename}`,
+        {
+          responseType: "blob",
+        },
+      );
       const blob = new Blob([data], { type: "application/pdf" });
 
       const url = window.URL.createObjectURL(blob);
@@ -43,6 +49,8 @@ const MemberCard = ({ member }) => {
     } catch (error) {
       toast.error("No record found");
       console.log(error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -71,7 +79,15 @@ const MemberCard = ({ member }) => {
             onClick={viewId}
             className="text-primary-500 text-sm font-medium hover:underline"
           >
-            View ID
+            {isDownloading ? (
+              <div className="flex gap-2 items-center">
+                
+                <span>Downloading..</span>
+                <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></span>
+              </div>
+            ) : (
+              "View ID"
+            )}
           </button>
         )}
       </p>

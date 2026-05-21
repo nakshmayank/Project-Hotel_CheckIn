@@ -10,11 +10,11 @@ import {
 const Contact = () => {
   return (
     <div className="py-16 pt-28 px-4 md:px-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center">
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">Contact</h1>
-          <p className="mt-2 text-gray-600 max-w-xl mx-auto">
+          <p className="mt-2 text-gray-600 max-w-3xl">
             Support channels for operational assistance and system-related
             issues. This application is monitored to ensure reliable daily use.
           </p>

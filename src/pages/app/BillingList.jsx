@@ -14,9 +14,10 @@ const BillingList = () => {
   const { axios, navigate } = useAppContext();
 
   const [stays, setStays] = useState([]);
-  const [filter, setFilter] = useState("ALL");
+  const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(null);
 
   useEffect(() => {
     fetchStays();
@@ -50,11 +51,11 @@ const BillingList = () => {
 
   // 🔍 FILTER + SEARCH
   const filtered = stays.filter((s) => {
-
     // console.log(s.RoomType)
     const match =
       s.name?.toLowerCase().includes(search.toLowerCase()) ||
-      s.mobile?.includes(search) || s.RoomType?.includes(search);
+      s.mobile?.includes(search) ||
+      s.RoomType?.includes(search);
 
     if (filter === "Paid") return s.isBilled && match;
     if (filter === "Unpaid") return !s.isBilled && match;
@@ -62,25 +63,85 @@ const BillingList = () => {
     return match;
   });
 
-  const handlePrint = async (chkid, invoiceNo) => {
-  try {
-    await downloadInvoice(chkid, axios, invoiceNo);
-    toast.success("Invoice downloaded");
-  } catch (err) {
-    toast.error("Failed to download invoice");
-  }
-};
+  const handleDownload = async (chkid, invoiceno) => {
+    setIsDownloading(chkid);
+    try {
+      await downloadInvoice(axios, invoiceno);
+      toast.success("Invoice downloaded");
+    } catch (err) {
+      toast.error("Failed to download invoice");
+    } finally {
+      setIsDownloading(null);
+    }
+  };
 
   // 📊 SUMMARY
   const totalRevenue = stays.reduce((sum, s) => sum + s.finaltotal, 0);
   const paid = stays.filter((s) => s.isBilled).length;
   const unpaid = stays.filter((s) => !s.isBilled).length;
 
+  const BillingRowSkeleton = () => {
+    return (
+      <tr className="border-b border-gray-300/30 animate-pulse">
+        <td className="p-4">
+          <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
+        </td>
+
+        <td className="p-4">
+          <div className="space-y-2">
+            <div className="h-4 w-32 bg-gray-300/50 rounded"></div>
+            <div className="h-3 w-24 bg-gray-200/60 rounded"></div>
+          </div>
+        </td>
+
+        <td className="p-4">
+          <div className="h-4 w-28 bg-gray-300/50 rounded"></div>
+        </td>
+
+        <td className="p-4">
+          <div className="h-4 w-40 bg-gray-300/50 rounded"></div>
+        </td>
+
+        <td className="p-4">
+          <div className="h-4 w-24 bg-gray-300/50 rounded"></div>
+        </td>
+
+        <td className="p-4">
+          <div className="h-7 w-20 bg-gray-300/50 rounded-full"></div>
+        </td>
+
+        <td className="p-4 text-right">
+          <div className="h-4 w-24 bg-gray-300/50 rounded ml-auto"></div>
+        </td>
+      </tr>
+    );
+  };
+
+  const BillingCardSkeleton = () => {
+    return (
+      <div className="bg-gray-100/40 p-4 rounded-2xl shadow-md animate-pulse">
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
+            <div className="h-4 w-28 bg-gray-300/50 rounded"></div>
+            <div className="h-3 w-40 bg-gray-200/60 rounded"></div>
+          </div>
+
+          <div className="space-y-2 flex flex-col items-end">
+            <div className="h-4 w-16 bg-gray-300/50 rounded"></div>
+            <div className="h-6 w-14 bg-gray-300/50 rounded-full"></div>
+            <div className="h-3 w-20 bg-gray-200/60 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="py-12 px-5">
       <div className="mx-auto flex flex-col gap-6">
         {/* 🔷 HEADER */}
-        <div className="bg-gray-100/40 p-6 rounded-2xl shadow-lg flex items-center gap-4">
+        <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center shadow-md">
             <Receipt className="text-white" size={26} />
           </div>
@@ -132,7 +193,7 @@ const BillingList = () => {
                 className={`px-3 py-1.5 rounded-full text-sm shadow-md transition ${
                   filter === f
                     ? "bg-primary-500 text-white scale-105"
-                    : "bg-gray-200/60 hover:scale-95"
+                    : "bg-white border-2 hover:border-primary-500 hover:scale-95"
                 }`}
               >
                 {f}
@@ -141,7 +202,10 @@ const BillingList = () => {
           </div>
 
           <div className="flex items-center gap-2 border-2 hover:border-primary-500 bg-gray-100/60 px-4 py-1.5 rounded-full shadow-md">
-            <Search size={16} className="text-gray-500 hover:text-primary-500" />
+            <Search
+              size={16}
+              className="text-gray-500 hover:text-primary-500"
+            />
             <input
               type="text"
               placeholder="Search by room, guest or mobile..."
@@ -176,11 +240,7 @@ const BillingList = () => {
 
               <tbody>
                 {loading ? (
-                  <tr>
-                    <td colSpan="7" className="p-6 text-center text-gray-500">
-                      Loading...
-                    </td>
-                  </tr>
+                  [...Array(6)].map((_, i) => <BillingRowSkeleton key={i} />)
                 ) : filtered.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="p-6 text-center text-gray-500">
@@ -214,7 +274,9 @@ const BillingList = () => {
                         </span>
                       </td>
 
-                      <td className="p-4 font-medium">₹ {s.finaltotal.toFixed(2)}</td>
+                      <td className="p-4 font-medium">
+                        ₹ {s.finaltotal.toFixed(2)}
+                      </td>
 
                       <td className="p-4">
                         {s.isBilled ? (
@@ -230,10 +292,21 @@ const BillingList = () => {
                         )}
                       </td>
 
-                      <td className="p-4 text-right">
+                      <td className="p-4 font-medium text-right">
                         {s.isBilled ? (
-                          <button onClick={() => handlePrint(s.chkid, s.invoiceno)} className="hover:underline text-sm">
-                            Print Invoice
+                          <button
+                            onClick={() => {handleDownload(s.chkid, s.invoiceno)}}
+                            className="hover:underline text-sm disabled:opacity-60"
+                            disabled={isDownloading === s.chkid}
+                          >
+                            {isDownloading === s.chkid ? (
+                              <div className="flex gap-2 items-center">
+                                <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></span>
+                                <span>Downloading..</span>
+                              </div>
+                            ) : (
+                              "Download Invoice"
+                            )}
                           </button>
                         ) : (
                           <button
@@ -255,58 +328,71 @@ const BillingList = () => {
 
           {/* 🔷 MOBILE LIST VIEW */}
           <div className="md:hidden space-y-3">
-            {filtered.map((s) => (
-              <div
-                key={s.chkid}
-                className="bg-gray-100/40 p-4 rounded-2xl shadow-md flex justify-between items-center"
-              >
-                {/* LEFT */}
-                <div>
-                  <p className="font-semibold text-sm text-gray-900">
-                    STY-{s.chkid}
-                  </p>
-                  <p className="text-sm">{s.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(s.chkindate).toLocaleDateString()} -{" "}
-                    {new Date(s.chkoutdate).toLocaleDateString()}
-                  </p>
-                </div>
+            {loading
+              ? [...Array(4)].map((_, i) => <BillingCardSkeleton key={i} />)
+              : filtered.map((s) => (
+                  <div
+                    key={s.chkid}
+                    className="bg-gray-100/40 p-4 rounded-2xl shadow-md flex justify-between items-center"
+                  >
+                    {/* LEFT */}
+                    <div>
+                      <p className="font-semibold text-sm text-gray-900">
+                        STY-{s.chkid}
+                      </p>
+                      <p className="text-sm">{s.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(s.chkindate).toLocaleDateString()} -{" "}
+                        {new Date(s.chkoutdate).toLocaleDateString()}
+                      </p>
+                    </div>
 
-                {/* RIGHT */}
-                <div className="text-right">
-                  <p className="font-semibold text-primary-500 text-sm">
-                    ₹ {s.amount}
-                  </p>
+                    {/* RIGHT */}
+                    <div className="text-right">
+                      <p className="font-semibold text-primary-500 text-sm">
+                        ₹ {s.finaltotal.toFixed(2)}
+                      </p>
 
-                  {s.isBilled ? (
-                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-600">
-                      Paid
-                    </span>
-                  ) : (
-                    <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">
-                      Pending
-                    </span>
-                  )}
+                      {s.isBilled ? (
+                        <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-600">
+                          Paid
+                        </span>
+                      ) : (
+                        <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">
+                          Pending
+                        </span>
+                      )}
 
-                  <div>
-                    {s.isBilled ? (
-                      <button onClick={()=>handlePrint(s.chkid, s.invoiceno)} className="text-xs mt-1">
-                        Print Invoice
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() =>
-                          navigate(`/dashboard/billing/${s.chkid}`)
-                        }
-                        className="text-xs mt-1"
-                      >
-                        Generate Bill
-                      </button>
-                    )}
+                      <div className="font-medium">
+                        {s.isBilled ? (
+                          <button
+                            onClick={() => handleDownload(s.chkid, s.invoiceno)}
+                            className="text-xs mt-1 hover:underline disbaled:opacity-60"
+                            disabled={isDownloading === s.chkid}
+                          >
+                            {isDownloading === s.chkid ? (
+                              <div className="flex gap-2 items-center">
+                                <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></span>
+                                <span>Downloading..</span>
+                              </div>
+                            ) : (
+                              "Download Invoice"
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              navigate(`/dashboard/billing/${s.chkid}`)
+                            }
+                            className="text-xs hover:underline mt-1"
+                          >
+                            Generate Bill
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                ))}
           </div>
         </div>
       </div>

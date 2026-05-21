@@ -69,20 +69,20 @@ const Services = () => {
 
   return (
     <div className="py-12 pt-28 px-4 md:px-8">
-      <div className="max-w-5xl mx-auto space-y-12">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* Header - Matches Contact.jsx / About.jsx */}
         <div className="text-left">
           <h1 className="text-3xl font-bold text-gray-900">
             Services
           </h1>
-          <p className="mt-2 text-gray-600 max-w-2xl">
+          <p className="mt-2 text-gray-600 max-w-3xl">
             A set of carefully designed features that support smooth hotel
             operations from check-in to check-out.
           </p>
         </div>
 
         {/* Free Operations Section - Matches About.jsx card style */}
-        <div className="space-y-6">
+        <div className="space-y-3">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             Core Operations{" "}
             <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded uppercase">
@@ -114,7 +114,7 @@ const Services = () => {
         </div>
 
         {/* Premium Section - Matches Support.jsx grid style */}
-        <div className="space-y-6">
+        <div className="space-y-3">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             Advanced Management{" "}
             <span className="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded uppercase flex items-center gap-1">
@@ -163,7 +163,7 @@ const Services = () => {
           </div>
           <button
             onClick={() => setShowSubscription(true)}
-            className="flex items-center gap-2 bg-white text-primary-500 font-bold py-3 px-6 rounded-xl hover:scale-105 duration-300 ease-in-out transition shadow-lg whitespace-nowrap active:scale-95"
+            className="flex items-center gap-2 bg-white text-primary-500 font-bold py-3 px-6 rounded-full hover:scale-105 duration-300 ease-in-out transition shadow-lg whitespace-nowrap active:scale-95"
           >
             Upgrade Now
             <ArrowRight className="text-gray-900" size={18} />

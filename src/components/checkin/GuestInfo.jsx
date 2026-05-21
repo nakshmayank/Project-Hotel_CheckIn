@@ -100,7 +100,7 @@ const GuestInfo = ({checkinForm, handleCheckin, creatingCheckin, createCheckin})
       </div>
       <div className="flex justify-end">
         <button
-          className={`px-5 py-3 font-semibold rounded-xl bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer`}
+          className={`px-5 py-3 font-semibold rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-500 hover:shadow-xl hover:scale-105 transition-all ease-in-out duration-300 cursor-pointer`}
         >
           {creatingCheckin ? (
             <div className="flex justify-center items-center gap-2">

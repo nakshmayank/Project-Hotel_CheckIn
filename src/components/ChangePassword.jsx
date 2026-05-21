@@ -158,7 +158,7 @@ const ChangePassword = () => {
               >
                 Maybe Later
               </button>
-              <button className="bg-primary-500/80 shadow-md hover:scale-105 duration-300 transition-transform ease-in-out hover:bg-primary-500 hover:shadow-lg text-white px-5 p-2 rounded-lg font-semibold">
+              <button className="bg-primary-500/80 shadow-md hover:scale-105 duration-300 transition-transform ease-in-out hover:bg-primary-500 hover:shadow-lg text-white px-5 py-2 rounded-full font-semibold">
               <span>
                 
               </span>

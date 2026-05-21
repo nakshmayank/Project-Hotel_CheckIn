@@ -2,11 +2,23 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import RoomAllocation from "../RoomAllocation";
 
-const ModifyStay = ({ stay, onClose, onSuccess }) => {
-  const [closing, setClosing] = useState(false);
+const ModifyStay = ({ stay, open, onClose, onSuccess }) => {
+  // const [closing, setClosing] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [stayDuration, setStayDuration] = useState(stay?.Noofstay || 1);
+
+  const [animateDrawer, setAnimateDrawer] = useState(false);
+
+useEffect(() => {
+  if (open) {
+    requestAnimationFrame(() => {
+      setAnimateDrawer(true);
+    });
+  } else {
+    setAnimateDrawer(false);
+  }
+}, [open]);
 
   const minStayDuration = useMemo(() => {
     if (!stay?.chkindate) return 1;
@@ -73,31 +85,37 @@ const ModifyStay = ({ stay, onClose, onSuccess }) => {
     }
   };
 
-  const handleClose = () => {
-    setClosing(true);
+  // const handleClose = () => {
+  //   setClosing(true);
 
-    setTimeout(() => {
-      onClose?.();
-    }, 150);
-  };
+  //   setTimeout(() => {
+  //     onClose?.();
+  //   }, 150);
+  // };
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div
+      className={`fixed inset-0 z-50 transition-opacity duration-300 ${
+        open
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none"
+      }`}
+    >
       {/* overlay */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={handleClose}
+        onClick={onClose}
       />
 
       {/* animated drawer wrapper */}
       <div
-        className={`relative ml-auto flex items-center h-full${
-          closing ? "slide-out-right" : "slide-in-right"
+        className={`absolute right-0 top-0 h-full flex items-center transition-transform duration-300 ease-out ${
+          animateDrawer ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* close pill */}
         <button
-          onClick={handleClose}
+          onClick={onClose}
           className="absolute -left-3 top-1/2 -translate-y-1/2
                w-6 h-9 rounded-full
                bg-white/95 backdrop-blur-sm
@@ -111,7 +129,6 @@ const ModifyStay = ({ stay, onClose, onSuccess }) => {
 
         {/* drawer */}
         <div className="w-[310px] sm:w-[420px] h-full bg-gray-200/70 shadow-2xl p-5 flex flex-col overflow-y-auto">
-
           {/* Header */}
           <div className="mb-6">
             <h2 className="text-xl font-bold">Modify Stay</h2>

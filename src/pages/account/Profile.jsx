@@ -122,13 +122,13 @@ const Profile = () => {
       setLoading(true);
 
       const res = await axios.post("/api/v1/Hotel/HotelUpdateDetails", {
-        Name: form.name,
-        address: form.address,
-        email: form.email,
-        mobile: form.mobile,
-        gstno: form.gstno,
-        tinno: form.tinno,
-        licenseno: form.licenseno,
+        Name: form.name || userData.name,
+        address: form.address || userData.address,
+        email: form.email || userData.email,
+        mobile: form.mobile || userData.mobile,
+        gstno: form.gstno || userData.gstno,
+        tinno: form.tinno || userData.tinno,
+        licenseno: form.licenseno || userData.licenseno,
       });
       if (res.status === 200) {
         const updatedUser = { ...user, FullName: form.name };
@@ -162,6 +162,24 @@ const Profile = () => {
       }));
     }
   }, [user?.pimg]);
+
+  useEffect(() => {
+  if (userData) {
+    setForm({
+      name: userData.Name || "",
+      email: userData.email || "",
+      mobile: userData.mobile || "",
+      address: userData.address || "",
+      gstno: userData.gstno || "",
+      tinno: userData.tinno || "",
+      licenseno: userData.licenseno || "",
+      photo: null,
+      photoPreview: user?.pimg
+        ? `${import.meta.env.VITE_BACKEND_URL}/HotelLogo/${user.pimg}`
+        : null,
+    });
+  }
+}, [userData]);
 
   const ProfileSkeleton = () => {
     return (
@@ -263,7 +281,7 @@ const Profile = () => {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-5 py-2.5 flex gap-1 items-center rounded-xl bg-primary-500 text-white shadow-md transition-all hover:scale-105 ease-in-out duration-300 hover:shadow-lg hover:bg-primary-500"
+                    className="px-5 py-2.5 flex gap-1 items-center rounded-full bg-primary-500 text-white shadow-md transition-all hover:scale-105 ease-in-out duration-300 hover:shadow-lg hover:bg-primary-500"
                   >
                     <img className="w-4 h-4" src="/edit_icon.svg" alt="" />
                     <span>Edit</span>
@@ -401,7 +419,7 @@ const Profile = () => {
                       {(form.photo || isEditing) && (
                         <button
                           onClick={uploadProfilePhoto}
-                          className="mt-6 px-4 py-2.5 text-sm bg-primary-500 text-white rounded-xl shadow-md hover:shadow-lg transition-colors hover:bg-primary-500"
+                          className="mt-6 px-4 py-2.5 text-sm bg-primary-500 text-white rounded-full shadow-md hover:shadow-lg transition-colors hover:bg-primary-500"
                         >
                           {uploading ? (
                             <div className="flex items-center justify-center gap-2">
@@ -546,14 +564,14 @@ const Profile = () => {
                 <div className="flex justify-end gap-5 mt-6">
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 border-2 border-primary-500 shadow-md hover:shadow-lg transition-colors hover:bg-primary-200/20 text-primary-500 rounded-xl"
+                    className="px-4 py-2 border-2 border-primary-500 shadow-md hover:shadow-lg transition-colors hover:bg-primary-200/20 text-primary-500 rounded-full"
                   >
                     Cancel
                   </button>
 
                   <button
                     onClick={updateUserData}
-                    className="px-5 py-2 rounded-xl bg-primary-500 text-white shadow-md transition-colors hover:shadow-lg hover:bg-primary-500"
+                    className="px-5 py-2 rounded-full bg-primary-500 text-white shadow-md transition-colors hover:shadow-lg hover:bg-primary-500"
                   >
                     {loading ? (
                       <div className="flex items-center justify-center gap-2">

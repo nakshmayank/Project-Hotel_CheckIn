@@ -85,7 +85,7 @@ const Support = () => {
               <span>support@inndez.com</span>
             </div>
             <div className="text-gray-800">🕒 24*7 Hours Support</div>
-            <div className="flex items-center gap-2 text-gray-800"><Phone className="w-4 h-4"></Phone><span>+91 8800214384, +91 7903021814</span></div>
+            <div className="flex items-center gap-2 text-gray-800"><Phone className="w-4 h-4"></Phone><span>+91 7982634341, +91 8800214384</span></div>
           </div>
         </div>
 

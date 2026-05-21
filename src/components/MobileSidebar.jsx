@@ -9,7 +9,7 @@ const MobileSidebar = ({ open, setOpen }) => {
     logout,
     setShowAddRoom,
     setShowChangePassword,
-    setShowSubscription
+    setShowSubscription,
   } = useAppContext();
 
   const location = useLocation();
@@ -29,7 +29,7 @@ const MobileSidebar = ({ open, setOpen }) => {
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-[65%] max-w-[320px] bg-gray-200/60 shadow-2xl z-50 flex flex-col transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-[65%] max-w-[320px] bg-gray-200/60 shadow-2xl z-50 flex flex-col transition-transform duration-500 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -121,57 +121,63 @@ const MobileSidebar = ({ open, setOpen }) => {
               Manage Stay
             </button>
 
-            {/* Add Room */}
+            {/* Manage Room */}
             <button
               onClick={() => {
-                setShowAddRoom(true);
+                navigate("/dashboard/manage-room");
                 close();
               }}
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100/30 transition-all"
+              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                isActive("/dashboard/manage-room")
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
+                  : "text-gray-700 hover:bg-gray-100/30"
+              }`}
             >
+              {isActive("/dashboard/manage-room") && (
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
+              )}
               <img src="/add_room.svg" className="w-5 h-5 shrink-0" alt="" />
-              Add Room
+              Manage Room
             </button>
 
             {/* Billing */}
             <button
-  onClick={() => {
-    navigate("/dashboard/billing-list");
-    close();
-  }}
-  className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-    isActive("/dashboard/billing-list")
-      ? "bg-primary-100/30 text-primary-500 shadow-md"
-      : "text-gray-700 hover:bg-gray-100/30"
-  }`}
->
-  {isActive("/dashboard/billing-list") && (
-    <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
-  )}
-  <img src="/bill.png" className="w-5 h-5 shrink-0" alt="" />
-  Billing
-</button>
-
+              onClick={() => {
+                navigate("/dashboard/billing-list");
+                close();
+              }}
+              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                isActive("/dashboard/billing-list")
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
+                  : "text-gray-700 hover:bg-gray-100/30"
+              }`}
+            >
+              {isActive("/dashboard/billing-list") && (
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
+              )}
+              <img src="/bill.png" className="w-5 h-5 shrink-0" alt="" />
+              Billing
+            </button>
 
             {/* Reports */}
             <button
-  onClick={() => {
-    // navigate("/dashboard/reports");
-    setShowSubscription(true);
-    close();
-  }}
-  className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-    isActive("/dashboard/reports")
-      ? "bg-primary-100/30 text-primary-500 shadow-md"
-      : "text-gray-700 hover:bg-gray-100/30"
-  }`}
->
-  {isActive("/dashboard/reports") && (
-    <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
-  )}
-  <img src="/report.png" className="w-5 h-5 shrink-0" alt="" />
-  Reports
-</button>
+              onClick={() => {
+                // navigate("/dashboard/reports");
+                setShowSubscription(true);
+                close();
+              }}
+              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                isActive("/dashboard/reports")
+                  ? "bg-primary-100/30 text-primary-500 shadow-md"
+                  : "text-gray-700 hover:bg-gray-100/30"
+              }`}
+            >
+              {isActive("/dashboard/reports") && (
+                <span className="absolute left-[2px] top-[6px] bottom-[6px] w-1 rounded-r bg-primary-500" />
+              )}
+              <img src="/report.png" className="w-5 h-5 shrink-0" alt="" />
+              Reports
+            </button>
 
             {/* Services */}
             <button

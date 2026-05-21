@@ -345,10 +345,10 @@ const AddMember = ({
           disabled={
             addingMember || members.length === Number(checkinForm.noOfMember)
           }
-          className={`px-5 py-3 rounded-xl font-medium shadow-lg ${
+          className={`px-5 py-2.5 rounded-full font-medium shadow-lg ${
             members.length === Number(checkinForm.noOfMember)
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-primary-500 text-white hover:bg-primary-500 hover:shadow-xl"
+              : "bg-primary-500 text-white hover:scale-105 transition duration-300 ease-in-out hover:shadow-xl"
           }`}
         >
           {addingMember ? (
@@ -369,7 +369,7 @@ const AddMember = ({
             members.length === 0 ||
             finishingCheckin
           }
-          className={`px-5 py-3 font-semibold rounded-xl shadow ${
+          className={`px-5 py-2.5 font-semibold rounded-full shadow ${
             members.length !== Number(checkinForm.noOfMember)
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : " text-primary-500 border-2 border-primary-500 shadow-lg hover:bg-primary-100/50 hover:shadow-xl cursor-pointer"

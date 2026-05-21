@@ -66,8 +66,8 @@ const ManageStay = () => {
       // await new Promise((r) => setTimeout(r, 300));
     } catch (error) {
       // console.log(error)
-      if(error?.response?.data?.message === "No Active Stay found.") {
-        setActiveStays([])
+      if (error?.response?.data?.message === "No Active Stay found.") {
+        setActiveStays([]);
       }
       console.log(error);
     } finally {
@@ -208,7 +208,7 @@ const ManageStay = () => {
 
   const filteredAndSortedCompletedStays = sortStays(filteredCompletedStays);
 
-  // const downloadInvoice = async (stayId) => {
+  // const printInvoice = async (stayId) => {
   //   try {
   //     setGeneratingInvoiceId(stayId);
 
@@ -328,7 +328,7 @@ const ManageStay = () => {
           </div>
 
           <div className="mt-6 flex justify-end">
-            <div className="h-9 w-28 bg-gray-300/80 rounded-lg"></div>
+            <div className="h-9 w-28 bg-gray-300/80 rounded-full"></div>
           </div>
         </div>
       </div>
@@ -484,7 +484,7 @@ const ManageStay = () => {
 
                             {/* Floating Filter Card */}
                             {showFilterCard && (
-                              <div className="absolute top-11 right-0 w-72 bg-gray-100 rounded-2xl shadow-2xl border-2 border-gray-200 p-5 z-50 animate-[fadeIn_0.25s_ease-out_forwards]">
+                              <div className="absolute top-11 right-0 w-72 bg-gray-100 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-gray-200 p-5 z-50 animate-[fadeIn_0.25s_ease-out_forwards]">
                                 <h3 className="font-semibold text-gray-800 mb-3">
                                   Filter Stays
                                 </h3>
@@ -615,7 +615,7 @@ const ManageStay = () => {
                                       setCustomTo(draftCustomTo);
                                       setShowFilterCard(false);
                                     }}
-                                    className="px-5 py-2 rounded-xl bg-primary-500 text-white"
+                                    className="px-5 py-1.5 rounded-full bg-primary-500 hover:scale-105 duration-300 transition-all ease-in-out shadow-md text-white"
                                   >
                                     Apply
                                   </button>
@@ -755,7 +755,7 @@ const ManageStay = () => {
                         onClick={() =>
                           setVisibleActiveCount((prev) => prev + 5)
                         }
-                        className="px-5 py-2 rounded-lg bg-primary-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-primary-500 hover:scale-105 transition"
+                        className="px-5 py-2 rounded-full bg-primary-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-primary-500 hover:scale-105 transition"
                       >
                         Load more stays
                       </button>
@@ -808,7 +808,7 @@ const ManageStay = () => {
                             onClick={() =>
                               setVisibleCompletedCount((prev) => prev + 5)
                             }
-                            className="px-5 py-2 rounded-lg bg-primary-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-primary-500 hover:scale-105 transition"
+                            className="px-5 py-2 rounded-full bg-primary-500 text-white font-medium shadow-md hover:shadow-lg hover:bg-primary-500 hover:scale-105 transition"
                           >
                             Load more stays
                           </button>
@@ -829,13 +829,16 @@ const ManageStay = () => {
         </div>
       </div>
 
-      {showAssignRoom && selectedStay && (
+      {selectedStay && (
         <ModifyStay
+          open={showAssignRoom}
           stay={selectedStay}
           members={members}
           onClose={() => {
             setShowAssignRoom(false);
-            setSelectedStay(null);
+            setTimeout(() => {
+              setSelectedStay(null);
+            }, 300);
           }}
           onSuccess={handleModifyStay}
         />
@@ -843,11 +846,10 @@ const ManageStay = () => {
 
       {showCheckoutConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-gray-200/70 relative rounded-2xl shadow-xl w-[90%] h-[35%] max-w-xl p-8 animate-[fadeIn_0.25s_ease-out_forwards]">
-
-          <button className="absolute right-4 top-2">
-            x
-          </button>
+          <div className="bg-gray-200/70 relative rounded-2xl shadow-xl w-[90%] max-w-xl p-8 animate-[fadeIn_0.25s_ease-out_forwards]">
+            <button onClick={()=>{setShowCheckoutConfirm(false);setSelectedCheckoutId(null)}} className="absolute rounded-full flex items-center justify-center bg-white/70 hover:bg-white/80 right-3 top-3">
+              <span className="px-2 hover:font-bold hover:text-red-700">×</span>
+            </button>
             {/* Title */}
             <h2 className="text-xl font-bold text-gray-800 mb-2">
               Confirm Check-Out

@@ -59,7 +59,7 @@ const Success = ({setShowSuccess}) => {
           setShowSuccess(false);
           navigate("/dashboard/manage-stay");
         }}
-        className="w-fit px-8 py-3 rounded-lg bg-gray-700 text-white font-medium shadow-md hover:scale-105 ease-in-out duration-300 hover:bg-gray-800 transition"
+        className="w-fit px-8 py-3 rounded-full bg-gray-700 text-white font-medium shadow-md hover:scale-105 ease-in-out duration-300 hover:bg-gray-800 transition"
       >
         Manage Stay
       </button>

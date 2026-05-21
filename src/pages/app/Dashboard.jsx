@@ -17,7 +17,7 @@ const Dashboard = () => {
 
       const { data } = await axios.get("/api/v1/Hotel/HotelGetAllRooms");
 
-      setRoomData(data?.roomList || {});
+      setRoomData(data?.result || {});
     } catch (error) {
       console.log(error);
     } finally {
@@ -232,7 +232,7 @@ const Dashboard = () => {
                       state: { selectedRooms },
                     })
                   }
-                  className="mt-6 p-2 px-5 bg-primary-500 hover:scale-105 transition-all duration-300 text-white font-bold rounded-xl shadow-lg"
+                  className="mt-6 p-2.5 px-5 bg-primary-500 hover:scale-105 transition-all duration-300 text-white font-bold rounded-full shadow-lg"
                 >
                   <span>Proceed to Check-In</span>
                 </button>
@@ -352,7 +352,7 @@ const Dashboard = () => {
               </p>
               <button
                 onClick={() => navigate("/dashboard/checkin")}
-                className="w-full bg-green-500/80 hover:bg-green-600/80 shadow-md text-white font-bold py-4 rounded-2xl transition-all hover:scale-105 ease-in-out hover:shadow-lg duration-300"
+                className="w-full bg-green-500/80 hover:bg-green-600/80 shadow-md text-white font-bold py-4 rounded-full transition-all hover:scale-105 ease-in-out hover:shadow-lg duration-300"
               >
                 Check-In
               </button>
@@ -382,7 +382,7 @@ const Dashboard = () => {
               </p>
               <button
                 onClick={() => navigate("/dashboard/manage-stay")}
-                className="w-full bg-pink-600/80 hover:bg-pink-700/90 shadow-md hover:scale-105 ease-in-out text-white font-bold py-4 rounded-2xl transition-all hover:shadow-lg duration-300"
+                className="w-full bg-pink-600/80 hover:bg-pink-700/90 shadow-md hover:scale-105 ease-in-out text-white font-bold py-4 rounded-full transition-all hover:shadow-lg duration-300"
               >
                 Manage Stay
               </button>
@@ -412,7 +412,7 @@ const Dashboard = () => {
               </p>
               <button
                 onClick={() => navigate("/dashboard/profile")}
-                className="w-full bg-purple-600/80 hover:bg-purple-700/80 shadow-md hover:scale-105 ease-in-out text-white font-bold py-4 rounded-2xl transition-all hover:shadow-lg duration-300"
+                className="w-full bg-purple-600/80 hover:bg-purple-700/80 shadow-md hover:scale-105 ease-in-out text-white font-bold py-4 rounded-full transition-all hover:shadow-lg duration-300"
               >
                 Manage Profile
               </button>

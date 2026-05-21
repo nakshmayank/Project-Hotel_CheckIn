@@ -76,7 +76,7 @@ export const AppContextProvider = ({ children }) => {
       const res = await axios.get("/api/v1/Hotel/HotelGetDashboardcount");
 
       if (res.status === 200) {
-        setDashCount(res?.data.output.value[0]);
+        setDashCount(res?.data.output[0]);
       } else {
         toast.error("Failed to fetch dashboard data");
       }
