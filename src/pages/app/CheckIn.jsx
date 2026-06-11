@@ -22,24 +22,28 @@ const CheckIn = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [withoutMember, setWithoutMember] = useState(true);
   const [roomAllocations, setRoomAllocations] = useState(() => {
-    const groupedRooms = preselectedRooms.reduce((acc, room) => {
-      const existing = acc.find((g) => g.roomType === room.roomType);
+    const grouped = [];
 
-      if (existing) {
-        existing.rooms.push({
-          roomNo: room.roomNo,
-        });
-      } else {
-        acc.push({
+    preselectedRooms.forEach((room) => {
+      let existing = grouped.find((g) => g.typeId === room.typeId);
+
+      if (!existing) {
+        existing = {
+          id: crypto.randomUUID(),
           roomType: room.roomType,
-          rooms: [{ roomNo: room.roomNo }],
-        });
+          typeId: room.typeId,
+          rooms: [],
+        };
+
+        grouped.push(existing);
       }
 
-      return acc;
-    }, []);
+      existing.rooms.push({
+        roomNo: room.roomNo,
+      });
+    });
 
-    return groupedRooms;
+    return grouped;
   });
   const [addingStay, setAddingStay] = useState(false);
   const [addingMember, setAddingMember] = useState(false);

@@ -3,7 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 
 const ChangePassword = () => {
-  const { axios, setShowChangePassword, user } = useAppContext();
+  const { axios, setShowChangePassword, user, logout } = useAppContext();
   const [oldPassword, setOld] = useState("");
   const [newPassword, setNew] = useState("");
   const [confirmPassword, setConfirm] = useState("");
@@ -15,7 +15,6 @@ const ChangePassword = () => {
     e.preventDefault();
 
     try {
-
       if (newPassword !== confirmPassword)
         return toast.error("Passwords mismatch");
 
@@ -27,7 +26,12 @@ const ChangePassword = () => {
       });
 
       if (res.status === 200) {
-        toast.success("Password changed");
+        toast.success(
+          "Password changed successfully. For security reasons, you will be signed out shortly. Please sign in again using your new password..",
+        );
+        setTimeout(async () => {
+          await logout();
+        }, 1500);
         // sessionStorage.removeItem("remindMeLater");
       } else {
         toast.error("Incorrect Password");
@@ -159,13 +163,15 @@ const ChangePassword = () => {
                 Maybe Later
               </button>
               <button className="bg-primary-500/80 shadow-md hover:scale-105 duration-300 transition-transform ease-in-out hover:bg-primary-500 hover:shadow-lg text-white px-5 py-2 rounded-full font-semibold">
-              <span>
-                
-              </span>
-                {processing ? <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Saving...</span>
-                </span> : "Save"}
+                <span></span>
+                {processing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Saving...</span>
+                  </span>
+                ) : (
+                  "Save"
+                )}
               </button>
             </div>
           </form>

@@ -4,7 +4,7 @@ const MainBanner = () => {
   const { setState, setShowLogin, showLogin } = useAppContext();
 
   return (
-    <section className="relative w-full shadow-xl rounded-t-2xl overflow-hidden">
+    <section id="hero" className="relative w-full shadow-xl overflow-hidden">
       {/* Background Image */}
       <img
         src="/main_banner.jpg"

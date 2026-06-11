@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 
 axios.defaults.withCredentials = true; //to send cookies in api request
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL; //to set backend url as default base url for any api call made through this axios package
+axios.defaults.timeout = 15000;
 
 const AppContext = createContext();
 //
@@ -46,7 +47,11 @@ export const AppContextProvider = ({ children }) => {
         forceLogout();
       }
     } catch (error) {
-      forceLogout();
+      if (error.response?.status === 401) {
+        forceLogout();
+      } else {
+        console.error(error);
+      }
     } finally {
       setTimeout(() => {
         setAuthLoading(false);
@@ -96,7 +101,7 @@ export const AppContextProvider = ({ children }) => {
 
         setUser(null);
         setUserData(null);
-        toast.success("Logged out");
+        // toast.success("Logged out");
         navigate("/");
       } else {
         toast.error("Logout failed");
@@ -109,14 +114,10 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const forceLogout = () => {
-
     try {
-
       if (isForceLoggingOutRef.current) return;
 
-  isForceLoggingOutRef.current = true;
-
-      setAuthLoading(true);
+      isForceLoggingOutRef.current = true;
 
       localStorage.removeItem("userProfile");
       sessionStorage.removeItem("userProfile");
@@ -125,35 +126,30 @@ export const AppContextProvider = ({ children }) => {
       setUserData(null);
 
       toast.error("Session expired. Please login again.");
+      navigate("/", { replace: true });
     } catch (error) {
       console.log(error);
-    } finally {
-      setAuthLoading(false);
     }
   };
 
-  useEffect(() => {
-  if (isForceLoggingOutRef.current && user === null) {
-    navigate("/", { replace: true });
-  }
-}, [user, navigate]);
+  const resetForceLogout = () => {
+    isForceLoggingOutRef.current = false;
+  };
 
   useEffect(() => {
-
     const interceptor = axios.interceptors.response.use(
-      (response) => {
-        
-        if (
-          response.status === 401
-        ) {
-          forceLogout();
-        }
-        return response;
-      },
+      (response) => response,
       (error) => {
+        if (!error.response) {
+          toast.error("Unable to connect to server", {
+            id: "network-error",
+          });
+        }
+
         if (error.response?.status === 401) {
           forceLogout();
         }
+
         return Promise.reject(error);
       },
     );
@@ -165,8 +161,6 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     fetchUser();
   }, []);
-
-  
 
   useEffect(() => {
     if (user) {
@@ -202,7 +196,8 @@ export const AppContextProvider = ({ children }) => {
     globalLoader,
     setGlobalLoader,
     showSubscription,
-    setShowSubscription
+    setShowSubscription,
+    resetForceLogout,
   };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

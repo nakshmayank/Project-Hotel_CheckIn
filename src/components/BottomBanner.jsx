@@ -4,7 +4,7 @@ const BottomBanner = () => {
   const { setState, setShowLogin } = useAppContext();
 
   return (
-    <section className="relative bg-[url('/bottom_banner.jpg')] bg-cover bg-top bg-no-repeat overflow-hidden">
+    <section id="hero2" className="relative bg-[url('/bottom_banner.jpg')] bg-cover bg-top bg-no-repeat overflow-hidden">
       {/* Gradient Background */}
       {/* Blurred Background Image */}
 {/* <div className="absolute inset-0 -z-10">

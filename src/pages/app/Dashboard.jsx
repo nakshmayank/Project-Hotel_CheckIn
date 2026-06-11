@@ -1,15 +1,31 @@
 import { useAppContext } from "../../context/AppContext";
 import CountUp from "react-countup";
-import { useEffect, useState } from "react";
-import { BedSingle, CheckCircle2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { BedSingle, CheckCircle2, BrushCleaning, Settings2 } from "lucide-react";
 
 const Dashboard = () => {
-  const { user, navigate, dashCount, userData, fetchDashCount, axios, setShowAddRoom } =
-    useAppContext();
+  const {
+    user,
+    navigate,
+    dashCount,
+    userData,
+    fetchDashCount,
+    axios,
+    setShowAddRoom,
+  } = useAppContext();
 
   const [roomData, setRoomData] = useState({});
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [roomLoading, setRoomLoading] = useState(true);
+  const [expandedTypes, setExpandedTypes] = useState({});
+  const [roomTypes, setRoomTypes] = useState([]);
+
+  const toggleTypeExpansion = (type) => {
+    setExpandedTypes((prev) => ({
+      ...prev,
+      [type]: !prev[type],
+    }));
+  };
 
   const fetchRooms = async () => {
     try {
@@ -25,7 +41,17 @@ const Dashboard = () => {
     }
   };
 
-  const toggleRoomSelection = (room, roomType) => {
+  const fetchRoomTypes = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/Hotel/HotelGetRoomType");
+
+      setRoomTypes(data.output || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const toggleRoomSelection = (room, roomType, typeId) => {
     if (room.status !== "A") return;
 
     setSelectedRooms((prev) => {
@@ -40,6 +66,7 @@ const Dashboard = () => {
         {
           roomNo: room.roomNo,
           roomType,
+          typeId,
         },
       ];
     });
@@ -52,9 +79,20 @@ const Dashboard = () => {
     { typeWidth: "w-16", roomCount: 6 },
   ];
 
+  const roomTypeMap = useMemo(() => {
+    const map = {};
+
+    roomTypes.forEach((t) => {
+      map[t.RoomType] = t.TypeId;
+    });
+
+    return map;
+  }, [roomTypes]);
+
   useEffect(() => {
     fetchDashCount();
     fetchRooms();
+    fetchRoomTypes();
   }, []);
 
   return (
@@ -168,26 +206,36 @@ const Dashboard = () => {
                   </p>
 
                   <button
-                    onClick={()=>setShowAddRoom(true)}
+                    onClick={() => navigate("/dashboard/manage-room")}
                     className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold shadow-md hover:scale-105 transition-all duration-300"
                   >
                     Add Room Type & Rooms
                   </button>
                 </div>
               ) : (
-                Object.entries(roomData).map(([type, rooms]) => {
+                Object.entries(roomData).map(([typeData, rooms]) => {
+                  const [type, rent] = typeData.split(",");
                   const sortedRooms = [...rooms].sort(
                     (a, b) => a.roomNo - b.roomNo,
                   );
 
+                  const isExpanded = expandedTypes[type];
+
+                  const visibleRooms = isExpanded
+                    ? sortedRooms
+                    : sortedRooms.slice(0, 12);
+
                   return (
                     <div key={type}>
-                      <h3 className="font-semibold text-gray-900 mb-3 text-md">
-                        {type}
+                      <h3 className="font-semibold mb-3 text-md flex items-center gap-1">
+                        <span className="text-gray-900">{type}</span> •{" "}
+                        <span className="text-primary-500 text-sm">
+                          ₹{rent} / night
+                        </span>
                       </h3>
 
                       <div className="flex flex-wrap gap-3">
-                        {sortedRooms.map((room) => {
+                        {visibleRooms.map((room) => {
                           const isAvailable = room.status === "A";
                           const isSelected = selectedRooms.some(
                             (r) => r.roomNo === room.roomNo,
@@ -196,27 +244,52 @@ const Dashboard = () => {
                           return (
                             <div
                               key={room.roomNo}
-                              onClick={() => toggleRoomSelection(room, type)}
-                              className={`relative group w-[48px] p-1.5 rounded-xl shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${
+                              onClick={() =>
+                                toggleRoomSelection(
+                                  room,
+                                  type,
+                                  roomTypeMap[type],
+                                )
+                              }
+                              className={`relative group w-12 h-9 p-1.5 rounded-xl shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${
                                 isAvailable
                                   ? isSelected
                                     ? "bg-primary-500 text-white scale-105 cursor-pointer"
                                     : "bg-white text-gray-800 border-2 border-primary-500 hover:scale-105 cursor-pointer"
-                                  : "bg-gray-400/60 text-white cursor-not-allowed"
+                                  : 
+                                      "bg-gray-400/60 text-white cursor-not-allowed"
                               }`}
                             >
-                              {/* <BedSingle size={22} /> */}
+
+                              {room.status === "C" && <div className="p-0.5 absolute top-1 right-1 rounded-full bg-yellow-500"> <BrushCleaning className="" size={6} /></div>}
+                              {room.status === "M" && <div className="p-0.5 absolute top-1 right-1 rounded-full bg-purple-500"> <Settings2 className="" size={6} /></div>}
                               <span className="text-sm font-bold">
                                 {room.roomNo}
                               </span>
 
                               {/* Tooltip */}
                               <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20">
-                                {isAvailable ? "Available" : "Occupied"}
+                                {isAvailable
+                                  ? "Available"
+                                  : room.status === "C"
+                                    ? "Under Cleaning"
+                                    : room.status === "M"
+                                      ? "Under Maintenance"
+                                      : "Occupied"}
                               </div>
                             </div>
                           );
                         })}
+                        {sortedRooms.length > 12 && (
+                          <button
+                            onClick={() => toggleTypeExpansion(type)}
+                            className="mt-3 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary-50 text-primary-600 hover:bg-primary-100 transition-all"
+                          >
+                            {isExpanded
+                              ? "Show Less"
+                              : `+${sortedRooms.length - 12} More`}
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

@@ -80,7 +80,7 @@ const ActiveStayCard = ({
       <div className="border-t border-gray-500/30 pt-5 flex justify-end gap-3 mt-3">
         <button
           onClick={() => onAssignRoom(stay)}
-          className="px-4 py-2 rounded-full border-2 border-primary-500 text-primary-500 shadow-lg hover:bg-primary-100/50 transition"
+          className="px-4 py-1.5 rounded-full border-2 border-primary-500 text-primary-500 shadow-lg hover:bg-primary-100/50 transition"
         >
           Modify Stay
         </button>
@@ -88,7 +88,7 @@ const ActiveStayCard = ({
         <button
           onClick={() => onCheckout(stay.chkid)}
           disabled={checkingOutId === stay.chkid}
-          className={`px-4 py-2 text-white rounded-full shadow-md transition-all duration-300 ${
+          className={`px-4 py-1.5 text-white rounded-full shadow-md transition-all duration-300 ${
             checkingOutId === stay.chkid
               ? "bg-primary-400 cursor-not-allowed"
               : "bg-primary-500 hover:bg-primary-500 hover:scale-105"

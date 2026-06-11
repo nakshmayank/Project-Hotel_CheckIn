@@ -35,7 +35,7 @@ const Partners = () => {
   const {setState, setShowLogin} = useAppContext();
 
   return (
-    <section className="relative py-12 pb-20 overflow-hidden">
+    <section id="partners" className="relative py-12 pb-20 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50 -z-10"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl -z-10"></div>

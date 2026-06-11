@@ -3,8 +3,15 @@ import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 
 const Login = () => {
-  const { state, setState, setShowLogin, axios, setUser, navigate } =
-    useAppContext();
+  const {
+    state,
+    setState,
+    setShowLogin,
+    axios,
+    setUser,
+    navigate,
+    resetForceLogout,
+  } = useAppContext();
   const [hName, sethName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
@@ -54,20 +61,24 @@ const Login = () => {
       });
 
       if (res.status === 200) {
+        resetForceLogout();
+
         const storage = rememberMe ? localStorage : sessionStorage;
 
         storage.setItem("userProfile", JSON.stringify(res.data?.output[0]));
 
         setUser(res.data?.output[0]);
 
-        toast.success("Welcome back!");
+        // toast.success("Welcome back!");
         navigate("/dashboard");
         setShowLogin(false);
       } else {
         toast.error("Invalid credentials");
       }
     } catch (error) {
-      toast.error(error.response.data["message"]);
+      toast.error(
+        error.response?.data?.message || "Unable to connect to server",
+      );
     } finally {
       setLoading(false);
     }
@@ -98,20 +109,24 @@ const Login = () => {
         password,
       });
 
-      if (res.status === 200) {
+      if (res.status === 200) { // 201 in test api
         sessionStorage.setItem(
           "userProfile",
           JSON.stringify(res.data?.output[0]),
+          // JSON.stringify(res.data[0]), // for test api
         );
         setUser(res.data?.output[0]);
-        toast.success("Account created");
+        // setUser(res.data[0]); // for test api
+        // toast.success("Account created");
         navigate("/dashboard");
         setShowLogin(false);
       } else {
         toast.error("Failed to create account");
       }
     } catch (error) {
-      toast.error(error.response.data["message"]);
+      toast.error(
+        error.response?.data?.message || "Unable to connect to server",
+      );
     } finally {
       setLoading(false);
     }
@@ -161,7 +176,9 @@ const Login = () => {
         toast.error("Failed to send otp.. Try again!!");
       }
     } catch (error) {
-      toast.error(error.data.message);
+      toast.error(
+        error.response?.data?.message || "Unable to connect to server",
+      );
       console.log(error);
       setShowLogin(false);
     } finally {
@@ -188,7 +205,7 @@ const Login = () => {
         toast.error("Failed to resend OTP");
       }
     } catch (error) {
-      toast.error(error.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setResendOtpLoading(false);
     }
@@ -212,7 +229,9 @@ const Login = () => {
         setIsOtpVerified(true);
       }
     } catch (error) {
-      toast.error(error.data.message);
+      toast.error(
+        error.response?.data?.message || "Unable to connect to server",
+      );
     } finally {
       setLoading(false);
     }
@@ -253,7 +272,9 @@ const Login = () => {
         toast.error("Failed to reset password.. Try again!!");
       }
     } catch (error) {
-      toast.error(error.data.message);
+      toast.error(
+        error.response?.data?.message || "Unable to connect to server",
+      );
       console.log(error);
     } finally {
       setLoading(false);
@@ -374,12 +395,19 @@ const Login = () => {
             }
           >
             <button
+          type="button"
+              onClick={() => setShowLogin(false)}
+          className="absolute top-3 right-3 rounded-full bg-white/60 hover:scale-105 hover:bg-white/80 shadow transition"
+        >
+          <span className="px-2 hover:font-bold hover:text-red-700 transition-all duration-300">×</span>
+        </button>
+            {/* <button
               type="button"
               onClick={() => setShowLogin(false)}
               className="absolute top-3 right-4 text-xl font-bold text-gray-600 hover:text-black"
             >
               ×
-            </button>
+            </button> */}
 
             <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
               {state === "register"

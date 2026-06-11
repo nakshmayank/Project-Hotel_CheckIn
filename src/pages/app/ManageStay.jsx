@@ -741,7 +741,7 @@ const ManageStay = () => {
                       <div className="flex gap-4 mt-6 justify-end">
                         <button
                           onClick={() => navigate("/dashboard/checkin")}
-                          className="px-4 p-2 rounded-lg font-semibold shadow-md bg-primary-500 text-white hover:bg-primary-500"
+                          className="px-4 p-2 rounded-full font-semibold shadow-md bg-primary-500 text-white hover:bg-primary-500"
                         >
                           Check-In
                         </button>

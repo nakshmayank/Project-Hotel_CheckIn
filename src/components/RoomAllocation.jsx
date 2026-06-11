@@ -298,7 +298,7 @@ const RoomAllocation = ({ value, onChange }) => {
 
                   {/* SEARCH */}
                   <input
-                    placeholder="Search room..."
+                    placeholder="Search room (e.g. 101)"
                     value={search[panelKey] || ""}
                     onChange={(e) =>
                       setSearch((p) => ({ ...p, [panelKey]: e.target.value }))

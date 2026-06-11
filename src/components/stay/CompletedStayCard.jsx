@@ -105,7 +105,7 @@ const CompletedStayCard = ({
           <button
             onClick={() => handleDownload(stay.chkid, stay.invoiceno)}
             disabled={loading === stay.chkid}
-            className="px-4 py-2 border-2 border-primary-500 text-primary-500 rounded-full shadow-lg hover:bg-primary-100/50"
+            className="px-4 py-1.5 border-2 border-primary-500 text-primary-500 rounded-full shadow-lg hover:bg-primary-100/50"
           >
             {loading === stay.chkid ? (
               <div className="flex gap-2 items-center">
@@ -119,7 +119,7 @@ const CompletedStayCard = ({
         ) : (
           <button
             onClick={() => navigate(`/dashboard/billing/${stay.chkid}`)}
-            className="px-4 py-2 bg-primary-500 shadow-lg text-white rounded-full hover:scale-105 transition-all duration-300"
+            className="px-4 py-1.5 bg-primary-500 shadow-lg text-white rounded-full hover:scale-105 transition-all duration-300"
           >
             Generate Bill
           </button>

@@ -159,7 +159,10 @@ const BillingList = () => {
         {/* 🔷 SUMMARY CARDS */}
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-gray-100/40 p-5 rounded-2xl shadow-md flex items-center gap-4">
-            <IndianRupee className="text-primary-500" />
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+              <IndianRupee className="text-primary-500" />
+            </div>
+
             <div>
               <p className="text-xs text-gray-500">Today's Revenue</p>
               <p className="text-lg font-bold">₹ {totalRevenue.toFixed(2)}</p>
@@ -167,7 +170,10 @@ const BillingList = () => {
           </div>
 
           <div className="bg-gray-100/40 p-5 rounded-2xl shadow-md flex items-center gap-4">
-            <CheckCircle className="text-green-500" />
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+              <CheckCircle className="text-green-500" />
+            </div>
+
             <div>
               <p className="text-xs text-gray-500">Paid Bills</p>
               <p className="text-lg font-bold text-green-600">{paid}</p>
@@ -175,7 +181,10 @@ const BillingList = () => {
           </div>
 
           <div className="bg-gray-100/40 p-5 rounded-2xl shadow-md flex items-center gap-4">
-            <AlertCircle className="text-red-500" />
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+              <AlertCircle className="text-red-500" />
+            </div>
+
             <div>
               <p className="text-xs text-gray-500">Pending Bills</p>
               <p className="text-lg font-bold text-red-500">{unpaid}</p>
@@ -295,7 +304,9 @@ const BillingList = () => {
                       <td className="p-4 font-medium text-right">
                         {s.isBilled ? (
                           <button
-                            onClick={() => {handleDownload(s.chkid, s.invoiceno)}}
+                            onClick={() => {
+                              handleDownload(s.chkid, s.invoiceno);
+                            }}
                             className="hover:underline text-sm disabled:opacity-60"
                             disabled={isDownloading === s.chkid}
                           >

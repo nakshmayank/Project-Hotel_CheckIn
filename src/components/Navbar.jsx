@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { useEffect, useRef, useState } from "react";
 import Loader from "./Loader";
@@ -17,7 +17,11 @@ const Navbar = () => {
   } = useAppContext();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState("light");
+
   const profileMenuRef = useRef(null);
+
+  const location = useLocation();
 
   const firstName =
     user?.FullName?.split(" ")[0] || userData?.Name?.split(" ")[0];
@@ -43,6 +47,38 @@ const Navbar = () => {
     };
   }, []);
 
+  useEffect(() => {
+
+    if (location.pathname !== "/") {
+    setTheme("light");
+    return;
+  }
+
+  const handleScroll = () => {
+    const services = document.getElementById("services");
+    const partners = document.getElementById("partners");
+    const navtop = document.getElementById("navtop");
+
+    const navY = 80; // navbar height
+
+    const isOnLightSection =
+      [services, partners, navtop].some(section => {
+        if (!section) return false;
+
+        const rect = section.getBoundingClientRect();
+
+        return rect.top <= navY && rect.bottom >= navY;
+      });
+
+    setTheme(isOnLightSection ? "light" : "dark");
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  handleScroll();
+
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [location.pathname]);
+
   // if (authLoading) return <Loader />;
 
   return (
@@ -64,31 +100,31 @@ const Navbar = () => {
         <div className="hidden md:flex flex-1 justify-center items-center gap-8">
           <Link
             to="/"
-            className="text-gray-800 text-lg hover:text-primary-500 font-medium"
+            className={`${theme === "dark" ? "text-white" : "text-gray-800"}  text-lg hover:text-primary-500 font-medium`}
           >
             {user ? "Dashboard" : "Home"}
           </Link>
           <Link
             to="/services"
-            className="text-gray-800 text-lg hover:text-primary-500 font-medium"
+            className={`${theme === "dark" ? "text-white" : "text-gray-800"}  text-lg hover:text-primary-500 font-medium`}
           >
             Services
           </Link>
           <Link
             to="/support"
-            className="text-gray-800 text-lg hover:text-primary-500 font-medium"
+            className={`${theme === "dark" ? "text-white" : "text-gray-800"}  text-lg hover:text-primary-500 font-medium`}
           >
             Support
           </Link>
           <Link
             to="/about"
-            className="text-gray-800 hidden lg:block text-lg hover:text-primary-500 font-medium"
+            className={`${theme === "dark" ? "text-white" : "text-gray-800"}  text-lg hover:text-primary-500 font-medium`}
           >
             About
           </Link>
           <Link
             to="/contact"
-            className="text-gray-800 hidden lg:block text-lg hover:text-primary-500 font-medium"
+            className={`${theme === "dark" ? "text-white" : "text-gray-800"}  text-lg hover:text-primary-500 font-medium`}
           >
             Contact
           </Link>

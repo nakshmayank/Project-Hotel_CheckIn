@@ -63,7 +63,7 @@ const Profile = () => {
 
   const uploadProfilePhoto = async () => {
     if (!form.photo) {
-      toast.error("Select a logo first");
+      toast.error("Select a photo first");
       return;
     }
 
@@ -102,13 +102,13 @@ const Profile = () => {
           photo: null,
         }));
 
-        toast.success("Logo Updated");
+        toast.success("Photo Updated");
       } else {
         toast.error("File error");
       }
     } catch (error) {
       console.error("Photo upload failed", error);
-      toast.error("Failed to upload logo");
+      toast.error("Failed to upload photo");
       throw error;
     } finally {
       setUploading(false);
@@ -281,7 +281,7 @@ const Profile = () => {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-5 py-2.5 flex gap-1 items-center rounded-full bg-primary-500 text-white shadow-md transition-all hover:scale-105 ease-in-out duration-300 hover:shadow-lg hover:bg-primary-500"
+                    className="px-5 py-2 flex gap-1 items-center rounded-full bg-primary-500 text-white shadow-md transition-all hover:scale-105 ease-in-out duration-300 hover:shadow-lg hover:bg-primary-500"
                   >
                     <img className="w-4 h-4" src="/edit_icon.svg" alt="" />
                     <span>Edit</span>
@@ -335,7 +335,7 @@ const Profile = () => {
                           </label>
                           <input
                             name="name"
-                            value={form.name}
+                            // value={form.name}
                             onChange={handleChange}
                             placeholder={
                               userData?.Name || "Enter your full name"
@@ -350,7 +350,7 @@ const Profile = () => {
                           </label>
                           <input
                             name="email"
-                            value={form.email}
+                            // value={form.email}
                             onChange={handleChange}
                             disabled
                             placeholder={userData?.email || "Enter your email"}
@@ -364,7 +364,7 @@ const Profile = () => {
                           </label>
                           <input
                             name="mobile"
-                            value={form.mobile}
+                            // value={form.mobile}
                             onChange={handleChange}
                             disabled
                             placeholder={
@@ -392,7 +392,7 @@ const Profile = () => {
                         {form.photoPreview && (
                           <img
                             src={form.photoPreview}
-                            alt="Profile_logo"
+                            alt="Profile_photo"
                             onLoad={() => setImageLoaded(true)}
                             className={`w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
                           />
@@ -419,7 +419,7 @@ const Profile = () => {
                       {(form.photo || isEditing) && (
                         <button
                           onClick={uploadProfilePhoto}
-                          className="mt-6 px-4 py-2.5 text-sm bg-primary-500 text-white rounded-full shadow-md hover:shadow-lg transition-colors hover:bg-primary-500"
+                          className="mt-6 px-4 py-2 text-sm bg-primary-500 text-white rounded-full shadow-md hover:shadow-lg transition-colors hover:bg-primary-500"
                         >
                           {uploading ? (
                             <div className="flex items-center justify-center gap-2">
@@ -427,7 +427,7 @@ const Profile = () => {
                               <span>Updating...</span>
                             </div>
                           ) : (
-                            "Update Logo"
+                            "Update Photo"
                           )}
                         </button>
                       )}
@@ -506,7 +506,7 @@ const Profile = () => {
                       </label>
                       <input
                         name="address"
-                        value={form.address}
+                        // value={form.address}
                         onChange={handleChange}
                         placeholder={
                           userData?.address || "Enter your full address"
@@ -521,7 +521,7 @@ const Profile = () => {
                       </label>
                       <input
                         name="gstno"
-                        value={form.gstno}
+                        // value={form.gstno}
                         onChange={handleChange}
                         placeholder={userData?.gstno || "Enter GST number"}
                         className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
@@ -534,7 +534,7 @@ const Profile = () => {
                       </label>
                       <input
                         name="tinno"
-                        value={form.tinno}
+                        // value={form.tinno}
                         onChange={handleChange}
                         placeholder={userData?.tinno || "Enter TIN number"}
                         className="w-full border-2 shadow-md p-2 rounded-lg outline-none placeholder:text-primary-500 focus:placeholder:text-gray-400 focus:shadow-lg focus:border-primary-500"
@@ -547,7 +547,7 @@ const Profile = () => {
                       </label>
                       <input
                         name="licenseno"
-                        value={form.licenseno}
+                        // value={form.licenseno}
                         onChange={handleChange}
                         placeholder={
                           userData?.licenseno || "Enter license number"
@@ -564,14 +564,14 @@ const Profile = () => {
                 <div className="flex justify-end gap-5 mt-6">
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 border-2 border-primary-500 shadow-md hover:shadow-lg transition-colors hover:bg-primary-200/20 text-primary-500 rounded-full"
+                    className="px-4 py-1.5 border-2 border-primary-500 shadow-md hover:shadow-lg transition-colors hover:bg-primary-200/20 text-primary-500 rounded-full"
                   >
                     Cancel
                   </button>
 
                   <button
                     onClick={updateUserData}
-                    className="px-5 py-2 rounded-full bg-primary-500 text-white shadow-md transition-colors hover:shadow-lg hover:bg-primary-500"
+                    className="px-5 py-1.5 rounded-full bg-primary-500 text-white shadow-md transition-colors hover:shadow-lg hover:bg-primary-500"
                   >
                     {loading ? (
                       <div className="flex items-center justify-center gap-2">

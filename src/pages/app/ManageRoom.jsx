@@ -93,7 +93,28 @@ const ManageRoom = () => {
   const [roomTypeName, setRoomTypeName] = useState("");
   const [rent, setRent] = useState("");
   const [showRoomTypeDropdown, setShowRoomTypeDropdown] = useState(false);
+  const [floorNumber, setFloorNumber] = useState("");
+  const [showFloorDropdown, setShowFloorDropdown] = useState(false);
+  const floorRef = useRef(null);
   const roomTypeRef = useRef(null);
+  const [rentMenuType, setRentMenuType] = useState(null);
+  const [rentReferenceElement, setRentReferenceElement] = useState(null);
+  const [editedRent, setEditedRent] = useState("");
+  const [isRentUpdating, setIsRentUpdating] = useState(false);
+
+  const floors = Array.from({ length: 20 }, (_, i) => {
+    const n = i + 1;
+
+    const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
+
+    return `${n}${suffix} Floor`;
+  });
+
+  const openRentModal = (type) => {
+    setSelectedRoomType(type);
+    setEditedRent(type.BasePrice || "");
+    setShowRentModal(true);
+  };
 
   // FETCH ROOMS
   const fetchRooms = async () => {
@@ -132,13 +153,19 @@ const ManageRoom = () => {
   // FLATTEN ROOMS
 
   const roomList = useMemo(() => {
-    return Object.entries(rooms).flatMap(([type, roomArray]) =>
-      roomArray.map((room) => ({
+    return Object.entries(rooms).flatMap(([typeData, roomArray]) => {
+      const [roomType, rent] = typeData.split(",");
+
+      return roomArray.map((room) => ({
         ...room,
-        type,
-      })),
-    );
+        type: roomType,
+        rent: Number(rent),
+      }));
+    });
   }, [rooms]);
+
+  // console.log(roomList);
+  // console.log(rooms);
 
   // FILTERED ROOMS
 
@@ -184,6 +211,10 @@ const ManageRoom = () => {
         return toast.error("Select room type");
       }
 
+      if (!floorNumber) {
+        return toast.error("Select floor number");
+      }
+
       if (addMode === "S" && !roomNo) {
         return toast.error("Enter room number");
       }
@@ -201,7 +232,7 @@ const ManageRoom = () => {
 
         RoomTypeId: Number(roomTypeId),
 
-        RoomFloor: "",
+        RoomFloor: floorNumber,
 
         entrytype: addMode,
       });
@@ -212,7 +243,7 @@ const ManageRoom = () => {
       setStartRoomNo("");
       setEndRoomNo("");
       setRoomTypeId("");
-
+      setFloorNumber("");
       fetchRooms();
 
       closeDrawer();
@@ -238,7 +269,7 @@ const ManageRoom = () => {
       await axios.post("/api/v1/Hotel/HotelAddRoomType", {
         RoomType: roomTypeName,
 
-        rent: Number(rent) || 0,
+        BasePrice: Number(rent) || 0,
       });
 
       toast.success("Room type added");
@@ -285,22 +316,68 @@ const ManageRoom = () => {
 
   const handleDeleteRoomType = async (id) => {
     try {
-      const res = await axios.post("/api/v1/Hotel/HotelDeleteRooms", {
+      const { data } = await axios.post("/api/v1/Hotel/HotelDeleteRooms", {
         deletetype: "RT",
         Id: String(id),
       });
 
-      if (res?.output[0]?.result === "1") {
+      if (data?.output[0]?.result === "1") {
         toast.success("Room type deleted");
+        fetchRoomTypes();
       } else {
-        toast.error(res?.message);
+        toast.error(data?.message);
       }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
 
-      fetchRoomTypes();
+  const handleUpdateRoomStatus = async (room, newStatus) => {
+    try {
+      await axios.post("/api/v1/Hotel/HotelEditRoom", {
+        Id: String(room.roomNo),
+        Floor: room.floor,
+        status: newStatus,
+      });
+
+      toast.success("Room status updated");
+
+      fetchRooms();
+
+      setStatusMenuRoom(null);
     } catch (error) {
       console.log(error);
 
-      toast.error(error?.response?.data?.message);
+      toast.error(
+        error?.response?.data?.message || "Failed to update room status",
+      );
+    }
+  };
+
+  const handleUpdateRent = async (type) => {
+    try {
+      setIsRentUpdating(true);
+      const { data } = await axios.post("/api/v1/Hotel/HotelEditRoomTypeRent", {
+        Id: String(type.TypeId),
+        rent: Number(editedRent),
+      });
+
+      if (data?.output[0]?.result === "1") {
+        toast.success("Rent updated");
+
+        setRentMenuType(null);
+        setEditedRent("");
+
+        fetchRoomTypes();
+        fetchRooms();
+      } else {
+        toast.error("Failed to update rent");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update rent");
+    } finally {
+      setIsRentUpdating(false);
     }
   };
 
@@ -323,6 +400,10 @@ const ManageRoom = () => {
 
       if (roomTypeRef.current && !roomTypeRef.current.contains(event.target)) {
         setShowRoomTypeDropdown(false);
+      }
+
+      if (floorRef.current && !floorRef.current.contains(event.target)) {
+        setShowFloorDropdown(false);
       }
 
       if (
@@ -414,19 +495,20 @@ const ManageRoom = () => {
             {/* TABS */}
 
             <div className="flex gap-2 flex-wrap">
-              {["rooms", "room types", "availability"].map((tab) => (
+              {["rooms", "room types"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-2 rounded-full text-sm font-semibold capitalize transition-all duration-300 ${activeTab === tab
+                  className={`px-3 py-2 rounded-full text-sm font-semibold capitalize transition-all duration-300 ${
+                    activeTab === tab
                       ? "bg-primary-500 text-white shadow-md"
                       : "bg-white hover:scale-105 text-gray-700 shadow-sm"
-                    }`}
+                  }`}
                 >
                   {tab}
                 </button>
               ))}
-            </div> 
+            </div>
 
             {/* ADD BTN */}
 
@@ -434,6 +516,14 @@ const ManageRoom = () => {
               <button
                 onClick={() => {
                   if (activeTab === "rooms") {
+                    if (roomTypes.length === 0) {
+                      toast.error("Please add a room type first");
+
+                      setDrawerMode("roomType");
+                      setShowDrawer(true);
+                      return;
+                    }
+
                     setDrawerMode("room");
                   } else {
                     setDrawerMode("roomType");
@@ -614,20 +704,22 @@ const ManageRoom = () => {
                 <div className="flex gap-1 items-center bg-white/60 p-1 rounded-full shadow-md">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${viewMode === "grid"
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                      viewMode === "grid"
                         ? "bg-primary-500 text-white"
                         : "text-gray-500"
-                      }`}
+                    }`}
                   >
                     <Grid2X2 className="w-3.5 h-3.5" />
                   </button>
 
                   <button
                     onClick={() => setViewMode("list")}
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${viewMode === "list"
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                      viewMode === "list"
                         ? "bg-primary-500 text-white"
                         : "text-gray-500"
-                      }`}
+                    }`}
                   >
                     <List className="w-3.5 h-3.5" />
                   </button>
@@ -672,141 +764,193 @@ const ManageRoom = () => {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
                         {loading
                           ? [...Array(8)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="h-[190px] rounded-2xl bg-gray-200 animate-pulse"
-                            />
-                          ))
+                              <div
+                                key={i}
+                                className="h-[190px] rounded-2xl bg-gray-200 animate-pulse"
+                              />
+                            ))
                           : filteredRooms.map((room, i) => (
-                            <div
-                              key={i}
-                              // onClick={() => setSelectedRoom(room)}
-                              className={`bg-white border-2 ${statusConfig[room.status].cardBorder} rounded-2xl shadow-lg hover:shadow-md hover:scale-[1.01] transition-all duration-300 pt-3 pb-1 px-3 text-left`}
-                            >
-                              {/* TOP */}
+                              <div
+                                key={i}
+                                // onClick={() => setSelectedRoom(room)}
+                                className={`bg-white border-2 ${statusConfig[room.status].cardBorder} rounded-2xl shadow-lg hover:shadow-md hover:scale-[1.01] transition-all duration-300 pt-3 pb-1 px-3 text-left`}
+                              >
+                                {/* TOP */}
 
-                              <div className="flex items-center justify-between">
-                                <div
-                                  className={`w-2.5 h-2.5 rounded-full ${statusConfig[room.status].dot}`}
-                                />
+                                <div className="flex items-center justify-between">
+                                  <div
+                                    className={`w-2.5 h-2.5 rounded-full ${statusConfig[room.status].dot}`}
+                                  />
 
-                                {/* STATUS */}
+                                  {/* STATUS */}
 
-                                <div
-                                  className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${statusConfig[room.status].badge}`}
-                                >
-                                  {statusConfig[room.status].label}
+                                  <div
+                                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${statusConfig[room.status].badge}`}
+                                  >
+                                    {statusConfig[room.status].label}
+                                  </div>
+
+                                  {/* <MoreHorizontal className="w-4 h-4 text-gray-400" /> */}
                                 </div>
 
-                                {/* <MoreHorizontal className="w-4 h-4 text-gray-400" /> */}
-                              </div>
+                                {/* ROOM */}
 
-                              {/* ROOM */}
+                                <h2 className="text-2xl font-bold text-gray-900 mt-3">
+                                  {room.roomNo}
+                                </h2>
 
-                              <h2 className="text-2xl font-bold text-gray-900 mt-3">
-                                {room.roomNo}
-                              </h2>
+                                <div className="flex items-center gap-1">
+                                  <p className="text-xs text-gray-500">
+                                    {room.type}
+                                  </p>
 
-                              <div className="flex items-center gap-1">
-                                <p className="text-xs text-gray-500">
-                                  {room.type}
-                                </p>
+                                  <span>{"•"}</span>
 
-                                <span>{"•"}</span>
+                                  {/* FLOOR */}
 
-                                {/* FLOOR */}
+                                  <p className="text-[11px] text-gray-400">
+                                    {room.floor}
+                                  </p>
+                                </div>
 
-                                <p className="text-[11px] text-gray-400">
-                                  Floor 1
-                                </p>
-                              </div>
+                                {/* FOOTER */}
 
-                              {/* FOOTER */}
+                                <div className="border-t mt-2">
+                                  <div className="flex items-center justify-between mt-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
 
-                              <div className="border-t mt-2">
-                                <div className="flex items-center justify-between mt-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
+                                        if (room.status === "O") {
+                                          toast.error(
+                                            "Occupied rooms cannot be modified",
+                                          );
+                                          return;
+                                        }
+                                        setReferenceElement(e.currentTarget);
 
-                                    if (room.status === "O") {
-                                      toast.error(
-                                        "Occupied rooms cannot be modified",
-                                      );
-                                      return;
-                                    }
-                                    setReferenceElement(e.currentTarget);
+                                        setStatusMenuRoom(
+                                          statusMenuRoom?.roomNo === room.roomNo
+                                            ? null
+                                            : room,
+                                        );
+                                      }}
+                                      disabled={room.status === "O"}
+                                      className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                                        room.status === "O"
+                                          ? "opacity-40 cursor-not-allowed"
+                                          : "hover:bg-gray-100"
+                                      }`}
+                                    >
+                                      <Pencil className="w-4 h-4 text-gray-500" />
+                                    </button>
 
-                                    setStatusMenuRoom(
-                                      statusMenuRoom?.roomNo === room.roomNo
-                                        ? null
-                                        : room,
-                                    );
-                                  }}
-                                  disabled={room.status === "O"}
-                                  className={`w-6 h-6 rounded-lg flex items-center justify-center ${room.status === "O"
-                                      ? "opacity-40 cursor-not-allowed"
-                                      : "hover:bg-gray-100"
-                                    }`}
-                                >
-                                  <Pencil className="w-4 h-4 text-gray-500" />
-                                </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
 
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-
-                                    handleDeleteRoom(room.roomNo);
-                                  }}
-                                  className="w-6 h-6 rounded-lg hover:bg-red-100 flex items-center justify-center"
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-500" />
-                                </button>
+                                        handleDeleteRoom(room.roomNo);
+                                      }}
+                                      className="w-6 h-6 rounded-lg hover:bg-red-100 flex items-center justify-center"
+                                    >
+                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
                       </div>
                       <StatusMenu
                         room={statusMenuRoom}
                         open={!!statusMenuRoom}
                         referenceElement={referenceElement}
                         onClose={() => setStatusMenuRoom(null)}
+                        onStatusChange={handleUpdateRoomStatus}
                       />
                     </>
                   ) : (
-                    <div className="space-y-3">
-                      {filteredRooms.map((room, i) => (
-                        <div
-                          key={i}
-                          className="bg-white p-4 rounded-2xl shadow-md flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`w-3 h-3 rounded-full ${statusConfig[room.status].dot}`}
-                            />
+                    <>
+                      <div className="space-y-3">
+                        {filteredRooms.map((room, i) => (
+                          <div
+                            key={i}
+                            className="bg-white p-4 rounded-2xl shadow-md flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div
+                                className={`w-3 h-3 rounded-full ${statusConfig[room.status].dot}`}
+                              />
 
-                            <div>
-                              <h2 className="font-bold text-gray-900">
-                                Room {room.roomNo}
-                              </h2>
+                              <div>
+                                <h2 className="font-bold text-gray-900">
+                                  Room {room.roomNo}
+                                </h2>
 
-                              <p className="text-sm text-gray-500">
-                                {room.type}
-                              </p>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs first-letter:text-gray-500">
+                                    {room.type}
+                                  </span>
+                                  <span>{"•"}</span>
+                                  <span className="text-[11px] text-gray-400">
+                                    {room.floor}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                              <div
+                                className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig[room.status].badge}`}
+                              >
+                                {statusConfig[room.status].label}
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+
+                                  if (room.status === "O") {
+                                    toast.error(
+                                      "Occupied rooms cannot be modified",
+                                    );
+                                    return;
+                                  }
+
+                                  setReferenceElement(e.currentTarget);
+
+                                  setStatusMenuRoom(
+                                    statusMenuRoom?.roomNo === room.roomNo
+                                      ? null
+                                      : room,
+                                  );
+                                }}
+                                disabled={room.status === "O"}
+                                className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                                  room.status === "O"
+                                    ? "opacity-40 cursor-not-allowed"
+                                    : "hover:bg-gray-100"
+                                }`}
+                              >
+                                <Pencil className="w-4 h-4 text-gray-500" />
+                              </button>
+
+                              <button
+                                onClick={() => handleDeleteRoom(room.roomNo)}
+                                className="w-6 h-6 rounded-lg hover:bg-red-100 flex items-center justify-center"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </button>
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig[room.status].badge}`}
-                            >
-                              {statusConfig[room.status].label}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                      <StatusMenu
+                        room={statusMenuRoom}
+                        open={!!statusMenuRoom}
+                        referenceElement={referenceElement}
+                        onClose={() => setStatusMenuRoom(null)}
+                        onStatusChange={handleUpdateRoomStatus}
+                      />
+                    </>
                   )}
                 </div>
 
@@ -830,47 +974,81 @@ const ManageRoom = () => {
                         </h2>
 
                         <p className="text-sm text-gray-500 mt-2">
-                          Base Rent ₹{type.BasePrice || 0}
+                          Base Rent ₹{type.BasePrice || 0.0}
                         </p>
                       </div>
 
-                      <button
-                        onClick={() => handleDeleteRoomType(type.RoomType)}
-                        className="w-10 h-10 rounded-xl bg-red-100 hover:scale-105 transition-all duration-300 flex items-center justify-center"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            setRentReferenceElement(e.currentTarget);
+
+                            setEditedRent(type.BasePrice || "");
+
+                            setRentMenuType(
+                              rentMenuType?.TypeId === type.TypeId
+                                ? null
+                                : type,
+                            );
+                          }}
+                          className="w-8 h-8 rounded-xl bg-primary-100 hover:scale-105 transition-all duration-300 flex items-center justify-center"
+                        >
+                          <Pencil className="w-4 h-4 text-primary-500" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteRoomType(type.RoomType)}
+                          className="w-8 h-8 rounded-xl bg-red-100 hover:scale-105 transition-all duration-300 flex items-center justify-center"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
+                <RentMenu
+                  type={rentMenuType}
+                  open={!!rentMenuType}
+                  referenceElement={rentReferenceElement}
+                  onClose={() => setRentMenuType(null)}
+                  editedRent={editedRent}
+                  setEditedRent={setEditedRent}
+                  onUpdate={handleUpdateRent}
+                  isUpdating={isRentUpdating}
+                />
               </div>
             )}
 
             {/* AVAILABILITY */}
 
-            {activeTab === "availability" && (
+            {/* {activeTab === "availability" && (
               <div className="space-y-6">
                 {Object.entries(rooms).map(([type, roomArray]) => (
                   <div key={type}>
-                    <h3 className="font-bold text-gray-900 mb-4">{type}</h3>
+                    <h3 className="font-bold text-gray-900 mb-4">
+                      {type.split(",")[0]}
+                    </h3>
 
                     <div className="flex flex-wrap gap-3">
-                      {roomArray.sort((a,b)=>a.roomNo-b.roomNo).map((room) => (
-                        <div
-                          key={room.roomNo}
-                          className={`w-[48px] p-1.5 rounded-xl shadow-md flex items-center justify-center text-sm font-bold ${room.status === "A"
-                              ? "bg-white border-2 border-primary-500 text-primary-500"
-                              : "bg-gray-400/70 text-white"
+                      {roomArray
+                        .sort((a, b) => a.roomNo - b.roomNo)
+                        .map((room) => (
+                          <div
+                            key={room.roomNo}
+                            className={`w-12 h-9 p-1.5 rounded-xl shadow-md flex items-center justify-center text-sm font-bold ${
+                              room.status === "A"
+                                ? "bg-white border-2 border-primary-500 text-primary-500"
+                                : "bg-gray-400/70 text-white"
                             }`}
-                        >
-                          {room.roomNo}
-                        </div>
-                      ))}
+                          >
+                            {room.roomNo}
+                          </div>
+                        ))}
                     </div>
                   </div>
                 ))}
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </div>
@@ -878,22 +1056,25 @@ const ManageRoom = () => {
       {/* DRAWER */}
 
       <div
-        className={`fixed inset-0 z-50 transition-all duration-300 ${showDrawer ? "visible" : "invisible"
-          }`}
+        className={`fixed inset-0 z-50 transition-all duration-300 ${
+          showDrawer ? "visible" : "invisible"
+        }`}
       >
         {/* BLUR */}
 
         <div
           onClick={() => closeDrawer()}
-          className={`absolute inset-0 bg-black/30 backdrop-blur-sm transition-all duration-300 ${showDrawer ? "opacity-100" : "opacity-0"
-            }`}
+          className={`absolute inset-0 bg-black/30 backdrop-blur-sm transition-all duration-300 ${
+            showDrawer ? "opacity-100" : "opacity-0"
+          }`}
         />
 
         {/* DRAWER */}
 
         <div
-          className={`absolute right-0 top-0 h-full w-[360px] bg-gray-200/60 shadow-2xl transition-all duration-500 ${showDrawer ? "translate-x-0" : "translate-x-full"
-            }`}
+          className={`absolute right-0 top-0 h-full w-72 sm:w-[360px] bg-gray-200/60 shadow-2xl transition-all duration-500 ${
+            showDrawer ? "translate-x-0" : "translate-x-full"
+          }`}
         >
           <div className="p-6 h-full overflow-y-auto">
             {/* TOP */}
@@ -920,20 +1101,22 @@ const ManageRoom = () => {
                   <div className="flex w-48 bg-gray-100/60 p-1 rounded-full">
                     <button
                       onClick={() => setAddMode("S")}
-                      className={`flex-1 py-2 rounded-full font-semibold text-sm transition-all ${addMode === "S"
+                      className={`flex-1 py-2 rounded-full font-semibold text-sm transition-all ${
+                        addMode === "S"
                           ? "bg-primary-500 text-white shadow-md"
                           : "text-gray-600"
-                        }`}
+                      }`}
                     >
                       Single
                     </button>
 
                     <button
                       onClick={() => setAddMode("R")}
-                      className={`flex-1 py-2 rounded-full font-semibold text-sm transition-all ${addMode === "R"
+                      className={`flex-1 py-2 rounded-full font-semibold text-sm transition-all ${
+                        addMode === "R"
                           ? "bg-primary-500 text-white shadow-md"
                           : "text-gray-600"
-                        }`}
+                      }`}
                     >
                       Range
                     </button>
@@ -960,22 +1143,21 @@ const ManageRoom = () => {
                       >
                         {roomTypeId
                           ? roomTypes.find(
-                            (t) => String(t.TypeId) === String(roomTypeId),
-                          )?.RoomType
-                          : "Select Room Type"}
+                              (t) => String(t.TypeId) === String(roomTypeId),
+                            )?.RoomType
+                          : "Select room type"}
                       </span>
 
                       <img
                         src="/down.png"
-                        className={`w-3 h-3 transition-transform duration-200 ${showRoomTypeDropdown ? "rotate-180" : ""
-                          }`}
+                        className={`w-3 h-3 transition-transform duration-200 ${
+                          showRoomTypeDropdown ? "rotate-180" : ""
+                        }`}
                       />
                     </button>
 
                     {showRoomTypeDropdown && (
-                      <div
-                        className="absolute left-0 py-1 right-0 mt-1 bg-white rounded-lg shadow-xl border-2 hover:border-primary-500 overflow-hidden z-50 max-h-60 overflow-y-auto"
-                      >
+                      <div className="absolute left-0 py-1 right-0 mt-1 bg-white rounded-lg shadow-xl border-2 hover:border-primary-500 overflow-hidden z-50 max-h-60 overflow-y-auto">
                         {roomTypes.map((type) => (
                           <div
                             key={type.TypeId}
@@ -983,9 +1165,55 @@ const ManageRoom = () => {
                               setRoomTypeId(type.TypeId);
                               setShowRoomTypeDropdown(false);
                             }}
-                            className="px-4 py-1 cursor-pointer hover:bg-primary-100 transition-colors"
+                            className="px-4 text-sm py-0.5 cursor-pointer hover:bg-primary-100 transition-colors"
                           >
                             {type.RoomType}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Floor Number
+                  </label>
+
+                  <div ref={floorRef} className="relative mt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setShowFloorDropdown((prev) => !prev)}
+                      className="w-full p-2 rounded-lg shadow-md bg-gray-50/90 flex items-center justify-between text-left border-2 hover:border-primary-500 transition-all"
+                    >
+                      <span
+                        className={
+                          floorNumber ? "text-gray-900" : "text-primary-500"
+                        }
+                      >
+                        {floorNumber || "Select floor number"}
+                      </span>
+
+                      <img
+                        src="/down.png"
+                        className={`w-3 h-3 transition-transform duration-200 ${
+                          showFloorDropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {showFloorDropdown && (
+                      <div className="absolute py-1 left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border-2 hover:border-primary-500 overflow-hidden z-50 max-h-40 overflow-y-auto hide-scrollbar">
+                        {floors.map((floor) => (
+                          <div
+                            key={floor}
+                            onClick={() => {
+                              setFloorNumber(floor);
+                              setShowFloorDropdown(false);
+                            }}
+                            className="px-4 py-0.5 text-sm cursor-pointer hover:bg-primary-100 transition-colors"
+                          >
+                            {floor}
                           </div>
                         ))}
                       </div>
@@ -1049,7 +1277,14 @@ const ManageRoom = () => {
                   disabled={saving}
                   className="w-full flex justify-center py-3 mt-5 rounded-full bg-primary-500 text-white font-bold shadow-md hover:scale-105 transition-all duration-300"
                 >
-                  {saving ? <div className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span><span>Adding...</span></div> : "Add Room"}
+                  {saving ? (
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Adding...</span>
+                    </div>
+                  ) : (
+                    "Add Room"
+                  )}
                 </button>
               </div>
             )}
@@ -1096,7 +1331,14 @@ const ManageRoom = () => {
                   disabled={saving}
                   className="w-full py-3 mt-5 rounded-full bg-primary-500 text-white font-bold shadow-md hover:scale-105 transition-all duration-300"
                 >
-                  {saving ? "Adding..." : "Add Room Type"}
+                  {saving ? (
+                    <div className="flex justify-center items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Adding...</span>
+                    </div>
+                  ) : (
+                    "Add Room Type"
+                  )}
                 </button>
               </div>
             )}
@@ -1129,7 +1371,13 @@ const StatCard = ({ title, value, subtitle, icon }) => {
   );
 };
 
-const StatusMenu = ({ room, open, referenceElement, onClose }) => {
+const StatusMenu = ({
+  room,
+  open,
+  referenceElement,
+  onClose,
+  onStatusChange,
+}) => {
   const { refs, floatingStyles, context } = useFloating({
     open,
     onOpenChange: (value) => {
@@ -1166,7 +1414,11 @@ const StatusMenu = ({ room, open, referenceElement, onClose }) => {
               <p className="text-xs text-gray-500">Change Status</p>
             </div>
 
-            <button disabled={room?.status === "A"} className={`w-full text-sm px-4 py-1 flex items-center justify-between ${room?.status === "A" ? "cursor-not-allowed opacity-50" : "hover:bg-primary-400/20"} transition-colors`}>
+            <button
+              onClick={() => onStatusChange(room, "A")}
+              disabled={room?.status === "A"}
+              className={`w-full text-sm px-4 py-1 flex items-center justify-between ${room?.status === "A" ? "cursor-not-allowed opacity-50" : "hover:bg-primary-400/20"} transition-colors`}
+            >
               <div className="flex items-center gap-2">
                 <CircleCheckBig size={16} className="text-green-600" />
                 <span>Available</span>
@@ -1177,7 +1429,11 @@ const StatusMenu = ({ room, open, referenceElement, onClose }) => {
               )} */}
             </button>
 
-            <button disabled={room?.status === "C"} className={`w-full text-sm px-4 py-1 flex items-center justify-between ${room?.status === "C" ? "cursor-not-allowed opacity-50" : "hover:bg-primary-400/20"} transition-colors`}>
+            <button
+              onClick={() => onStatusChange(room, "C")}
+              disabled={room?.status === "C"}
+              className={`w-full text-sm px-4 py-1 flex items-center justify-between ${room?.status === "C" ? "cursor-not-allowed opacity-50" : "hover:bg-primary-400/20"} transition-colors`}
+            >
               <div className="flex items-center gap-2">
                 <BrushCleaning size={16} className="text-yellow-600" />
                 <span>Cleaning</span>
@@ -1188,7 +1444,11 @@ const StatusMenu = ({ room, open, referenceElement, onClose }) => {
               )} */}
             </button>
 
-            <button disabled={room?.status === "M"} className={`w-full text-sm px-4 py-1 flex items-center justify-between ${room?.status === "M" ? "cursor-not-allowed opacity-50" : "hover:bg-primary-400/20"} transition-colors`}>
+            <button
+              onClick={() => onStatusChange(room, "M")}
+              disabled={room?.status === "M"}
+              className={`w-full text-sm px-4 py-1 flex items-center justify-between ${room?.status === "M" ? "cursor-not-allowed opacity-50" : "hover:bg-primary-400/20"} transition-colors`}
+            >
               <div className="flex items-center gap-2">
                 <Settings2 size={16} className="text-gray-600" />
                 <span>Maintenance</span>
@@ -1198,6 +1458,104 @@ const StatusMenu = ({ room, open, referenceElement, onClose }) => {
                 <CircleCheckBig size={14} className="text-gray-600" />
               )} */}
             </button>
+          </div>
+        </div>
+      )}
+    </FloatingPortal>
+  );
+};
+
+const RentMenu = ({
+  type,
+  open,
+  referenceElement,
+  onClose,
+  editedRent,
+  setEditedRent,
+  onUpdate,
+  isUpdating,
+}) => {
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: (value) => {
+      if (!value) onClose();
+    },
+    middleware: [offset(10), flip(), shift({ padding: 10 })],
+    whileElementsMounted: autoUpdate,
+  });
+
+  useEffect(() => {
+    if (referenceElement) {
+      refs.setReference(referenceElement);
+    }
+  }, [referenceElement, refs]);
+
+  const dismiss = useDismiss(context);
+
+  const { getFloatingProps } = useInteractions([dismiss]);
+
+  return (
+    <FloatingPortal>
+      {open && (
+        <div
+          ref={refs.setFloating}
+          style={floatingStyles}
+          {...getFloatingProps()}
+          className="
+            w-52 bg-white/60
+            backdrop-blur-sm
+            rounded-2xl
+            border-2
+            shadow-xl
+            overflow-hidden
+            z-[999]
+          "
+        >
+          <div className="px-4 py-2 pt-3 border-b">
+            <p className="font-semibold">{type?.RoomType}</p>
+
+            <p className="text-xs text-gray-500">Edit Base Rent</p>
+          </div>
+
+          <div className="p-4 pt-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Base Rent
+            </label>
+            <input
+              type="number"
+              value={editedRent}
+              placeholder="e.g. 1500.00"
+              onChange={(e) => setEditedRent(e.target.value)}
+              className="w-full mt-0.5 p-1 px-2 shadow-md rounded-lg border-2 bg-gray-50/90 placeholder:text-primary-500 text-primary-500 focus:text-gray-900 focus:placeholder:text-gray-500/90 focus:shadow-lg focus:border-primary-500 outline-none"
+            />
+
+            <div className="flex gap-3 justify-end mt-4">
+              <button
+                onClick={onClose}
+                className="py-1 text-sm hover:underline"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => onUpdate(type)}
+                disabled={isUpdating}
+                className={`px-3 py-1
+                  rounded-full
+                  bg-primary-500
+                  text-white
+                  text-sm ${isUpdating ? "cursor-not-allowed" : "hover:scale-105 transition ease-in-out duration-300"}`}
+              >
+                {isUpdating ? (
+                  <div className="flex gap-1 items-center">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Updating..</span>
+                  </div>
+                ) : (
+                  "Update"
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
